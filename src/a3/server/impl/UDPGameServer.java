@@ -14,6 +14,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> {
 	
 	@Override
 	public void processPacket(Object o, InetAddress senderIP, int senderPort) {
+		final String messageString = (String)o;
 		
 	}
 	

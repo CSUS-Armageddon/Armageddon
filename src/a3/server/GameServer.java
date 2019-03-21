@@ -1,11 +1,14 @@
 package a3.server;
 
+import java.io.IOException;
+
+import a3.server.api.messages.MessageMarshaller;
 import a3.server.api.messages.impl.CreateMessage;
 import a3.server.impl.ServerProtocol;
 
 public class GameServer {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		final ServerConfig sc = new ServerConfig("assets/config/server.properties");
 		System.out.println("Server Port: " + sc.getString("server.protocol", ServerProtocol.UDP.name()) + " " + sc.getInt("server.port", 6868));
 		final CreateMessage cm = new CreateMessage();
@@ -19,6 +22,9 @@ public class GameServer {
 		cm.setToProtocol(ServerProtocol.UDP);
 		cm.setPosition(new Position(12.5f, 15.34f, 0.5f));
 		System.out.println(cm.toString());
+		System.out.println(MessageMarshaller.INSTANCE.marshal(cm));
+		CreateMessage cm2 = MessageMarshaller.INSTANCE.unmarshal(cm.toMessageString());
+		System.out.println(cm2.toMessageString());
 	}
 	
 }

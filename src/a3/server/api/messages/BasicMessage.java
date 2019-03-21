@@ -90,6 +90,22 @@ public abstract class BasicMessage implements Message {
 	}
 	
 	@Override
+	public String toMessageString() {
+		return toString();
+	}
+	
+	public String cleanMessageString(String message) {
+		return message.replace(getClass().getSimpleName() + " [ ", "").replace(" ] ]", " ]").replaceAll(", ", ",");
+	}
+	
+	public String getContent(String keyValue) {
+		if (null == keyValue || keyValue.contentEquals("") || !keyValue.contains("=")) {
+			return null;
+		}
+		return keyValue.split("=")[1].replace("=\"", "").replace("\"", "");
+	}
+	
+	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(getClass().getSimpleName()).append(" [ ")
