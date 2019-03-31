@@ -1,4 +1,4 @@
-package a3.server;
+package a3.network.server;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,4 +1,4 @@
-package a3.server.impl;
+package a3.network.server.impl;
 
 import java.io.IOException;
 import java.net.InetAddress;

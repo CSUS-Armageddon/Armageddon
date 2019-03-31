@@ -1,6 +1,6 @@
-package a3.server.api.messages;
+package a3.network.server.api.messages;
 
-import a3.server.impl.ServerProtocol;
+import a3.network.server.impl.ServerProtocol;
 
 public abstract class BasicMessage implements Message {
 

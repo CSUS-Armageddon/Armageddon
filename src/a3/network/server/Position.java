@@ -1,4 +1,4 @@
-package a3.server;
+package a3.network.server;
 
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
