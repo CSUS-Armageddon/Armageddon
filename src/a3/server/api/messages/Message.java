@@ -32,6 +32,5 @@ public interface Message {
 	public void setToName(String toName);
 	
 	public String toMessageString();
-	public Message fromMessageString(String message);
 	
 }
