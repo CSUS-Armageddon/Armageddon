@@ -1,8 +1,8 @@
-package a3.network.server.api.messages.impl;
+package a3.network.api.messages.impl;
 
+import a3.network.api.messages.BasicMessage;
+import a3.network.api.messages.MessageType;
 import a3.network.server.Position;
-import a3.network.server.api.messages.BasicMessage;
-import a3.network.server.api.messages.MessageType;
 
 public class CreateMessage extends BasicMessage {
 

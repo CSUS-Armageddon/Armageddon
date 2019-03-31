@@ -1,8 +1,8 @@
-package a3.network.server.api.messages;
+package a3.network.api.messages;
 
 import java.io.IOException;
 
-import a3.network.server.api.messages.impl.CreateMessage;
+import a3.network.api.messages.impl.CreateMessage;
 
 public enum MessageType {
 

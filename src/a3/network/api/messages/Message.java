@@ -1,4 +1,4 @@
-package a3.network.server.api.messages;
+package a3.network.api.messages;
 
 import a3.network.server.impl.ServerProtocol;
 
