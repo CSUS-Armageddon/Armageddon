@@ -14,6 +14,7 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
 import ray.rml.Vector3;
@@ -21,14 +22,16 @@ import ray.rml.Vector3;
 public class GameClient extends GameConnectionClient implements Client {
 	
 	private final MyGame game;
+	private final String clientName;
 	private final UUID uuid;
 	private Vector<GhostAvatar> ghostAvatars;
 	
-	public GameClient(InetAddress remoteAddress, int remotePort, ProtocolType protocolType, MyGame game) throws IOException {
+	public GameClient(InetAddress remoteAddress, int remotePort, ProtocolType protocolType, MyGame game, String clientName) throws IOException {
 		super(remoteAddress, remotePort, protocolType);
 		this.game = game;
 		this.uuid = UUID.randomUUID();
 		this.ghostAvatars = new Vector<GhostAvatar>();
+		this.clientName = clientName;
 	}
 	
 	@Override
@@ -59,11 +62,21 @@ public class GameClient extends GameConnectionClient implements Client {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see a3.network.client.Client#sendJoinMessage()
+	 */
 	@Override
 	public void sendJoinMessage() {
 		try {
 			final JoinMessage jm = new JoinMessage();
-			jm.init(this);
+			jm.setProtocol(ServerProtocol.UDP);
+			jm.setUUID(getUUID());
+			jm.setFromName(getClientName());
+			jm.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
+			jm.setFromPort(this.getLocalPort());
+			jm.setToName("Server");
+			jm.setToIP("localhost");
+			jm.setToPort(6868);
 			sendPacket(jm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -191,6 +204,20 @@ public class GameClient extends GameConnectionClient implements Client {
 	
 	public IClientSocket getSocketInfo() {
 		return this.getClientSocket();
+	}
+
+	/**
+	 * @return the clientName
+	 */
+	public String getClientName() {
+		return clientName;
+	}
+
+	/**
+	 * @return the uuid
+	 */
+	public UUID getUuid() {
+		return uuid;
 	}
 
 

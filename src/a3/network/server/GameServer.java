@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -97,6 +99,19 @@ public class GameServer extends JFrame {
 		this.pack();
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (serverStarted) {
+					serverStarted = false;
+					gameServer.shutdown();
+					gameServer = null;
+					startStopServer.setText("Start");
+					serverPort.setEditable(true);
+					serverName.setEditable(true);
+				}
+			}
+		});
 	}
 	
 	private class StartStopButtonAction implements ActionListener {

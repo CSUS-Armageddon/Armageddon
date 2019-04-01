@@ -180,7 +180,7 @@ public class MyGame extends VariableFrameRateGame {
 		isClientConnected = false;
 		
 		try {
-			gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+			gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, InetAddress.getLocalHost().getHostName());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

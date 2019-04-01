@@ -24,11 +24,8 @@ public interface Message {
 	public Integer getToPort();
 	public void setToPort(Integer toPort);
 	
-	public ServerProtocol getFromProtocol();
-	public void setFromProtocol(ServerProtocol fromProtocol);
-	
-	public ServerProtocol getToProtocol();
-	public void setToProtocol(ServerProtocol toProtocol);
+	public ServerProtocol getProtocol();
+	public void setProtocol(ServerProtocol protocol);
 	
 	public String getFromName();
 	public void setFromName(String fromName);
