@@ -38,9 +38,9 @@ public class ServerConfig {
             try {
                 return Long.parseLong(val);
             } catch (NumberFormatException e) {
-                System.out.println("Value of '" + key + "' is not a long. "
+            	Logger.INSTANCE.logln("Value of '" + key + "' is not a long. "
                         + "Using specified default value '" + defaultValue + "'");
-                e.printStackTrace();
+            	Logger.INSTANCE.log(e);
             }
         }
         return defaultValue;
@@ -71,9 +71,9 @@ public class ServerConfig {
             try {
                 return Integer.parseInt(val);
             } catch (NumberFormatException e) {
-                System.out.println("Value of '" + key + "' is not an integer. "
+            	Logger.INSTANCE.logln("Value of '" + key + "' is not an integer. "
                         + "Using specified default value '" + defaultValue + "'");
-                e.printStackTrace();
+            	Logger.INSTANCE.log(e);
             }
         }
         return defaultValue;
@@ -138,7 +138,7 @@ public class ServerConfig {
 		try (InputStream is = new FileInputStream(configName)) {
 			props.load(is);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.INSTANCE.log(e);
 		}
 		return props;
 	}

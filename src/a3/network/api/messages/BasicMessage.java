@@ -1,10 +1,19 @@
 package a3.network.api.messages;
 
-import a3.network.server.impl.ServerProtocol;
+import java.io.Serializable;
+import java.util.UUID;
 
-public abstract class BasicMessage implements Message {
+import a3.network.client.GameClient;
+import a3.network.server.impl.ServerProtocol;
+import ray.networking.client.IClientSocket;
+
+public abstract class BasicMessage implements Message, Serializable {
+
+	private static final long serialVersionUID = -4895699512814380066L;
 
 	private MessageType messageType;
+	
+	private UUID uuid;
 	
 	private String fromName;
 	private String fromIP;
@@ -23,6 +32,14 @@ public abstract class BasicMessage implements Message {
 	
 	public void setMessageType(MessageType messageType) {
 		this.messageType = messageType;
+	}
+	
+	public UUID getUUID() {
+		return this.uuid;
+	}
+	
+	public void setUUID(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	public String getFromIP() {
@@ -105,11 +122,30 @@ public abstract class BasicMessage implements Message {
 		return keyValue.split("=")[1].replace("=\"", "").replace("\"", "");
 	}
 	
+	/**
+	 * initializes all default message packet data
+	 */
+	public void init(GameClient gameClient) {
+		final IClientSocket ics = gameClient.getSocketInfo();
+		
+		setUUID(gameClient.getUUID());
+		
+		setFromName(ics.getLocalAddress().toString());
+		setFromIP(ics.getInetAddress().toString());
+		setFromPort(ics.getLocalPort());
+		setFromProtocol(ServerProtocol.UDP);
+		
+		setToName(ics.getRemoteSocketAddress().toString());
+		setToIP(ics.getRemoteSocketAddress().toString());
+		//setToPort(ics.getRemoteSocketAddress().toString());
+		setToProtocol(ServerProtocol.UDP);
+	}
+	
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(getClass().getSimpleName()).append(" [ ")
-			.append("MessageType=\"").append(getMessageType())
+			.append("MessageType=\"").append(getMessageType()).append("\", UUID=\"").append(getUUID())
 			.append("\", FromName=\"").append(getFromName()).append("\", FromIP=\"").append(getFromIP()).append("\", FromPort=\"").append(getFromPort()).append("\", FromProtocol=\"").append(getFromProtocol())
 			.append("\", ToName=\"").append(getToName()).append("\", ToIP=\"").append(getToIP()).append("\", ToPort=\"").append(getToPort()).append("\", ToProtocol=\"").append(getToProtocol())
 		.append("\" ]");

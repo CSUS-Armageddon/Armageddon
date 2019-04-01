@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+import a3.network.client.GameClient;
 import myGameEngine.controller.controls.MoveForwardAction;
 import myGameEngine.controller.controls.MoveLeftAction;
 import myGameEngine.controller.controls.YawAction;
@@ -31,6 +32,8 @@ import ray.rml.Vector3f;
 
 public class CameraController1P implements MouseListener, MouseMotionListener {
 	
+	private final GameClient gameClient;
+	
 	private final SceneManager sm;
 	private final InputManager im;
 	private final String cameraName;
@@ -46,7 +49,7 @@ public class CameraController1P implements MouseListener, MouseMotionListener {
 	private int centerX, centerY;
 	private boolean isRecentering;
 	
-	public CameraController1P(SceneManager sm, InputManager im, String cameraName, String cameraNodeName) throws AWTException {
+	public CameraController1P(SceneManager sm, InputManager im, String cameraName, String cameraNodeName, GameClient gameClient) throws AWTException {
 		this.sm = sm;
 		this.im = im;
 		this.rs = sm.getRenderSystem();
@@ -56,6 +59,7 @@ public class CameraController1P implements MouseListener, MouseMotionListener {
 		this.robot = new Robot();
 		this.camera = sm.getCamera(this.cameraName);
 		this.camera.setMode('c');
+		this.gameClient = gameClient;
 		init();
 	}
 
@@ -69,7 +73,7 @@ public class CameraController1P implements MouseListener, MouseMotionListener {
 		final SceneNode cameraN = sm.getSceneNode(cameraNodeName);
     	
     	// build some action objects for doing things in response to user input
-    	final MoveForwardAction moveForwardAction = new MoveForwardAction(cameraN);
+    	final MoveForwardAction moveForwardAction = new MoveForwardAction(cameraN, gameClient);
     	final MoveLeftAction moveLeftAction = new MoveLeftAction(cameraN);
     	final YawAction yawAction = new YawAction(cameraN);
     	//final LookUpAction lookUpAction = new LookUpAction(cameraN);

@@ -5,26 +5,46 @@ import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.rmi.UnknownHostException;
+import java.util.Iterator;
+import java.util.UUID;
+import java.util.Vector;
 
+import a3.network.client.GameClient;
+import a3.network.client.GhostAvatar;
 import myGameEngine.controller.CameraController1P;
 import myGameEngine.mesh.GroundPlane;
 import net.java.games.input.Controller;
+import net.java.games.input.Event;
 import ray.input.GenericInputManager;
 import ray.input.InputManager;
+import ray.input.action.AbstractInputAction;
+import ray.networking.IGameConnection.ProtocolType;
 import ray.rage.Engine;
 import ray.rage.game.Game;
 import ray.rage.game.VariableFrameRateGame;
 import ray.rage.rendersystem.RenderSystem;
 import ray.rage.rendersystem.RenderWindow;
+import ray.rage.rendersystem.Renderable.Primitive;
 import ray.rage.rendersystem.gl4.GL4RenderSystem;
 import ray.rage.scene.Camera;
 import ray.rage.scene.Camera.Frustum.Projection;
+import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
+import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
+	
+	private String serverAddress;
+	private int serverPort;
+	private ProtocolType serverProtocol;
+	private GameClient gameClient;
+	private boolean isClientConnected;
+	private Vector<UUID> gameObjectsToRemove;
 	
 	private float gameTime;
 	
@@ -44,12 +64,15 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private InputManager im;
 
-	public MyGame() {
+	public MyGame(String serverAddress, int serverPort) {
 		super();
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		this.serverProtocol = ProtocolType.UDP;
 	}
 	
 	public static void main(String[] args) {
-		final Game game = new MyGame();
+		final Game game = new MyGame(args[0], Integer.parseInt(args[1]));
 		try {
 			game.startup();
 			game.run();
@@ -62,7 +85,23 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	@Override
+	protected void update(Engine eng) {
+		final GL4RenderSystem rs = (GL4RenderSystem) eng.getRenderSystem();
+		
+		gameTime += eng.getElapsedTimeMillis();
+		
+		rs.setHUD(HUD_BASE + ((((int)((gameTime / 1000.0d) * 10))/10.0d)), 15, 15);
+		
+		im.update(gameTime);
+		processNetworking(gameTime);
+	}
+	
+	@Override
 	protected void setupWindow(RenderSystem rs, GraphicsEnvironment ge) {
+		System.out.println("Initializing Networking...");
+		setupNetworking();
+		
+		
 		System.out.println("Initializing Window...");
 		
 		rs.createRenderWindow(new DisplayMode(1000, 700, 24, 60), false);
@@ -98,17 +137,6 @@ public class MyGame extends VariableFrameRateGame {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	protected void update(Engine eng) {
-		final GL4RenderSystem rs = (GL4RenderSystem) eng.getRenderSystem();
-		
-		gameTime += eng.getElapsedTimeMillis();
-		
-		rs.setHUD(HUD_BASE + ((((int)((gameTime / 1000.0d) * 10))/10.0d)), 15, 15);
-		
-		im.update(gameTime);
-	}
 	
 	private void setupObjects(SceneManager sm) {
 		// setup ground plane
@@ -142,8 +170,84 @@ public class MyGame extends VariableFrameRateGame {
     		System.out.println("\t\t" + c.getName() + "\t|\tType: " + c.getType());
     	}
     	
-    	CameraController1P cameraController1P = new CameraController1P(sm, im, CAMERA_NAME, CAMERA_NODE_NAME);
+    	CameraController1P cameraController1P = new CameraController1P(sm, im, CAMERA_NAME, CAMERA_NODE_NAME, gameClient);
     	sm.getRenderSystem().getRenderWindow().addMouseListener(cameraController1P);
     	sm.getRenderSystem().getRenderWindow().addMouseMotionListener(cameraController1P);
+	}
+	
+	private void setupNetworking() {
+		gameObjectsToRemove = new Vector<UUID>();
+		isClientConnected = false;
+		
+		try {
+			gameClient = new GameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if (gameClient == null) {
+			System.out.println("Missing Game Host");
+		} else {
+			// send join message
+			gameClient.sendJoinMessage();
+		}
+	}
+	
+	protected void processNetworking(float gameTime) {
+		// process packets received by the client from the server
+		if (gameClient != null) {
+			gameClient.processPackets();
+		}
+		
+		// remove ghost avatars for players who have left the game
+		Iterator<UUID> it = gameObjectsToRemove.iterator();
+		while (it.hasNext()) {
+			this.getEngine().getSceneManager().destroySceneNode(it.next().toString());
+		}
+		gameObjectsToRemove.clear();
+	}
+	
+	public Vector3 getPlayerPosition() {
+		final SceneNode node = this.getEngine().getSceneManager().getSceneNode(CAMERA_NODE_NAME);
+		return node.getWorldPosition();
+	}
+	
+	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
+		if (avatar != null) {
+			final Entity ghostE = this.getEngine().getSceneManager().createEntity("ghost", "cube.obj");
+			ghostE.setPrimitive(Primitive.TRIANGLES);
+			final SceneNode ghostN = this.getEngine().getSceneManager().getRootSceneNode().createChildSceneNode(avatar.getUUID().toString());
+			ghostN.attachObject(ghostE);
+			ghostN.setLocalPosition(avatar.getPosition());
+			avatar.setNode(ghostN);
+			avatar.setEntity(ghostE);
+			avatar.setPosition(ghostN.getLocalPosition());
+		}
+	}
+	
+	public void removeGhostAvatar(GhostAvatar avatar) {
+		if (avatar != null) {
+			gameObjectsToRemove.add(avatar.getUUID());
+		}
+	}
+	
+	public boolean isClientConnected() {
+		return this.isClientConnected;
+	}
+	
+	public void setClientConnected(boolean isConnected) {
+		this.isClientConnected = isConnected;
+	}
+	
+	private class SendCloseConnectionPacketAction extends AbstractInputAction {
+		// for leaving the game... need to attach to an input device
+		@Override
+		public void performAction(float time, Event evt) {
+			if (gameClient != null && isClientConnected) {
+				gameClient.sendHangupMessage();
+			}
+		}
 	}
 }
