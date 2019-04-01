@@ -4,6 +4,7 @@ import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
@@ -13,15 +14,27 @@ import java.util.Vector;
 
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
-import myGameEngine.controller.CameraController1P;
+import myGameEngine.controller.Camera1PController;
+import myGameEngine.controller.Camera3PController;
+import myGameEngine.controller.InputType;
+import myGameEngine.controller.controls.MoveForwardAction;
+import myGameEngine.controller.controls.MoveLeftAction;
+import myGameEngine.controller.controls.YawAction;
 import myGameEngine.mesh.GroundPlane;
 import net.java.games.input.Controller;
 import net.java.games.input.Event;
+import net.java.games.input.Component.Identifier.Axis;
+import net.java.games.input.Component.Identifier.Button;
+import net.java.games.input.Component.Identifier.Key;
+import net.java.games.input.Controller.Type;
 import ray.input.GenericInputManager;
 import ray.input.InputManager;
+import ray.input.InputManager.INPUT_ACTION_TYPE;
 import ray.input.action.AbstractInputAction;
 import ray.networking.IGameConnection.ProtocolType;
 import ray.rage.Engine;
+import ray.rage.asset.texture.Texture;
+import ray.rage.asset.texture.TextureManager;
 import ray.rage.game.Game;
 import ray.rage.game.VariableFrameRateGame;
 import ray.rage.rendersystem.RenderSystem;
@@ -34,6 +47,8 @@ import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
+import ray.rage.scene.SkyBox;
+import ray.rage.util.Configuration;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
@@ -45,6 +60,11 @@ public class MyGame extends VariableFrameRateGame {
 	private GameClient gameClient;
 	private boolean isClientConnected;
 	private Vector<UUID> gameObjectsToRemove;
+	
+	private Camera3PController cameraController;
+	private SceneNode playerN;
+	private Camera playerCamera;
+	private SceneNode playerCameraN;
 	
 	private float gameTime;
 	
@@ -93,6 +113,7 @@ public class MyGame extends VariableFrameRateGame {
 		rs.setHUD(HUD_BASE + ((((int)((gameTime / 1000.0d) * 10))/10.0d)), 15, 15);
 		
 		im.update(gameTime);
+		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
 	}
 	
@@ -112,7 +133,7 @@ public class MyGame extends VariableFrameRateGame {
 	protected void setupCameras(SceneManager sm, RenderWindow rw) {
 		System.out.println("\nInitializing Camera(s)...");
 		
-		final SceneNode rootNode = sm.getRootSceneNode();
+		/*final SceneNode rootNode = sm.getRootSceneNode();
 		final Camera camera = sm.createCamera(CAMERA_NAME, Projection.PERSPECTIVE);
 		rw.getViewport(0).setCamera(camera);
 		
@@ -123,12 +144,29 @@ public class MyGame extends VariableFrameRateGame {
 		
 		final SceneNode cameraNode = rootNode.createChildSceneNode(CAMERA_NODE_NAME);
 		cameraNode.attachObject(camera);
+		*/
+		final SceneNode rootNode = sm.getRootSceneNode();
+		
+		playerCamera = sm.createCamera(CAMERA_NAME, Projection.PERSPECTIVE);
+        rw.getViewport(0).setCamera(playerCamera);
+        playerCameraN = rootNode.createChildSceneNode(CAMERA_NODE_NAME);
+        playerCameraN.attachObject(playerCamera);
+        playerCamera.setMode('n');
+        playerCamera.getFrustum().setFarClipDistance(1000.0f);
+	}
+	
+	private void setupOrbitCamera(Engine eng, SceneManager sm) {
+		final SceneNode abovePN = sm.getRootSceneNode().createChildSceneNode("AbovePlayerN");
+    	playerN.attachChild(abovePN);
+    	abovePN.moveUp(0.25f);
+    	cameraController = new Camera3PController(playerCameraN, abovePN, InputType.MOUSE, im);
 	}
 
 	@Override
 	protected void setupScene(Engine eng, SceneManager sm) throws IOException {
 		System.out.println("Initializing Scene...");
 		
+		setupSkybox(sm);
 		setupObjects(sm);
 		setupLights(sm);
 		try {
@@ -136,14 +174,24 @@ public class MyGame extends VariableFrameRateGame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		setupOrbitCamera(eng, sm);
 	}
 	
-	private void setupObjects(SceneManager sm) {
+	private void setupObjects(SceneManager sm) throws IOException {
 		// setup ground plane
         final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm);
         final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
         groundPlaneN.scale(50.0f, 50.0f, 50.0f);
         groundPlaneN.attachObject(groundPlane.getManualObject());
+        
+        
+        // player 1
+    	final Entity playerE = sm.createEntity("player", "dolphinHighPoly.obj");
+    	playerE.setPrimitive(Primitive.TRIANGLES);
+        playerN = sm.getRootSceneNode().createChildSceneNode("playerNode");
+        playerN.moveLeft(5.0f);
+        playerN.moveUp(0.3f);
+        playerN.attachObject(playerE);
 	}
 	
 	private void setupLights(SceneManager sm) {
@@ -170,9 +218,51 @@ public class MyGame extends VariableFrameRateGame {
     		System.out.println("\t\t" + c.getName() + "\t|\tType: " + c.getType());
     	}
     	
-    	CameraController1P cameraController1P = new CameraController1P(sm, im, CAMERA_NAME, CAMERA_NODE_NAME, gameClient);
-    	sm.getRenderSystem().getRenderWindow().addMouseListener(cameraController1P);
-    	sm.getRenderSystem().getRenderWindow().addMouseMotionListener(cameraController1P);
+    	// build some action objects for doing things in response to user input
+    	final MoveForwardAction p1MoveForwardAction = new MoveForwardAction(playerN, gameClient);
+    	final MoveLeftAction p1MoveLeftAction = new MoveLeftAction(playerN);
+    	final YawAction p1YawAction = new YawAction(playerN);
+    	
+    	// because gaming keyboards having "n-key rollover" typically emulate multiple keyboards,
+    	// we must look for all "KeyBoard" devices and bind to them...
+    	for (Controller c : im.getControllers()) {
+    		/************************************
+        	 * Keyboard Bindings
+        	 ***********************************/
+    		if (c.getType() == Type.KEYBOARD && c.getName().toUpperCase().contains("KEYBOARD")) {
+		    	
+		    	// yaw left
+		    	im.associateAction(c, Key.Q, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	// yaw right
+		    	im.associateAction(c, Key.E, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
+		    	// move backward
+		    	im.associateAction(c, Key.S, p1MoveForwardAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	// move forward
+		    	im.associateAction(c, Key.W, p1MoveForwardAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
+		    	// move left
+		    	im.associateAction(c, Key.A, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	// move right
+		    	im.associateAction(c, Key.D, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+    			
+    			
+    		} else if (c.getType() == Type.GAMEPAD) {
+    			/************************************
+    	    	 * Gamepad Bindings
+    	    	 ***********************************/
+		    	
+		    	// yaw left / yaw right
+		    	im.associateAction(c, Button._4, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	im.associateAction(c, Button._5, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
+		    	// move backward / forward
+		    	im.associateAction(c, Axis.Y, p1MoveForwardAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
+		    	// move left / right
+		    	im.associateAction(c, Axis.X, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+    		}
+    	}
 	}
 	
 	private void setupNetworking() {
@@ -249,5 +339,44 @@ public class MyGame extends VariableFrameRateGame {
 				gameClient.sendHangupMessage();
 			}
 		}
+	}
+	
+	private void setupSkybox(SceneManager sm) throws IOException {
+		final Configuration conf = this.getEngine().getConfiguration();
+		final TextureManager tm = this.getEngine().getTextureManager();
+		tm.setBaseDirectoryPath(conf.valueOf("assets.skyboxes.path"));
+		final Texture front = tm.getAssetByPath("posz.jpg");
+		final Texture back = tm.getAssetByPath("negz.jpg");
+		final Texture left = tm.getAssetByPath("negx.jpg");
+		final Texture right = tm.getAssetByPath("posx.jpg");
+		final Texture top = tm.getAssetByPath("posy.jpg");
+		final Texture bottom = tm.getAssetByPath("negy.jpg");
+		tm.setBaseDirectoryPath(conf.valueOf("assets.textures.path"));
+		
+		// cubemap textures are flipped upside down
+		// all textures must hav ethe same dimensions, so any image's
+		// height will work since they are all the same height
+		
+		AffineTransform xform = new AffineTransform();
+		xform.translate(0, front.getImage().getHeight());
+		xform.scale(1d, -1d);
+		
+		front.transform(xform);
+		back.transform(xform);
+		left.transform(xform);
+		right.transform(xform);
+		top.transform(xform);
+		bottom.transform(xform);
+		
+		final SkyBox sb = sm.createSkyBox("SKYBOX");
+		sb.setTexture(front, SkyBox.Face.FRONT);
+		sb.setTexture(back, SkyBox.Face.BACK);
+		sb.setTexture(left, SkyBox.Face.LEFT);
+		sb.setTexture(right, SkyBox.Face.RIGHT);
+		sb.setTexture(top, SkyBox.Face.TOP);
+		sb.setTexture(bottom, SkyBox.Face.BOTTOM);
+		
+		sm.setActiveSkyBox(sb);
+		
 	}
 }

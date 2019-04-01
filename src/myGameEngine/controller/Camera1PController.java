@@ -30,7 +30,7 @@ import ray.rml.Degreef;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
-public class CameraController1P implements MouseListener, MouseMotionListener {
+public class Camera1PController implements MouseListener, MouseMotionListener {
 	
 	private final GameClient gameClient;
 	
@@ -49,7 +49,7 @@ public class CameraController1P implements MouseListener, MouseMotionListener {
 	private int centerX, centerY;
 	private boolean isRecentering;
 	
-	public CameraController1P(SceneManager sm, InputManager im, String cameraName, String cameraNodeName, GameClient gameClient) throws AWTException {
+	public Camera1PController(SceneManager sm, InputManager im, String cameraName, String cameraNodeName, GameClient gameClient) throws AWTException {
 		this.sm = sm;
 		this.im = im;
 		this.rs = sm.getRenderSystem();
