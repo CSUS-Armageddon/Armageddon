@@ -2,6 +2,7 @@ package a3.network.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
@@ -14,6 +15,7 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.server.Position;
 import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
@@ -37,28 +39,28 @@ public class GameClient extends GameConnectionClient implements Client {
 	@Override
 	protected void processPacket(Object obj) {
 		final Message msg = (Message)obj;
+		System.out.println(msg.toString());
 		switch (msg.getMessageType()) {
 		case JOIN:
-			final JoinMessage jm = (JoinMessage)msg;
-			handleJoinMessage(jm);
+			handleJoinMessage((JoinMessage)msg);
 			break;
 		case CREATE:
-			
+			handleCreateMessage((CreateMessage)msg);
 			break;
 		case MOVE:
-			
+			handleMoveMessage((MoveMessage)msg);
 			break;
 		case ROTATE:
-			
+			handleRotateMessage((RotateMessage)msg);
 			break;
 		case DETAILS:
-			
+			handleDetailsMessage((DetailsMessage)msg);
 			break;
 		case HANGUP:
-			
+			handleHangupMessage((HangupMessage)msg);
 			break;
 		default:
-			
+			System.out.println("Unknown Message Type!");
 		}
 	}
 	
@@ -69,14 +71,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	public void sendJoinMessage() {
 		try {
 			final JoinMessage jm = new JoinMessage();
-			jm.setProtocol(ServerProtocol.UDP);
-			jm.setUUID(getUUID());
-			jm.setFromName(getClientName());
-			jm.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
-			jm.setFromPort(this.getLocalPort());
-			jm.setToName("Server");
-			jm.setToIP("localhost");
-			jm.setToPort(6868);
+			initMessage(jm);
 			sendPacket(jm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -87,8 +82,8 @@ public class GameClient extends GameConnectionClient implements Client {
 	public void handleJoinMessage(JoinMessage jm) {
 		if (jm.isJoinSuccess()) {
 			game.setClientConnected(true);
-			sendCreateMessage(game.getPlayerPosition());
 			System.out.println("Join Success");
+			sendCreateMessage(game.getPlayerPosition());
 		} else {
 			game.setClientConnected(false);
 			System.out.println("Join Failure");
@@ -97,26 +92,46 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void sendCreateMessage(Vector3 playerPosition) {
-		// TODO Auto-generated method stub
-		
+		try {
+			final CreateMessage cm = new CreateMessage();
+			initMessage(cm);
+			cm.setPosition(Position.fromVector3(playerPosition));
+			sendPacket(cm);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		// TODO Auto-generated method stub
-		
+		System.out.println(cm.toString());
+		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3());
+		try {
+			game.addGhostAvatar(avatar);
+			ghostAvatars.add(avatar);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void sendMoveMessage(Vector3 worldPosition) {
-		// TODO Auto-generated method stub
-		
+		try {
+			final MoveMessage mm = new MoveMessage();
+			initMessage(mm);
+			mm.setPosition(Position.fromVector3(worldPosition));
+			sendPacket(mm);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void handleMoveMessage(MoveMessage mm) {
-		// TODO Auto-generated method stub
-		
+		final GhostAvatar avatar = findGhostAvatarByUUID(mm.getUUID());
+		if (avatar != null) {
+			avatar.getNode().setLocalPosition(mm.getPosition().toVector3());
+		}
 	}
 
 	@Override
@@ -145,9 +160,10 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void sendHangupMessage() {
-		final HangupMessage hm = new HangupMessage();
-		hm.setUUID(this.uuid);
 		try {
+			final HangupMessage hm = new HangupMessage();
+			initMessage(hm);
+			hm.setUUID(this.uuid);
 			sendPacket(hm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -156,6 +172,7 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleHangupMessage(HangupMessage hm) {
+		System.out.println("Received Hangup for: " + hm.getUUID());
 		final GhostAvatar avatar = findGhostAvatarByUUID(hm.getUUID());
 		if (avatar != null) {
 			ghostAvatars.remove(avatar);
@@ -164,6 +181,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 	
 	private GhostAvatar findGhostAvatarByUUID(UUID uuid) {
+		if (uuid == null) return null;
 		final Iterator<GhostAvatar> it = ghostAvatars.iterator();
 		while (it.hasNext()) {
 			final GhostAvatar avatar = it.next();
@@ -218,6 +236,17 @@ public class GameClient extends GameConnectionClient implements Client {
 	 */
 	public UUID getUuid() {
 		return uuid;
+	}
+	
+	private void initMessage(Message msg) throws UnknownHostException {
+		msg.setProtocol(ServerProtocol.UDP);
+		msg.setUUID(getUUID());
+		msg.setFromName(getClientName());
+		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
+		msg.setFromPort(this.getLocalPort());
+		msg.setToName("Server");
+		msg.setToIP("localhost");
+		msg.setToPort(6868);
 	}
 
 

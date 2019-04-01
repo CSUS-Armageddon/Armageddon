@@ -105,6 +105,12 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	@Override
+	public void startup() {
+		setupNetworking();
+		super.startup();
+	}
+	
+	@Override
 	protected void update(Engine eng) {
 		final GL4RenderSystem rs = (GL4RenderSystem) eng.getRenderSystem();
 		
@@ -119,9 +125,6 @@ public class MyGame extends VariableFrameRateGame {
 	
 	@Override
 	protected void setupWindow(RenderSystem rs, GraphicsEnvironment ge) {
-		System.out.println("Initializing Networking...");
-		setupNetworking();
-		
 		
 		System.out.println("Initializing Window...");
 		
@@ -245,6 +248,8 @@ public class MyGame extends VariableFrameRateGame {
 		    	im.associateAction(c, Key.A, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	// move right
 		    	im.associateAction(c, Key.D, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
+		    	im.associateAction(c, Key.ESCAPE, new SendCloseConnectionPacketAction(), INPUT_ACTION_TYPE.ON_PRESS_AND_RELEASE);
     			
     			
     		} else if (c.getType() == Type.GAMEPAD) {
@@ -266,6 +271,8 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	private void setupNetworking() {
+		System.out.println("Initializing Networking...");
+		
 		gameObjectsToRemove = new Vector<UUID>();
 		isClientConnected = false;
 		
@@ -306,7 +313,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-			final Entity ghostE = this.getEngine().getSceneManager().createEntity("ghost", "cube.obj");
+			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), "cube.obj");
 			ghostE.setPrimitive(Primitive.TRIANGLES);
 			final SceneNode ghostN = this.getEngine().getSceneManager().getRootSceneNode().createChildSceneNode(avatar.getUUID().toString());
 			ghostN.attachObject(ghostE);

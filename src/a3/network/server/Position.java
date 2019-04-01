@@ -1,10 +1,14 @@
 package a3.network.server;
 
+import java.io.Serializable;
+
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
-public class Position {
+public class Position implements Serializable {
 
+	private static final long serialVersionUID = 6611472647331374688L;
+	
 	final float x;
 	final float y;
 	final float z;
@@ -38,6 +42,10 @@ public class Position {
 	
 	public Vector3 toVector3() {
 		return Vector3f.createFrom(this.x, this.y, this.z);
+	}
+	
+	public static Position fromVector3(Vector3 vec) {
+		return new Position(vec.x(), vec.y(), vec.z());
 	}
 	
 	@Override

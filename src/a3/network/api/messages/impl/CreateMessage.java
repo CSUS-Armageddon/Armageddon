@@ -28,4 +28,11 @@ public class CreateMessage extends BasicMessage {
 		this.position = position;
 	}
 	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(super.toString().replace(" ]", ", ")).append(position).append(" ]");
+		return sb.toString();
+	}
+	
 }

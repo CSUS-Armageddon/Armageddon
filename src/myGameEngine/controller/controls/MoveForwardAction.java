@@ -37,7 +37,7 @@ public class MoveForwardAction implements Action {
 		
 		
 		this.node.moveForward(movement);
-		this.gameClient.sendMoveMessage(this.node.getWorldPosition());
+		this.gameClient.sendMoveMessage(this.node.getLocalPosition());
 	}
 
 }

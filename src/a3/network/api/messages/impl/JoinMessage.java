@@ -26,12 +26,5 @@ public class JoinMessage extends BasicMessage {
 	public void setJoinSuccess(boolean joinSuccess) {
 		this.joinSuccess = joinSuccess;
 	}
-
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(super.toString().replace(" ]", ", ")).append(" ]");
-		return sb.toString();
-	}
 	
 }

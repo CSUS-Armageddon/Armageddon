@@ -3,8 +3,12 @@ package a3.network.server;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -41,7 +45,7 @@ public class GameServer extends JFrame {
 		this.sc = new ServerConfig("assets/config/server.properties");
 		try {
 			initWindow();
-			Logger.INSTANCE.setLogWindow(serverMessageBox);
+			Logger.INSTANCE.setLogWindow(serverMessageBox, scrollPane);
 			this.setVisible(true);
 		} catch (UnknownHostException e) {
 			Logger.INSTANCE.log(e);
@@ -54,7 +58,7 @@ public class GameServer extends JFrame {
 	
 	private void initWindow() throws UnknownHostException {
 		this.setName(sc.getString("server.name", "A BattleHatch Server"));
-		this.setResizable(false);
+		//this.setResizable(false);
 		this.setPreferredSize(new Dimension(800, 300));
 		
 		final JLabel serverIpAddressLabel = new JLabel("Server IP:");
@@ -72,8 +76,7 @@ public class GameServer extends JFrame {
 		serverMessageBox.setEditable(false);
 		
 		scrollPane = new JScrollPane(serverMessageBox);
-		scrollPane.setSize(580, 25);
-		scrollPane.setAutoscrolls(true);
+		scrollPane.setPreferredSize(new Dimension(580, 25));
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		
