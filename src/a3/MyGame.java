@@ -112,6 +112,8 @@ public class MyGame extends VariableFrameRateGame {
 	public void startup() {
 		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
+		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
+		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
 		setupNetworking();
 		super.startup();
 	}
