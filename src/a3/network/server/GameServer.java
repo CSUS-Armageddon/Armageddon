@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import a3.network.api.messages.MessageType;
 import a3.network.logging.ServerLogger;
 import a3.network.server.impl.UDPGameServer;
 
@@ -43,6 +44,8 @@ public class GameServer extends JFrame {
 		try {
 			initWindow();
 			ServerLogger.INSTANCE.setLogWindow(serverMessageBox, scrollPane);
+			ServerLogger.INSTANCE.addFilter(MessageType.MOVE);
+			ServerLogger.INSTANCE.addFilter(MessageType.ROTATE);
 			this.setVisible(true);
 		} catch (UnknownHostException e) {
 			ServerLogger.INSTANCE.log(e);

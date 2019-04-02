@@ -8,6 +8,8 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import a3.network.api.messages.MessageType;
+
 public enum ServerLogger {
 
 	INSTANCE;
@@ -16,6 +18,16 @@ public enum ServerLogger {
 	private JScrollPane scrollPane;
 	private JScrollBar scrollBar;
 	
+	private final LogFilter filter = new LogFilter();
+	
+	public void addFilter(MessageType type) {
+		this.filter.addFilter(type);
+	}
+	
+	public void removeFilter(MessageType type) {
+		this.filter.removeFilter(type);
+	}
+	
 	public void setLogWindow(JTextArea jta, JScrollPane sp) {
 		this.logWindow = jta;
 		this.scrollPane = sp;
@@ -23,12 +35,14 @@ public enum ServerLogger {
 	}
 	
 	public void logln(String msg) {
+		if (filter.filter(msg)) return;
 		System.out.println(msg);
 		this.logWindow.append(msg + "\n");
 		scrollToBottom();
 	}
 	
 	public void log(String msg) {
+		if (filter.filter(msg)) return;
 		System.out.print(msg);
 		this.logWindow.append(msg);
 		scrollToBottom();

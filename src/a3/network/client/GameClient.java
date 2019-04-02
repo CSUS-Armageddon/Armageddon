@@ -17,6 +17,7 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.logging.ClientLogger;
 import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
@@ -41,7 +42,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	@Override
 	protected void processPacket(Object obj) {
 		final Message msg = (Message)obj;
-		System.out.println(msg.toString());
+		ClientLogger.INSTANCE.logln(msg.toString());
 		switch (msg.getMessageType()) {
 		case JOIN:
 			handleJoinMessage((JoinMessage)msg);
@@ -106,7 +107,6 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		System.out.println(cm.toString());
 		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3());
 		try {
 			game.addGhostAvatar(avatar);

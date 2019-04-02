@@ -12,8 +12,10 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
+import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
+import a3.network.logging.ClientLogger;
 import myGameEngine.controller.Camera3PController;
 import myGameEngine.controller.InputType;
 import myGameEngine.controller.controls.MoveForwardAction;
@@ -104,6 +106,8 @@ public class MyGame extends VariableFrameRateGame {
 	
 	@Override
 	public void startup() {
+		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
+		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		setupNetworking();
 		super.startup();
 	}

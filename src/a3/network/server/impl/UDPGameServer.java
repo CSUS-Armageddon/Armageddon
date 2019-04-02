@@ -72,7 +72,6 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	@Override
 	public void handleJoinMessage(JoinMessage jm) {
-		ServerLogger.INSTANCE.logln(jm.toString());
 		try {
 			final IClientInfo ci = getServerSocket().createClientInfo(InetAddress.getByName(jm.getFromIP()), jm.getFromPort());
 			addClient(ci, jm.getUUID());
@@ -167,6 +166,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	public void handleHangupMessage(HangupMessage hm) {
 		sendHangupMessage(hm.getUUID());
 		removeClient(hm.getUUID());
+		ServerLogger.INSTANCE.logln("Joined Clients:");
+		this.getClients().forEach((k,v) -> ServerLogger.INSTANCE.logln("\t" + k));
 	}
 	
 	@Override
