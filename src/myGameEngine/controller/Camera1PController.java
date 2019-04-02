@@ -74,8 +74,8 @@ public class Camera1PController implements MouseListener, MouseMotionListener {
     	
     	// build some action objects for doing things in response to user input
     	final MoveForwardAction moveForwardAction = new MoveForwardAction(cameraN, gameClient);
-    	final MoveLeftAction moveLeftAction = new MoveLeftAction(cameraN);
-    	final YawAction yawAction = new YawAction(cameraN);
+    	final MoveLeftAction moveLeftAction = new MoveLeftAction(cameraN, gameClient);
+    	final YawAction yawAction = new YawAction(cameraN, gameClient);
     	//final LookUpAction lookUpAction = new LookUpAction(cameraN);
     	//final LookLeftAction lookLeftAction = new LookLeftAction(cameraN);
     	

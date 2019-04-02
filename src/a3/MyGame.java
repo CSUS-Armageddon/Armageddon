@@ -14,7 +14,6 @@ import java.util.Vector;
 
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
-import myGameEngine.controller.Camera1PController;
 import myGameEngine.controller.Camera3PController;
 import myGameEngine.controller.InputType;
 import myGameEngine.controller.controls.MoveForwardAction;
@@ -50,7 +49,6 @@ import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
 import ray.rage.util.Configuration;
 import ray.rml.Vector3;
-import ray.rml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
 	
@@ -223,8 +221,8 @@ public class MyGame extends VariableFrameRateGame {
     	
     	// build some action objects for doing things in response to user input
     	final MoveForwardAction p1MoveForwardAction = new MoveForwardAction(playerN, gameClient);
-    	final MoveLeftAction p1MoveLeftAction = new MoveLeftAction(playerN);
-    	final YawAction p1YawAction = new YawAction(playerN);
+    	final MoveLeftAction p1MoveLeftAction = new MoveLeftAction(playerN, gameClient);
+    	final YawAction p1YawAction = new YawAction(playerN, gameClient);
     	
     	// because gaming keyboards having "n-key rollover" typically emulate multiple keyboards,
     	// we must look for all "KeyBoard" devices and bind to them...

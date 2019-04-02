@@ -14,9 +14,11 @@ import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.server.Logger;
 import a3.network.server.Position;
+import a3.network.server.Rotation;
 import a3.network.server.Server;
 import ray.networking.server.GameConnectionServer;
 import ray.networking.server.IClientInfo;
+import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public class UDPGameServer extends GameConnectionServer<UUID> implements Server {
@@ -102,12 +104,12 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 
 	@Override
-	public void sendMoveMessage(UUID uuid, Vector3 position) {
+	public void sendMoveMessage(UUID uuid, Vector3 localPosition) {
 		try {
 			final MoveMessage mm = new MoveMessage();
 			initMessage(mm);
 			mm.setUUID(uuid);
-			mm.setPosition(Position.fromVector3(position));
+			mm.setPosition(Position.fromVector3(localPosition));
 			forwardPacketToAll(mm, uuid);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,15 +122,21 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 
 	@Override
-	public void sendRotateMessage(UUID uuid) {
-		// TODO Auto-generated method stub
-		
+	public void sendRotateMessage(UUID uuid, Matrix3 rotation) {
+		try {
+			final RotateMessage rm = new RotateMessage();
+			initMessage(rm);
+			rm.setUUID(uuid);
+			rm.setRotation(Rotation.fromMatrix3(rotation));
+			forwardPacketToAll(rm, uuid);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void handleRotateMessage(RotateMessage rm) {
-		// TODO Auto-generated method stub
-		
+		sendRotateMessage(rm.getUUID(), rm.getRotation().toMatrix3());
 	}
 
 	@Override

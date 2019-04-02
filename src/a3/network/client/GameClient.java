@@ -16,9 +16,11 @@ import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.server.Position;
+import a3.network.server.Rotation;
 import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
+import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public class GameClient extends GameConnectionClient implements Client {
@@ -115,11 +117,11 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 
 	@Override
-	public void sendMoveMessage(Vector3 worldPosition) {
+	public void sendMoveMessage(Vector3 localPosition) {
 		try {
 			final MoveMessage mm = new MoveMessage();
 			initMessage(mm);
-			mm.setPosition(Position.fromVector3(worldPosition));
+			mm.setPosition(Position.fromVector3(localPosition));
 			sendPacket(mm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -135,15 +137,23 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 
 	@Override
-	public void sendRotateMessage() {
-		// TODO Auto-generated method stub
-		
+	public void sendRotateMessage(Matrix3 localRotation) {
+		try {
+			final RotateMessage rm = new RotateMessage();
+			initMessage(rm);
+			rm.setRotation(Rotation.fromMatrix3(localRotation));
+			sendPacket(rm);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void handleRotateMessage(RotateMessage rm) {
-		// TODO Auto-generated method stub
-		
+		final GhostAvatar avatar = findGhostAvatarByUUID(rm.getUUID());
+		if (avatar != null) {
+			avatar.getNode().setLocalRotation(rm.getRotation().toMatrix3());
+		}
 	}
 
 	@Override

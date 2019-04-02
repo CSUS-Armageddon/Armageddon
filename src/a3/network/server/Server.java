@@ -8,6 +8,7 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public interface Server {
@@ -18,10 +19,10 @@ public interface Server {
 	public void sendCreateMessage(UUID uuid, Vector3 playerPosition);
 	public void handleCreateMessage(CreateMessage cm);
 	
-	public void sendMoveMessage(UUID uuid, Vector3 worldPosition);
+	public void sendMoveMessage(UUID uuid, Vector3 localPosition);
 	public void handleMoveMessage(MoveMessage mm);
 	
-	public void sendRotateMessage(UUID uuid);
+	public void sendRotateMessage(UUID uuid, Matrix3 rotation);
 	public void handleRotateMessage(RotateMessage rm);
 	
 	public void sendDetailsMessage(UUID uuid);
