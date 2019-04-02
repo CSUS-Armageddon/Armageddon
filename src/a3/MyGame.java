@@ -227,6 +227,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void setupObjects(SceneManager sm) throws IOException {
 		// setup ground plane
         final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm, false);
+        final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
         
         // setup ground plane as configured in script
  		try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
@@ -240,10 +241,10 @@ public class MyGame extends VariableFrameRateGame {
  		} catch (NullPointerException e) {
  			e.printStackTrace();
  		}
- 		
+        
         final Invocable invocableEngine = (Invocable)jsEngine;
         try {
-        	invocableEngine.invokeFunction("configureGroundPlane", groundPlane);
+        	invocableEngine.invokeFunction("configureGroundPlane", groundPlane, groundPlaneN);
         } catch (ScriptException e) {
         	e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -252,8 +253,6 @@ public class MyGame extends VariableFrameRateGame {
         	e.printStackTrace();
         }
         
-        final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
-        groundPlaneN.scale(50.0f, 50.0f, 50.0f);
         groundPlaneN.attachObject(groundPlane.getManualObject());
         
         // player 1

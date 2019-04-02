@@ -18,8 +18,8 @@ public class GroundPlane extends CustomObject {
 			};
 	final private float[] texcoords = new float[]
 			{
-				0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
-				0.05f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
+				0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+				0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
 			};
 	final private float[] normals = new float[]
 			{
