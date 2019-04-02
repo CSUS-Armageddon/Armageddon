@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import a3.network.logging.ServerLogger;
 import a3.network.server.impl.UDPGameServer;
 
 public class GameServer extends JFrame {
@@ -41,10 +42,10 @@ public class GameServer extends JFrame {
 		this.sc = new ServerConfig("assets/config/server.properties");
 		try {
 			initWindow();
-			Logger.INSTANCE.setLogWindow(serverMessageBox, scrollPane);
+			ServerLogger.INSTANCE.setLogWindow(serverMessageBox, scrollPane);
 			this.setVisible(true);
 		} catch (UnknownHostException e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 	
@@ -131,9 +132,9 @@ public class GameServer extends JFrame {
 					serverName.setEditable(false);
 					serverStarted = true;
 				} catch (NumberFormatException e) {
-					Logger.INSTANCE.log(e);
+					ServerLogger.INSTANCE.log(e);
 				} catch (IOException e) {
-					Logger.INSTANCE.log(e);
+					ServerLogger.INSTANCE.log(e);
 				}
 				
 			}

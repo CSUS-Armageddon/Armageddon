@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
+import a3.network.logging.ServerLogger;
+
 public class ServerConfig {
 
 	private Properties props;
@@ -38,9 +40,9 @@ public class ServerConfig {
             try {
                 return Long.parseLong(val);
             } catch (NumberFormatException e) {
-            	Logger.INSTANCE.logln("Value of '" + key + "' is not a long. "
+            	ServerLogger.INSTANCE.logln("Value of '" + key + "' is not a long. "
                         + "Using specified default value '" + defaultValue + "'");
-            	Logger.INSTANCE.log(e);
+            	ServerLogger.INSTANCE.log(e);
             }
         }
         return defaultValue;
@@ -71,9 +73,9 @@ public class ServerConfig {
             try {
                 return Integer.parseInt(val);
             } catch (NumberFormatException e) {
-            	Logger.INSTANCE.logln("Value of '" + key + "' is not an integer. "
+            	ServerLogger.INSTANCE.logln("Value of '" + key + "' is not an integer. "
                         + "Using specified default value '" + defaultValue + "'");
-            	Logger.INSTANCE.log(e);
+            	ServerLogger.INSTANCE.log(e);
             }
         }
         return defaultValue;
@@ -138,7 +140,7 @@ public class ServerConfig {
 		try (InputStream is = new FileInputStream(configName)) {
 			props.load(is);
 		} catch (Exception e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 		return props;
 	}

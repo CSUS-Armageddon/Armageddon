@@ -1,4 +1,4 @@
-package a3.network.server;
+package a3.network.logging;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -8,7 +8,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public enum Logger {
+public enum ServerLogger {
 
 	INSTANCE;
 	

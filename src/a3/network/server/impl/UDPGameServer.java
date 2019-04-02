@@ -14,7 +14,7 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
-import a3.network.server.Logger;
+import a3.network.logging.ServerLogger;
 import a3.network.server.Server;
 import ray.networking.server.GameConnectionServer;
 import ray.networking.server.IClientInfo;
@@ -25,13 +25,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	public UDPGameServer(int localPort) throws IOException {
 		super(localPort, ProtocolType.UDP);
-		Logger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
+		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
 	}
 	
 	@Override
 	public void processPacket(Object obj, InetAddress senderIP, int senderPort) {
 		final Message msg = (Message)obj;
-		Logger.INSTANCE.logln(msg.toString());
+		ServerLogger.INSTANCE.logln(msg.toString());
 		switch (msg.getMessageType()) {
 		case JOIN:
 			handleJoinMessage((JoinMessage)msg);
@@ -52,7 +52,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			handleHangupMessage((HangupMessage)msg);
 			break;
 		default:
-			Logger.INSTANCE.logln("Unknown Message Type!");
+			ServerLogger.INSTANCE.logln("Unknown Message Type!");
 		}
 	}
 	
@@ -63,23 +63,23 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		sjm.setJoinSuccess(success);
 		try {
 			sendPacket(sjm, uuid);
-			Logger.INSTANCE.logln("Joined Clients:");
-			this.getClients().forEach((k,v) -> Logger.INSTANCE.logln("\t" + k));
+			ServerLogger.INSTANCE.logln("Joined Clients:");
+			this.getClients().forEach((k,v) -> ServerLogger.INSTANCE.logln("\t" + k));
 		} catch (IOException e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 	
 	@Override
 	public void handleJoinMessage(JoinMessage jm) {
-		Logger.INSTANCE.logln(jm.toString());
+		ServerLogger.INSTANCE.logln(jm.toString());
 		try {
 			final IClientInfo ci = getServerSocket().createClientInfo(InetAddress.getByName(jm.getFromIP()), jm.getFromPort());
 			addClient(ci, jm.getUUID());
 			sendJoinMessage(jm.getUUID(), true);
 			return; // if successful, return here
 		} catch (IOException e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 		sendJoinMessage(jm.getUUID(), false);
 	}
@@ -93,7 +93,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			cm.setPosition(Position.fromVector3(playerPosition));
 			forwardPacketToAll(cm, uuid);
 		} catch (IOException e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 
@@ -159,7 +159,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			hm.setUUID(uuid);
 			forwardPacketToAll(hm, uuid);
 		} catch (IOException e) {
-			Logger.INSTANCE.log(e);
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Logger.INSTANCE.logln("GameServer Stoped");
+		ServerLogger.INSTANCE.logln("GameServer Stoped");
 	}
 	
 	private void initMessage(Message msg) throws UnknownHostException {
