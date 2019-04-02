@@ -74,6 +74,11 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			sendPacket(sjm, uuid);
 			ServerLogger.INSTANCE.logln("Joined Clients:");
 			this.getClients().forEach((k,v) -> ServerLogger.INSTANCE.logln("\t" + k));
+			
+			// new client is joined, now send that client all existing client create messages
+			this.getClients().forEach((k,v) -> sendGhostCreateMessage(uuid, k, v));
+			// now request details from everyone so we can fix the position and rotation to represent current game state
+			sendRequestMessage();
 		} catch (IOException e) {
 			ServerLogger.INSTANCE.log(e);
 		}
@@ -90,6 +95,21 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			ServerLogger.INSTANCE.log(e);
 		}
 		sendJoinMessage(jm.getUUID(), false);
+	}
+	
+	@Override
+	public void sendGhostCreateMessage(UUID uuid, UUID ghostUUID, IClientInfo ghostClientInfo) {
+		if (uuid.equals(ghostUUID)) return;
+		try {
+			final CreateMessage cm = new CreateMessage();
+			initMessage(cm);
+			cm.setUUID(ghostUUID);
+			cm.setPosition(Position.defaultPosition());
+			cm.setRotation(Rotation.defaultRotation());
+			sendPacket(cm, uuid);
+		} catch (IOException e) {
+			ServerLogger.INSTANCE.log(e);
+		}
 	}
 
 	@Override

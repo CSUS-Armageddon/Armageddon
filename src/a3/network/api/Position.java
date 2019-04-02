@@ -48,6 +48,10 @@ public class Position implements Serializable {
 		return new Position(vec.x(), vec.y(), vec.z());
 	}
 	
+	public static Position defaultPosition() {
+		return Position.fromVector3(Vector3f.createZeroVector());
+	}
+	
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

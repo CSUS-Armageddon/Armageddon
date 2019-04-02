@@ -28,6 +28,10 @@ public class Rotation implements Serializable {
 		return new Rotation(rot.toFloatArray());
 	}
 	
+	public static Rotation defaultRotation() {
+		return Rotation.fromMatrix3(Matrix3f.createIdentityMatrix());
+	}
+	
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
