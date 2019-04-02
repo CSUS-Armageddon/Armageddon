@@ -255,7 +255,7 @@ public class MyGame extends VariableFrameRateGame {
 		    	// move right
 		    	im.associateAction(c, Key.D, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	
-		    	im.associateAction(c, Key.ESCAPE, new SendCloseConnectionPacketAction(), INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		    	//im.associateAction(c, Key.ESCAPE, new SendCloseConnectionPacketAction(), INPUT_ACTION_TYPE.ON_PRESS_ONLY);
     			
     			
     		} else if (c.getType() == Type.GAMEPAD) {
@@ -275,13 +275,13 @@ public class MyGame extends VariableFrameRateGame {
     		}
     	}
     	
-    	/*Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+    	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			@Override
 			public void run() {
 				new SendCloseConnectionPacketAction().performAction(0, null);
 			}
     	}, "Shutdown-Thread"));
-    	*/
+    	
 	}
 	
 	private void setupNetworking() {
