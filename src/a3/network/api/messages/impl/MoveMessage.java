@@ -1,8 +1,8 @@
 package a3.network.api.messages.impl;
 
+import a3.network.api.Position;
 import a3.network.api.messages.BasicMessage;
 import a3.network.api.messages.MessageType;
-import a3.network.server.Position;
 
 public class MoveMessage extends BasicMessage {
 

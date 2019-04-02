@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.Vector;
 
 import a3.MyGame;
+import a3.network.api.Position;
+import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
@@ -15,8 +17,6 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
-import a3.network.server.Position;
-import a3.network.server.Rotation;
 import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;

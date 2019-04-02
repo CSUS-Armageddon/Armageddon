@@ -1,4 +1,4 @@
-package a3.network.server;
+package a3.network.api;
 
 import java.io.Serializable;
 
