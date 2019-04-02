@@ -175,6 +175,7 @@ public class GameClient extends GameConnectionClient implements Client {
 			initMessage(hm);
 			hm.setUUID(this.uuid);
 			sendPacket(hm);
+			System.out.println("Sent hangup!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
