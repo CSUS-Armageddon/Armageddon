@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import ray.rage.scene.Entity;
 import ray.rage.scene.SceneNode;
+import ray.rml.Matrix3;
+import ray.rml.Matrix3f;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
@@ -13,10 +15,17 @@ public class GhostAvatar {
 	private SceneNode node;
 	private Entity entity;
 	private Vector3 position = Vector3f.createFrom(0.0f, 0.0f, 0.0f);
+	private Matrix3 rotation = Matrix3f.createIdentityMatrix();
 	
 	public GhostAvatar(UUID uuid, Vector3 position) {
 		this.uuid = uuid;
 		this.position = position;
+	}
+	
+	public GhostAvatar(UUID uuid, Vector3 position, Matrix3 rotation) {
+		this.uuid = uuid;
+		this.position = position;
+		this.rotation = rotation;
 	}
 
 	/**
@@ -59,6 +68,21 @@ public class GhostAvatar {
 	 */
 	public void setPosition(Vector3 position) {
 		this.position = position;
+	}
+	
+
+	/**
+	 * @return the rotation
+	 */
+	public Matrix3 getRotation() {
+		return rotation;
+	}
+
+	/**
+	 * @param rotation the rotation to set
+	 */
+	public void setRotation(Matrix3 rotation) {
+		this.rotation = rotation;
 	}
 
 	/**

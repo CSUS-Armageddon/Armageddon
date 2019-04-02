@@ -50,6 +50,7 @@ import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
 import ray.rage.util.Configuration;
+import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public class MyGame extends VariableFrameRateGame {
@@ -76,6 +77,9 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public static final String CAMERA_NAME = "MainCamera";
 	public static final String CAMERA_NODE_NAME = "MainCameraNode";
+	
+	public static final String PLAYER_NAME = "Player";
+	public static final String PLAYER_NODE_NAME = "PlayerNode";
 	
 	public static final String GROUND_PLANE_NAME = "GroundPlane";
 	public static final String GROUND_PLANE_NODE_NAME = "GroundPlaneNode";
@@ -191,9 +195,9 @@ public class MyGame extends VariableFrameRateGame {
         
         
         // player 1
-    	final Entity playerE = sm.createEntity("player", "dolphinHighPoly.obj");
+    	final Entity playerE = sm.createEntity(PLAYER_NAME, "dolphinHighPoly.obj");
     	playerE.setPrimitive(Primitive.TRIANGLES);
-        playerN = sm.getRootSceneNode().createChildSceneNode("playerNode");
+        playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);
         playerN.moveUp(0.3f);
         playerN.attachObject(playerE);
@@ -317,8 +321,13 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	public Vector3 getPlayerPosition() {
-		final SceneNode node = this.getEngine().getSceneManager().getSceneNode(CAMERA_NODE_NAME);
-		return node.getWorldPosition();
+		final SceneNode node = this.getEngine().getSceneManager().getSceneNode(PLAYER_NODE_NAME);
+		return node.getLocalPosition();
+	}
+	
+	public Matrix3 getPlayerRotation() {
+		final SceneNode node = this.getEngine().getSceneManager().getSceneNode(PLAYER_NODE_NAME);
+		return node.getLocalRotation();
 	}
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {

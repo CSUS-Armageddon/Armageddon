@@ -25,7 +25,9 @@ public interface Server {
 	public void sendRotateMessage(UUID uuid, Matrix3 rotation);
 	public void handleRotateMessage(RotateMessage rm);
 	
-	public void sendDetailsMessage(UUID uuid);
+	public void sendRequestMessage();
+	
+	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation);
 	public void handleDetailsMessage(DetailsMessage dm);
 	
 	public void sendHangupMessage(UUID uuid);

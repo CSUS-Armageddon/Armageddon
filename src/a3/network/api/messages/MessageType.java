@@ -8,6 +8,7 @@ public enum MessageType {
 	CREATE,
 	MOVE,
 	ROTATE,
+	REQUEST,
 	DETAILS,
 	HANGUP,
 	;

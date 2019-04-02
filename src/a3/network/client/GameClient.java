@@ -16,6 +16,7 @@ import a3.network.api.messages.impl.DetailsMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
+import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ClientLogger;
 import a3.network.server.impl.ServerProtocol;
@@ -107,7 +108,7 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3());
+		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
 		try {
 			game.addGhostAvatar(avatar);
 			ghostAvatars.add(avatar);
@@ -155,17 +156,32 @@ public class GameClient extends GameConnectionClient implements Client {
 			avatar.getNode().setLocalRotation(rm.getRotation().toMatrix3());
 		}
 	}
+	
+	@Override
+	public void handleRequestMessage(RequestMessage rm) {
+		sendDetailsMessage(game.getPlayerPosition(), game.getPlayerRotation());
+	}
 
 	@Override
-	public void sendDetailsMessage() {
-		// TODO Auto-generated method stub
-		
+	public void sendDetailsMessage(Vector3 localPosition, Matrix3 localRotation) {
+		try {
+			final DetailsMessage dm = new DetailsMessage();
+			initMessage(dm);
+			dm.setPosition(Position.fromVector3(localPosition));
+			dm.setRotation(Rotation.fromMatrix3(localRotation));
+			sendPacket(dm);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void handleDetailsMessage(DetailsMessage dm) {
-		// TODO Auto-generated method stub
-		
+		final GhostAvatar avatar = findGhostAvatarByUUID(dm.getUUID());
+		if (avatar != null) {
+			avatar.getNode().setLocalPosition(dm.getPosition().toVector3());
+			avatar.getNode().setLocalRotation(dm.getRotation().toMatrix3());
+		}
 	}
 
 	@Override

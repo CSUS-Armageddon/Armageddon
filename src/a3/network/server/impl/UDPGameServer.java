@@ -13,6 +13,7 @@ import a3.network.api.messages.impl.DetailsMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
+import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ServerLogger;
 import a3.network.server.Server;
@@ -99,7 +100,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
 		sendCreateMessage(cm.getUUID(), cm.getPosition().toVector3());
-		sendDetailsMessage(cm.getUUID());
+		sendDetailsMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
 	}
 
 	@Override
@@ -111,7 +112,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			mm.setPosition(Position.fromVector3(localPosition));
 			forwardPacketToAll(mm, uuid);
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 
@@ -129,7 +130,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			rm.setRotation(Rotation.fromMatrix3(rotation));
 			forwardPacketToAll(rm, uuid);
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 
@@ -137,17 +138,34 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	public void handleRotateMessage(RotateMessage rm) {
 		sendRotateMessage(rm.getUUID(), rm.getRotation().toMatrix3());
 	}
+	
+	@Override
+	public void sendRequestMessage() {
+		try {
+			final RequestMessage rm = new RequestMessage();
+			initMessage(rm);
+			sendPacketToAll(rm);
+		} catch (IOException e) {
+			
+		}
+	}
 
 	@Override
-	public void sendDetailsMessage(UUID uuid) {
-		// TODO Auto-generated method stub
-		
+	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation) {
+		try {
+			final DetailsMessage dm = new DetailsMessage();
+			initMessage(dm);
+			dm.setPosition(Position.fromVector3(localPosition));
+			dm.setRotation(Rotation.fromMatrix3(localRotation));
+			forwardPacketToAll(dm, uuid);
+		} catch (IOException e) {
+			ServerLogger.INSTANCE.log(e);
+		}
 	}
 
 	@Override
 	public void handleDetailsMessage(DetailsMessage dm) {
-		// TODO Auto-generated method stub
-		
+		sendDetailsMessage(dm.getUUID(), dm.getPosition().toVector3(), dm.getRotation().toMatrix3());
 	}
 
 	@Override
@@ -176,19 +194,18 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		try {
 			sendPacketToAll(hm);
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.INSTANCE.log(e);
 		}
 		try {
 			super.shutdown();
 		} catch (IOException e) {
-			e.printStackTrace();
+			ServerLogger.INSTANCE.log(e);
 		}
 		ServerLogger.INSTANCE.logln("GameServer Stoped");
 	}
 	
 	private void initMessage(Message msg) throws UnknownHostException {
 		msg.setProtocol(ServerProtocol.UDP);
-		//msg.setUUID(getUUID());
 		msg.setFromName("Server");
 		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
 		msg.setFromPort(this.getLocalPort());
