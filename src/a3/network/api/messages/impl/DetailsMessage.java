@@ -48,7 +48,7 @@ public class DetailsMessage extends BasicMessage {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(super.toString().replace(" ]", ", "))
-		.append(position).append(" ], ").append(rotation).append(" ]");
+		.append(position).append(", ").append(rotation).append(" ]");
 		return sb.toString();
 	}
 

@@ -15,7 +15,7 @@ public interface Client {
 	public void sendJoinMessage();
 	public void handleJoinMessage(JoinMessage jm);
 	
-	public void sendCreateMessage(Vector3 playerPosition);
+	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation);
 	public void handleCreateMessage(CreateMessage cm);
 	
 	public void sendMoveMessage(Vector3 localPosition);

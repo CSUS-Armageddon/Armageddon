@@ -16,7 +16,7 @@ public interface Server {
 	public void sendJoinMessage(UUID uuid, boolean success);
 	public void handleJoinMessage(JoinMessage jm);
 	
-	public void sendCreateMessage(UUID uuid, Vector3 playerPosition);
+	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation);
 	public void handleCreateMessage(CreateMessage cm);
 	
 	public void sendMoveMessage(UUID uuid, Vector3 localPosition);

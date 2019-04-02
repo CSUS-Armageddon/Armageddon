@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import a3.network.api.Position;
 import a3.network.api.Rotation;
@@ -23,9 +26,14 @@ import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public class UDPGameServer extends GameConnectionServer<UUID> implements Server {
+	
+	private static final int SECONDS_DELAY_REQUEST = 3;
+	
+	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
 
 	public UDPGameServer(int localPort) throws IOException {
 		super(localPort, ProtocolType.UDP);
+		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.SECONDS);
 		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
 	}
 	
@@ -85,12 +93,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 
 	@Override
-	public void sendCreateMessage(UUID uuid, Vector3 playerPosition) {
+	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation) {
 		try {
 			final CreateMessage cm = new CreateMessage();
 			initMessage(cm);
 			cm.setUUID(uuid);
 			cm.setPosition(Position.fromVector3(playerPosition));
+			cm.setRotation(Rotation.fromMatrix3(playerRotation));
 			forwardPacketToAll(cm, uuid);
 		} catch (IOException e) {
 			ServerLogger.INSTANCE.log(e);
@@ -99,7 +108,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		sendCreateMessage(cm.getUUID(), cm.getPosition().toVector3());
+		sendCreateMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
 		sendDetailsMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
 	}
 
@@ -212,6 +221,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		msg.setToName("*");
 		msg.setToIP("*");
 		msg.setToPort(-1);
+	}
+	
+	private class RequestDetailsTask implements Runnable {
+		@Override
+		public void run() {
+			sendRequestMessage();
+		}
 	}
 	
 }

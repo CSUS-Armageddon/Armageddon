@@ -57,6 +57,9 @@ public class GameClient extends GameConnectionClient implements Client {
 		case ROTATE:
 			handleRotateMessage((RotateMessage)msg);
 			break;
+		case REQUEST:
+			handleRequestMessage((RequestMessage)msg);
+			break;
 		case DETAILS:
 			handleDetailsMessage((DetailsMessage)msg);
 			break;
@@ -87,7 +90,7 @@ public class GameClient extends GameConnectionClient implements Client {
 		if (jm.isJoinSuccess()) {
 			game.setClientConnected(true);
 			System.out.println("Join Success");
-			sendCreateMessage(game.getPlayerPosition());
+			sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation());
 		} else {
 			game.setClientConnected(false);
 			System.out.println("Join Failure");
@@ -95,11 +98,12 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 
 	@Override
-	public void sendCreateMessage(Vector3 playerPosition) {
+	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation) {
 		try {
 			final CreateMessage cm = new CreateMessage();
 			initMessage(cm);
 			cm.setPosition(Position.fromVector3(playerPosition));
+			cm.setRotation(Rotation.fromMatrix3(playerRotation));
 			sendPacket(cm);
 		} catch (IOException e) {
 			e.printStackTrace();
