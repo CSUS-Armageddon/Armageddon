@@ -8,7 +8,7 @@ import ray.rage.scene.SceneManager;
 public class GroundPlane extends CustomObject {
 	
 	final private String materialFilename = "default.mtl";
-	final private String textureFilename = "ground-plane.jpeg";
+	private String textureFilename = "ground-plane.jpeg";
 	final private Color emissiveColor = Color.YELLOW;
 	
 	final private float[] verticies = new float[]
@@ -27,10 +27,16 @@ public class GroundPlane extends CustomObject {
 				0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
 			};
 	final private int[] indicies = new int[] { 0, 1, 2, 3, 4, 5 };
-
+	
 	public GroundPlane(String name, Engine eng, SceneManager sm) {
+		this(name, eng, sm, true);
+	}
+
+	public GroundPlane(String name, Engine eng, SceneManager sm, boolean autoInit) {
 		super(name, eng, sm);
-		init();
+		if (autoInit) {
+			init();
+		}
 	}
 	
 	@Override
@@ -56,6 +62,10 @@ public class GroundPlane extends CustomObject {
 	@Override
 	public String getTextureFilename() {
 		return textureFilename;
+	}
+	
+	public void setTextureFilename(String textureFilename) {
+		this.textureFilename = textureFilename;
 	}
 
 	@Override

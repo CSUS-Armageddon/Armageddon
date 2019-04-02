@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 import java.awt.geom.AffineTransform;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
@@ -12,10 +14,18 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ClientLogger;
+import myGameEngine.asset.JavaScriptLoader;
+import myGameEngine.asset.ScriptAsset;
+import myGameEngine.asset.ScriptManager;
 import myGameEngine.controller.Camera3PController;
 import myGameEngine.controller.InputType;
 import myGameEngine.controller.controls.MoveForwardAction;
@@ -87,6 +97,10 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String HUD_BASE = "Game Time: ";
 	
 	private InputManager im;
+	
+	private ScriptManager scriptManager;
+	private ScriptEngine jsEngine;
+	private ScriptAsset groundPlaneScript;
 
 	public MyGame(String serverAddress, int serverPort) {
 		super();
@@ -177,6 +191,7 @@ public class MyGame extends VariableFrameRateGame {
 	protected void setupScene(Engine eng, SceneManager sm) throws IOException {
 		System.out.println("Initializing Scene...");
 		
+		setupScripting();
 		setupSkybox(sm);
 		setupObjects(sm);
 		setupLights(sm);
@@ -188,13 +203,58 @@ public class MyGame extends VariableFrameRateGame {
 		setupOrbitCamera(eng, sm);
 	}
 	
+	private void setupScripting() {
+		System.out.println("Initializing Scripting...");
+		
+		try {
+			this.scriptManager = new ScriptManager();
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e1) {
+			e1.printStackTrace();
+		}
+		this.scriptManager.addAssetLoader(new JavaScriptLoader());
+		this.scriptManager.setBaseDirectoryPath(getEngine().getConfiguration().valueOf("assets.scripts.path"));
+		
+		final ScriptEngineManager factory = new ScriptEngineManager();
+		this.jsEngine = factory.getEngineByName("js");
+		
+		try {
+			this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void setupObjects(SceneManager sm) throws IOException {
 		// setup ground plane
-        final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm);
+        final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm, false);
+        
+        // setup ground plane as configured in script
+ 		try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
+ 		
+        final Invocable invocableEngine = (Invocable)jsEngine;
+        try {
+        	invocableEngine.invokeFunction("configureGroundPlane", groundPlane);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
+        
         final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
         groundPlaneN.scale(50.0f, 50.0f, 50.0f);
         groundPlaneN.attachObject(groundPlane.getManualObject());
-        
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, "dolphinHighPoly.obj");
