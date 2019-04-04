@@ -46,7 +46,6 @@ import ray.networking.IGameConnection.ProtocolType;
 import ray.rage.Engine;
 import ray.rage.asset.texture.Texture;
 import ray.rage.asset.texture.TextureManager;
-import ray.rage.game.Game;
 import ray.rage.game.VariableFrameRateGame;
 import ray.rage.rendersystem.RenderSystem;
 import ray.rage.rendersystem.RenderWindow;
@@ -109,16 +108,15 @@ public class MyGame extends VariableFrameRateGame {
 		this.serverProtocol = ProtocolType.UDP;
 	}
 	
-	public static void main(String[] args) {
-		final Game game = new MyGame(args[0], Integer.parseInt(args[1]));
+	public void init() {
 		try {
-			game.startup();
-			game.run();
+			startup();
+			run();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			game.shutdown();
-			game.exit();
+			shutdown();
+			exit();
 		}
 	}
 	
@@ -130,6 +128,12 @@ public class MyGame extends VariableFrameRateGame {
 		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
 		setupNetworking();
 		super.startup();
+	}
+	
+	@Override
+	public void shutdown() {
+		super.shutdown();
+		new MainMenu();
 	}
 	
 	@Override

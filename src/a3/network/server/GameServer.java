@@ -59,7 +59,7 @@ public class GameServer extends JFrame {
 	}
 	
 	private void initWindow() throws UnknownHostException {
-		this.setName(sc.getString("server.name", "A BattleHatch Server"));
+		this.setTitle(sc.getString("server.name", "A BattleHatch Server"));
 		//this.setResizable(false);
 		this.setPreferredSize(new Dimension(800, 300));
 		
