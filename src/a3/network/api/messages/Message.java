@@ -2,7 +2,7 @@ package a3.network.api.messages;
 
 import java.util.UUID;
 
-import a3.network.server.impl.ServerProtocol;
+import ray.networking.IGameConnection.ProtocolType;
 
 public interface Message {
 	
@@ -24,8 +24,8 @@ public interface Message {
 	public Integer getToPort();
 	public void setToPort(Integer toPort);
 	
-	public ServerProtocol getProtocol();
-	public void setProtocol(ServerProtocol protocol);
+	public ProtocolType getProtocol();
+	public void setProtocol(ProtocolType protocol);
 	
 	public String getFromName();
 	public void setFromName(String fromName);

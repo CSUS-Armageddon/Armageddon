@@ -29,10 +29,16 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	private static final int SECONDS_DELAY_REQUEST = 3;
 	
+	private static final ProtocolType PROTOCOL_TYPE = ProtocolType.UDP;
+	
+	private final String serverName;
+	
 	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
 
-	public UDPGameServer(int localPort) throws IOException {
-		super(localPort, ProtocolType.UDP);
+	public UDPGameServer(int localPort, String serverName) throws IOException {
+		super(localPort, PROTOCOL_TYPE);
+		System.out.println(">>>" + serverName);
+		this.serverName = serverName;
 		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.SECONDS);
 		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
 	}
@@ -68,6 +74,11 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	@Override
 	public void sendJoinMessage(UUID uuid, boolean success) {
 		final JoinMessage sjm = new JoinMessage();
+		try {
+			initMessage(sjm);
+		} catch (UnknownHostException e) {
+			ServerLogger.INSTANCE.log(e);
+		}
 		sjm.setUUID(uuid);
 		sjm.setJoinSuccess(success);
 		try {
@@ -234,8 +245,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 	
 	private void initMessage(Message msg) throws UnknownHostException {
-		msg.setProtocol(ServerProtocol.UDP);
-		msg.setFromName("Server");
+		msg.setProtocol(PROTOCOL_TYPE);
+		msg.setFromName(this.serverName);
 		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
 		msg.setFromPort(this.getLocalPort());
 		msg.setToName("*");

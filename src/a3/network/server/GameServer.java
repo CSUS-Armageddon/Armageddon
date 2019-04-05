@@ -135,7 +135,8 @@ public class GameServer extends JFrame {
 				serverName.setEditable(true);
 			} else {
 				try {
-					gameServer = new UDPGameServer(Integer.parseInt(serverPort.getText()));
+					System.out.println("ServerName: " + serverName.getText().trim());
+					gameServer = new UDPGameServer(Integer.parseInt(serverPort.getText()), serverName.getText().trim());
 					startStopServer.setText("Stop");
 					serverPort.setEditable(false);
 					serverName.setEditable(false);

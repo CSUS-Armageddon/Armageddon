@@ -19,7 +19,6 @@ import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ClientLogger;
-import a3.network.server.impl.ServerProtocol;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
 import ray.rml.Matrix3;
@@ -32,12 +31,20 @@ public class GameClient extends GameConnectionClient implements Client {
 	private final UUID uuid;
 	private Vector<GhostAvatar> ghostAvatars;
 	
+	private String remoteName;
+	private final InetAddress remoteAddress;
+	private final int remotePort;
+	private final ProtocolType protocolType;
+	
 	public GameClient(InetAddress remoteAddress, int remotePort, ProtocolType protocolType, MyGame game, String clientName) throws IOException {
 		super(remoteAddress, remotePort, protocolType);
 		this.game = game;
 		this.uuid = UUID.randomUUID();
 		this.ghostAvatars = new Vector<GhostAvatar>();
 		this.clientName = clientName;
+		this.remoteAddress = remoteAddress;
+		this.remotePort = remotePort;
+		this.protocolType = protocolType;
 	}
 	
 	@Override
@@ -89,6 +96,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	public void handleJoinMessage(JoinMessage jm) {
 		if (jm.isJoinSuccess()) {
 			game.setClientConnected(true);
+			this.remoteName = jm.getFromName();
 			System.out.println("Join Success");
 			sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation());
 		} else {
@@ -270,14 +278,15 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 	
 	private void initMessage(Message msg) throws UnknownHostException {
-		msg.setProtocol(ServerProtocol.UDP);
+		msg.setProtocol(this.protocolType);
 		msg.setUUID(getUUID());
 		msg.setFromName(getClientName());
 		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
 		msg.setFromPort(this.getLocalPort());
-		msg.setToName("Server");
-		msg.setToIP("localhost");
-		msg.setToPort(6868);
+		System.out.println("RemoteName: " + this.remoteName);
+		msg.setToName(this.remoteName);
+		msg.setToIP(this.remoteAddress.toString());
+		msg.setToPort(this.remotePort);
 	}
 
 

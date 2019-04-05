@@ -3,14 +3,14 @@ package a3.network.api.messages;
 import java.io.Serializable;
 import java.util.UUID;
 
-import a3.network.server.impl.ServerProtocol;
+import ray.networking.IGameConnection.ProtocolType;
 
 public abstract class BasicMessage implements Message, Serializable {
 
 	private static final long serialVersionUID = -4895699512814380066L;
 
 	private MessageType messageType;
-	private ServerProtocol protocol;
+	private ProtocolType protocol;
 	
 	private UUID uuid;
 	
@@ -71,11 +71,11 @@ public abstract class BasicMessage implements Message, Serializable {
 		this.toPort = toPort;
 	}
 	
-	public ServerProtocol getProtocol() {
+	public ProtocolType getProtocol() {
 		return this.protocol;
 	}
 	
-	public void setProtocol(ServerProtocol protocol) {
+	public void setProtocol(ProtocolType protocol) {
 		this.protocol = protocol;
 	}
 	
