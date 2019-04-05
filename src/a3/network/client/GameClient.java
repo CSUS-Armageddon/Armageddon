@@ -269,13 +269,6 @@ public class GameClient extends GameConnectionClient implements Client {
 	public String getClientName() {
 		return clientName;
 	}
-
-	/**
-	 * @return the uuid
-	 */
-	public UUID getUuid() {
-		return uuid;
-	}
 	
 	private void initMessage(Message msg) throws UnknownHostException {
 		msg.setProtocol(this.protocolType);
