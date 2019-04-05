@@ -3,6 +3,7 @@ package a3.network.server;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,8 +12,13 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,13 +33,15 @@ import a3.network.server.impl.UDPGameServer;
 public class GameServer extends JFrame {
 
 	private static final long serialVersionUID = 3258963953337964850L;
+	
+	private static final int DEFAULT_FONT_SIZE = 18;
 
 	private final ServerConfig sc;
 	
 	private boolean serverStarted = false;
 	private UDPGameServer gameServer;
 	
-	private JTextField serverIPAddress;
+	private JComboBox<String> serverIPAddress;
 	private JTextField serverPort;
 	private JTextField serverName;
 	private JButton startStopServer;
@@ -61,13 +69,19 @@ public class GameServer extends JFrame {
 	
 	private void initWindow() throws UnknownHostException {
 		this.setTitle(sc.getString("server.name", "A BattleHatch Server"));
-		this.setPreferredSize(new Dimension(800, 300));
+		this.setPreferredSize(new Dimension(1024, 768));
 		
 		final JLabel serverIpAddressLabel = new JLabel("Server IP:");
 		final JLabel serverPortLabel = new JLabel("Server Port:");
 		final JLabel serverNameLabel = new JLabel("Server Name:");
 		
-		serverIPAddress = new JTextField(InetAddress.getLocalHost().getHostAddress().toString());
+		final List<String> ipList = new ArrayList<String>();
+		Arrays.stream(InetAddress.getAllByName(InetAddress.getLocalHost().getHostName()))
+			.forEach(e -> ipList.add(e.getHostAddress()));
+		final String[] ipArray = new String[ipList.size()];
+		ipList.toArray(ipArray);
+		serverIPAddress = new JComboBox<String>(ipArray);
+		
 		serverPort = new JTextField(String.valueOf(sc.getInt("server.port", 6868)));
 		serverName = new JTextField(sc.getString("server.name", "A BattleHatch Server"));
 		
@@ -77,14 +91,21 @@ public class GameServer extends JFrame {
 		serverMessageBox = new JTextArea();
 		serverMessageBox.setEditable(false);
 		
+		setFont(serverIpAddressLabel);
+		setFont(serverIPAddress);
+		setFont(serverPortLabel);
+		setFont(serverPort);
+		setFont(serverNameLabel);
+		setFont(serverName);
+		setFont(startStopServer);
+		setFont(serverMessageBox);
+		
 		scrollPane = new JScrollPane(serverMessageBox);
-		scrollPane.setPreferredSize(new Dimension(580, 25));
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		
 		final JPanel topContainer = new JPanel();
 		topContainer.setLayout(new FlowLayout());
-		topContainer.setSize(580, 100);
 		
 		topContainer.add(serverIpAddressLabel);
 		topContainer.add(serverIPAddress);
@@ -122,6 +143,10 @@ public class GameServer extends JFrame {
 		});
 	}
 	
+	private void setFont(JComponent comp) {
+		comp.setFont(new Font(comp.getFont().getName(), Font.PLAIN, DEFAULT_FONT_SIZE));
+	}
+	
 	private class StartStopButtonAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
@@ -130,14 +155,17 @@ public class GameServer extends JFrame {
 				gameServer.shutdown();
 				gameServer = null;
 				startStopServer.setText("Start");
+				serverIPAddress.setEditable(true);
 				serverPort.setEditable(true);
 				serverName.setEditable(true);
 			} else {
 				try {
 					gameServer = new UDPGameServer(Integer.parseInt(serverPort.getText()), serverName.getText().trim());
 					startStopServer.setText("Stop");
+					serverIPAddress.setEditable(false);
 					serverPort.setEditable(false);
 					serverName.setEditable(false);
+					setTitle(serverName.getText().trim());
 					serverStarted = true;
 				} catch (NumberFormatException e) {
 					ServerLogger.INSTANCE.log(e);
