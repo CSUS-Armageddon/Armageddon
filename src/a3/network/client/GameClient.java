@@ -283,7 +283,6 @@ public class GameClient extends GameConnectionClient implements Client {
 		msg.setFromName(getClientName());
 		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
 		msg.setFromPort(this.getLocalPort());
-		System.out.println("RemoteName: " + this.remoteName);
 		msg.setToName(this.remoteName);
 		msg.setToIP(this.remoteAddress.toString());
 		msg.setToPort(this.remotePort);

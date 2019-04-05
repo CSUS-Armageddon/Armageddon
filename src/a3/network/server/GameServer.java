@@ -61,7 +61,6 @@ public class GameServer extends JFrame {
 	
 	private void initWindow() throws UnknownHostException {
 		this.setTitle(sc.getString("server.name", "A BattleHatch Server"));
-		//this.setResizable(false);
 		this.setPreferredSize(new Dimension(800, 300));
 		
 		final JLabel serverIpAddressLabel = new JLabel("Server IP:");
@@ -135,7 +134,6 @@ public class GameServer extends JFrame {
 				serverName.setEditable(true);
 			} else {
 				try {
-					System.out.println("ServerName: " + serverName.getText().trim());
 					gameServer = new UDPGameServer(Integer.parseInt(serverPort.getText()), serverName.getText().trim());
 					startStopServer.setText("Stop");
 					serverPort.setEditable(false);

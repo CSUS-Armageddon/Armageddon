@@ -37,7 +37,6 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	public UDPGameServer(int localPort, String serverName) throws IOException {
 		super(localPort, PROTOCOL_TYPE);
-		System.out.println(">>>" + serverName);
 		this.serverName = serverName;
 		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.SECONDS);
 		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
