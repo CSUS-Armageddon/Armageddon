@@ -274,10 +274,10 @@ public class GameClient extends GameConnectionClient implements Client {
 		msg.setProtocol(this.protocolType);
 		msg.setUUID(getUUID());
 		msg.setFromName(getClientName());
-		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
+		msg.setFromIP(this.getLocalInetAddress().getHostAddress());
 		msg.setFromPort(this.getLocalPort());
 		msg.setToName(this.remoteName);
-		msg.setToIP(this.remoteAddress.toString());
+		msg.setToIP(this.remoteAddress.getHostAddress());
 		msg.setToPort(this.remotePort);
 	}
 

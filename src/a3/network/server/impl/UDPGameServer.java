@@ -247,7 +247,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	private void initMessage(Message msg) throws UnknownHostException {
 		msg.setProtocol(PROTOCOL_TYPE);
 		msg.setFromName(this.serverName);
-		msg.setFromIP(this.getLocalInetAddress().getHostAddress().toString());
+		msg.setFromIP(this.getLocalInetAddress().getHostAddress());
 		msg.setFromPort(this.getLocalPort());
 		msg.setToName("*");
 		msg.setToIP("*");
