@@ -31,15 +31,19 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	private static final ProtocolType PROTOCOL_TYPE = ProtocolType.UDP;
 	
+	private final String ipAddress;
+	private final int port;
 	private final String serverName;
 	
 	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
 
-	public UDPGameServer(int localPort, String serverName) throws IOException {
+	public UDPGameServer(String ipAddress, int localPort, String serverName) throws IOException {
 		super(localPort, PROTOCOL_TYPE);
+		this.ipAddress = ipAddress;
+		this.port = localPort;
 		this.serverName = serverName;
 		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.SECONDS);
-		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.getLocalInetAddress() + ":" + this.getLocalPort());
+		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.ipAddress + ":" + this.port + " - " + this.serverName);
 	}
 	
 	@Override
@@ -247,8 +251,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	private void initMessage(Message msg) throws UnknownHostException {
 		msg.setProtocol(PROTOCOL_TYPE);
 		msg.setFromName(this.serverName);
-		msg.setFromIP(this.getLocalInetAddress().getHostAddress());
-		msg.setFromPort(this.getLocalPort());
+		msg.setFromIP(this.ipAddress);
+		msg.setFromPort(this.port);
 		msg.setToName("*");
 		msg.setToIP("*");
 		msg.setToPort(-1);

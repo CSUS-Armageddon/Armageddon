@@ -160,7 +160,10 @@ public class GameServer extends JFrame {
 				serverName.setEditable(true);
 			} else {
 				try {
-					gameServer = new UDPGameServer(Integer.parseInt(serverPort.getText()), serverName.getText().trim());
+					gameServer = new UDPGameServer(
+							serverIPAddress.getSelectedItem().toString(),
+							Integer.parseInt(serverPort.getText()),
+							serverName.getText().trim());
 					startStopServer.setText("Stop");
 					serverIPAddress.setEditable(false);
 					serverPort.setEditable(false);
