@@ -1,22 +1,28 @@
 package a3;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.UnknownHostException;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import a3.network.server.ServerConfig;
 
-public class MainMenu extends JFrame {
+public class MainMenu extends JDialog {
 
 	private static final long serialVersionUID = -2162064079427792952L;
 	
@@ -24,42 +30,55 @@ public class MainMenu extends JFrame {
 	
 	private boolean clientStarted = false;
 	
-	private JLabel serverIPAddressLabel;
 	private JTextField serverIPAddress;
-	private JLabel serverPortLabel;
 	private JTextField serverPort;
+	private JCheckBox fullscreen;
 	private JButton startStopButton;
 	
-	public MainMenu() {
+	private final ClientStarter cs;
+	
+	private static final int DEFAULT_FONT_SIZE = 18;
+	
+	public MainMenu(ClientStarter cs) {
+		this.cs = cs;
 		this.sc = new ServerConfig("assets/config/server.properties");
 		try {
 			initWindow();
+			this.setModal(true);
 			this.setVisible(true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void main(String[] args) {
-		new MainMenu();
-	}
-	
 	private void initWindow() throws UnknownHostException {
-		this.setName("BattleHatch Client");
+		this.setTitle("BattleHatch Client");
 		this.setResizable(false);
 		this.setPreferredSize(new Dimension(500, 250));
 		
-		serverIPAddressLabel = new JLabel("Server IP:");
-		serverPortLabel = new JLabel("Server Port:");
+		JLabel serverIPAddressLabel = new JLabel("Server IP:");
+		JLabel serverPortLabel = new JLabel("Server Port:");
 		
-		serverIPAddress = new JTextField();
+		setFont(serverIPAddressLabel);
+		setFont(serverPortLabel);
+		
+		serverIPAddress = new JTextField(cs.getIpAddress());
 		serverIPAddress.setPreferredSize(new Dimension(125, 25));
-		serverPort = new JTextField(String.valueOf(sc.getInt("server.port", 6868)));
+		
+		serverPort = new JTextField(String.valueOf((cs.getPort() == -1) 
+				? String.valueOf(sc.getInt("server.port", 6868)) : cs.getPort()));
 		serverPort.setPreferredSize(new Dimension(75, 25));
+		
+		setFont(serverIPAddress);
+		setFont(serverPort);
+		
+		fullscreen = new JCheckBox("Fullscreen", cs.isFullScreen());
+		setFont(fullscreen);
 		
 		startStopButton = new JButton("Start");
 		startStopButton.addActionListener(new StartStopButtonAction());
 		startStopButton.setPreferredSize(new Dimension(100, 75));
+		startStopButton.setFont(new Font(startStopButton.getFont().getName(), Font.PLAIN, 32));
 		
 		this.getContentPane().setLayout(new BorderLayout());
 		
@@ -72,27 +91,27 @@ public class MainMenu extends JFrame {
 		topContainer.add(serverPortLabel);
 		topContainer.add(serverPort);
 		
-		this.getContentPane().add(topContainer, BorderLayout.BEFORE_FIRST_LINE);
 		
+		final JPanel middleContainer = new JPanel();
+		middleContainer.setLayout(new BoxLayout(middleContainer, BoxLayout.PAGE_AXIS));
+		
+		fullscreen.setAlignmentX(Component.CENTER_ALIGNMENT);
+		middleContainer.add(fullscreen);
+		
+		this.getContentPane().add(topContainer, BorderLayout.BEFORE_FIRST_LINE);
+		this.getContentPane().add(middleContainer, BorderLayout.CENTER);		
 		this.getContentPane().add(startStopButton, BorderLayout.AFTER_LAST_LINE);
+		
+		final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
 		
 		this.pack();
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		/*this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if (clientStarted) {
-					clientStarted = false;
-					gameServer.shutdown();
-					gameServer = null;
-					startStopButton.setText("Start");
-					serverPort.setEditable(true);
-					serverName.setEditable(true);
-				}
-			}
-		});
-		*/
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	}
+	
+	private void setFont(JComponent comp) {
+		comp.setFont(new Font(comp.getFont().getName(), Font.PLAIN, DEFAULT_FONT_SIZE));
 	}
 	
 	private class StartStopButtonAction implements ActionListener {
@@ -102,11 +121,12 @@ public class MainMenu extends JFrame {
 				clientStarted = false;
 			} else {
 				try {
-							((JFrame)SwingUtilities.getWindowAncestor(((JButton)evt.getSource()))).setVisible(false);
-					final MyGame game = new MyGame(serverIPAddress.getText().trim(),
-										Integer.parseInt(serverPort.getText().trim()));
-					game.init();
+					cs.setIpAddress(serverIPAddress.getText().trim());
+					cs.setPort(Integer.parseInt(serverPort.getText().trim()));
+					cs.setFullScreen(fullscreen.isSelected());
+					cs.setDoRun(true);
 					clientStarted = true;
+					dispose();
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}

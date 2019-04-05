@@ -100,12 +100,15 @@ public class MyGame extends VariableFrameRateGame {
 	private ScriptManager scriptManager;
 	private ScriptEngine jsEngine;
 	private ScriptAsset groundPlaneScript;
+	
+	private final boolean isFullScreen;
 
-	public MyGame(String serverAddress, int serverPort) {
+	public MyGame(String serverAddress, int serverPort, boolean isFullScreen) {
 		super();
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		this.serverProtocol = ProtocolType.UDP;
+		this.isFullScreen = isFullScreen;
 	}
 	
 	public void init() {
@@ -116,7 +119,7 @@ public class MyGame extends VariableFrameRateGame {
 			e.printStackTrace();
 		} finally {
 			shutdown();
-			exit();
+			//exit();
 		}
 	}
 	
@@ -128,12 +131,6 @@ public class MyGame extends VariableFrameRateGame {
 		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
 		setupNetworking();
 		super.startup();
-	}
-	
-	@Override
-	public void shutdown() {
-		super.shutdown();
-		new MainMenu();
 	}
 	
 	@Override
@@ -154,8 +151,11 @@ public class MyGame extends VariableFrameRateGame {
 		
 		System.out.println("Initializing Window...");
 		
-		rs.createRenderWindow(new DisplayMode(1000, 700, 24, 60), false);
-		//rs.createRenderWindow(true);
+		if (isFullScreen) {
+			rs.createRenderWindow(true);
+		} else {
+			rs.createRenderWindow(new DisplayMode(1000, 700, 24, 60), false);
+		}
 	}
 
 	@Override
@@ -320,7 +320,7 @@ public class MyGame extends VariableFrameRateGame {
 		    	// move right
 		    	im.associateAction(c, Key.D, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	
-		    	//im.associateAction(c, Key.ESCAPE, new SendCloseConnectionPacketAction(), INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		    	im.associateAction(c, Key.ESCAPE, new SendCloseConnectionPacketAction(), INPUT_ACTION_TYPE.ON_PRESS_ONLY);
     			
     			
     		} else if (c.getType() == Type.GAMEPAD) {
