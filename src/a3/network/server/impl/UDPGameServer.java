@@ -45,6 +45,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	@Override
 	public void processPacket(Object obj, InetAddress senderIP, int senderPort) {
 		final Message msg = (Message)obj;
+		msg.setFromIP(senderIP.getHostAddress());
 		ServerLogger.INSTANCE.logln(msg.toString());
 		switch (msg.getMessageType()) {
 		case JOIN:
