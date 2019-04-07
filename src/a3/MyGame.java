@@ -31,7 +31,6 @@ import myGameEngine.controller.InputType;
 import myGameEngine.controller.controls.MoveForwardAction;
 import myGameEngine.controller.controls.MoveLeftAction;
 import myGameEngine.controller.controls.YawAction;
-import myGameEngine.mesh.GroundPlane;
 import net.java.games.input.Controller;
 import net.java.games.input.Event;
 import net.java.games.input.Component.Identifier.Axis;
@@ -44,7 +43,6 @@ import ray.input.InputManager.INPUT_ACTION_TYPE;
 import ray.input.action.AbstractInputAction;
 import ray.networking.IGameConnection.ProtocolType;
 import ray.rage.Engine;
-import ray.rage.asset.texture.Texture;
 import ray.rage.asset.texture.TextureManager;
 import ray.rage.game.VariableFrameRateGame;
 import ray.rage.rendersystem.RenderSystem;
@@ -58,6 +56,7 @@ import ray.rage.scene.Light;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
+import ray.rage.scene.Tessellation;
 import ray.rage.util.Configuration;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
@@ -99,7 +98,9 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private ScriptManager scriptManager;
 	private ScriptEngine jsEngine;
-	private ScriptAsset groundPlaneScript;
+	//private ScriptAsset groundPlaneScript;
+	private ScriptAsset terrainScript;
+	private ScriptAsset skyboxScript;
 	
 	private final boolean isFullScreen;
 
@@ -197,6 +198,7 @@ public class MyGame extends VariableFrameRateGame {
 		
 		setupScripting();
 		setupSkybox(sm);
+		setupTerrain(sm);
 		setupObjects(sm);
 		setupLights(sm);
 		try {
@@ -222,7 +224,9 @@ public class MyGame extends VariableFrameRateGame {
 		this.jsEngine = factory.getEngineByName("js");
 		
 		try {
-			this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
+			//this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
+			this.terrainScript = this.scriptManager.getAssetByPath("Terrain.js");
+			this.skyboxScript = this.scriptManager.getAssetByPath("Skybox.js");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -230,34 +234,34 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private void setupObjects(SceneManager sm) throws IOException {
 		// setup ground plane
-        final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm, false);
-        final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
+        //final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm, false);
+        //final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
         
         // setup ground plane as configured in script
- 		try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
- 			jsEngine.eval(fileReader);
- 		} catch (FileNotFoundException e) {
- 			e.printStackTrace();
- 		} catch (IOException e) {
- 			e.printStackTrace();
- 		} catch (ScriptException e) {
- 			e.printStackTrace();
- 		} catch (NullPointerException e) {
- 			e.printStackTrace();
- 		}
+ 		//try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
+ 		//	jsEngine.eval(fileReader);
+ 		//} catch (FileNotFoundException e) {
+ 		//	e.printStackTrace();
+ 		//} catch (IOException e) {
+ 		//	e.printStackTrace();
+ 		//} catch (ScriptException e) {
+ 		//	e.printStackTrace();
+ 		//} catch (NullPointerException e) {
+ 		//	e.printStackTrace();
+ 		//}
         
-        final Invocable invocableEngine = (Invocable)jsEngine;
-        try {
-        	invocableEngine.invokeFunction("configureGroundPlane", groundPlane, groundPlaneN);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-        	e.printStackTrace();
-        } catch (NullPointerException e) {
-        	e.printStackTrace();
-        }
+        //final Invocable invocableEngine = (Invocable)jsEngine;
+        //try {
+        //	invocableEngine.invokeFunction("configureGroundPlane", groundPlane, groundPlaneN);
+        //} catch (ScriptException e) {
+        //	e.printStackTrace();
+        //} catch (NoSuchMethodException e) {
+        //	e.printStackTrace();
+        //} catch (NullPointerException e) {
+        //	e.printStackTrace();
+        //}
         
-        groundPlaneN.attachObject(groundPlane.getManualObject());
+        //groundPlaneN.attachObject(groundPlane.getManualObject());
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, "dolphinHighPoly.obj");
@@ -435,39 +439,61 @@ public class MyGame extends VariableFrameRateGame {
 	private void setupSkybox(SceneManager sm) throws IOException {
 		final Configuration conf = this.getEngine().getConfiguration();
 		final TextureManager tm = this.getEngine().getTextureManager();
-		tm.setBaseDirectoryPath(conf.valueOf("assets.skyboxes.path"));
-		final Texture front = tm.getAssetByPath("posz.jpg");
-		final Texture back = tm.getAssetByPath("negz.jpg");
-		final Texture left = tm.getAssetByPath("negx.jpg");
-		final Texture right = tm.getAssetByPath("posx.jpg");
-		final Texture top = tm.getAssetByPath("posy.jpg");
-		final Texture bottom = tm.getAssetByPath("negy.jpg");
-		tm.setBaseDirectoryPath(conf.valueOf("assets.textures.path"));
-		
-		// cubemap textures are flipped upside down
-		// all textures must hav ethe same dimensions, so any image's
-		// height will work since they are all the same height
-		
-		AffineTransform xform = new AffineTransform();
-		xform.translate(0, front.getImage().getHeight());
-		xform.scale(1d, -1d);
-		
-		front.transform(xform);
-		back.transform(xform);
-		left.transform(xform);
-		right.transform(xform);
-		top.transform(xform);
-		bottom.transform(xform);
-		
+		final AffineTransform xform = new AffineTransform();
 		final SkyBox sb = sm.createSkyBox("SKYBOX");
-		sb.setTexture(front, SkyBox.Face.FRONT);
-		sb.setTexture(back, SkyBox.Face.BACK);
-		sb.setTexture(left, SkyBox.Face.LEFT);
-		sb.setTexture(right, SkyBox.Face.RIGHT);
-		sb.setTexture(top, SkyBox.Face.TOP);
-		sb.setTexture(bottom, SkyBox.Face.BOTTOM);
 		
-		sm.setActiveSkyBox(sb);
+		// setup terrain as configured in script
+ 		try (FileReader fileReader = new FileReader(this.skyboxScript.getScriptFile())) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
+        
+        final Invocable invocableEngine = (Invocable)jsEngine;
+        try {
+        	invocableEngine.invokeFunction("configureSkybox", tm, sm, sb, conf, xform);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
 		
+	}
+	
+	private void setupTerrain(SceneManager sm) {
+		final Tessellation tessE = sm.createTessellation("tessE", 6);
+		final SceneNode tessN = sm.getRootSceneNode().createChildSceneNode("tessN");
+		
+		// setup terrain as configured in script
+ 		try (FileReader fileReader = new FileReader(this.terrainScript.getScriptFile())) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
+        
+        final Invocable invocableEngine = (Invocable)jsEngine;
+        try {
+        	invocableEngine.invokeFunction("configureTerrain", this.getEngine(), tessE, tessN);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
 	}
 }
