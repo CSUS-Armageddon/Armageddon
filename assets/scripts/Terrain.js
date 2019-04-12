@@ -10,9 +10,10 @@ with (JavaPackages) {
 	function configureTerrain(engine, tessE, tessN) {
 		tessE.setQuality(8);
 		tessE.setSubdivisions(32);
-		tessE.setHeightMap(engine, "terrain/map.jpg");
-		tessE.setTexture(engine, "terrain/frozen.jpg");
+		tessE.setHeightMap(engine, "terrain/city_heightmap1.jpg");
+		tessE.setTexture(engine, "terrain/city_map1.jpg");
 		tessN.attachObject(tessE);
-		tessN.scale(500, 500 ,500);
+		tessN.scale(5000, 1000 ,5000);
+		tessN.moveDown(25);
 	}
 }
