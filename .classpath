@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="C:/javagaming/vecmath/vecmath.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/rage165/ray.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/devel/java/javagaming/rage165/javadoc/"/>
+			<attribute name="javadoc_location" value="file:/C:/javagaming/rage165/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/javagaming/joml/joml-1.9.11.jar"/>
@@ -14,17 +14,17 @@
 	<classpathentry kind="lib" path="C:/javagaming/jogl/joal.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/jinput/jinput.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/devel/java/javagaming/jinput/javadoc/"/>
+			<attribute name="javadoc_location" value="file:/C:/javagaming/jinput/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/javagaming/jbullet/jbullet.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/devel/java/javagaming/jbullet/javadoc/"/>
+			<attribute name="javadoc_location" value="file:/C:/javagaming/jbullet/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/javagaming/graphicslib3D/graphicslib3D.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="file:/C:/devel/java/javagaming/graphicslib3D/javadoc/"/>
+			<attribute name="javadoc_location" value="file:/C:/javagaming/graphicslib3D/javadoc/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
