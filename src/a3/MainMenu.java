@@ -52,7 +52,7 @@ public class MainMenu extends JDialog {
 	}
 	
 	private void initWindow() throws UnknownHostException {
-		this.setTitle("BattleHatch Client");
+		this.setTitle("Armageddon Client");
 		this.setResizable(false);
 		this.setPreferredSize(new Dimension(500, 250));
 		

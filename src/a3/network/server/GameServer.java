@@ -68,7 +68,7 @@ public class GameServer extends JFrame {
 	}
 	
 	private void initWindow() throws UnknownHostException {
-		this.setTitle(sc.getString("server.name", "A BattleHatch Server"));
+		this.setTitle(sc.getString("server.name", "An Armageddon Server"));
 		this.setPreferredSize(new Dimension(1024, 768));
 		
 		final JLabel serverIpAddressLabel = new JLabel("Server IP:");
@@ -83,7 +83,7 @@ public class GameServer extends JFrame {
 		serverIPAddress = new JComboBox<String>(ipArray);
 		
 		serverPort = new JTextField(String.valueOf(sc.getInt("server.port", 6868)));
-		serverName = new JTextField(sc.getString("server.name", "A BattleHatch Server"));
+		serverName = new JTextField(sc.getString("server.name", "An Armageddon Server"));
 		
 		startStopServer = new JButton("Start");
 		startStopServer.addActionListener(new StartStopButtonAction());
