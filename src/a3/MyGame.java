@@ -77,7 +77,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private float gameTime;
 	
-	public static final float PLAYER_SPEED = 0.025f;
+	public static final float PLAYER_SPEED = 5.025f;
 	public static final float LOOK_SPEED = 0.75f;
 	
 	public static final String LIGHT_NAME = "Lamp1";
