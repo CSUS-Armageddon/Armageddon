@@ -101,6 +101,7 @@ public class MyGame extends VariableFrameRateGame {
 	//private ScriptAsset groundPlaneScript;
 	private ScriptAsset terrainScript;
 	private ScriptAsset skyboxScript;
+	private ScriptAsset buildingScript;
 	
 	private final boolean isFullScreen;
 
@@ -227,41 +228,37 @@ public class MyGame extends VariableFrameRateGame {
 			//this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
 			this.terrainScript = this.scriptManager.getAssetByPath("Terrain.js");
 			this.skyboxScript = this.scriptManager.getAssetByPath("Skybox.js");
+			this.buildingScript = this.scriptManager.getAssetByPath("Buildings.js");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	private void setupObjects(SceneManager sm) throws IOException {
-		// setup ground plane
-        //final GroundPlane groundPlane = new GroundPlane(GROUND_PLANE_NAME, getEngine(), sm, false);
-        //final SceneNode groundPlaneN = sm.getRootSceneNode().createChildSceneNode(GROUND_PLANE_NODE_NAME);
         
-        // setup ground plane as configured in script
- 		//try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
- 		//	jsEngine.eval(fileReader);
- 		//} catch (FileNotFoundException e) {
- 		//	e.printStackTrace();
- 		//} catch (IOException e) {
- 		//	e.printStackTrace();
- 		//} catch (ScriptException e) {
- 		//	e.printStackTrace();
- 		//} catch (NullPointerException e) {
- 		//	e.printStackTrace();
- 		//}
+        // setup buildings as configured in script
+ 		try (FileReader fileReader = new FileReader(this.buildingScript.getScriptFile())) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
         
-        //final Invocable invocableEngine = (Invocable)jsEngine;
-        //try {
-        //	invocableEngine.invokeFunction("configureGroundPlane", groundPlane, groundPlaneN);
-        //} catch (ScriptException e) {
-        //	e.printStackTrace();
-        //} catch (NoSuchMethodException e) {
-        //	e.printStackTrace();
-        //} catch (NullPointerException e) {
-        //	e.printStackTrace();
-        //}
-        
-        //groundPlaneN.attachObject(groundPlane.getManualObject());
+        final Invocable invocableEngine = (Invocable)jsEngine;
+        try {
+        	invocableEngine.invokeFunction("configureBuildings", sm);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, "dolphinHighPoly.obj");
