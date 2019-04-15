@@ -58,6 +58,7 @@ import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
 import ray.rage.scene.Tessellation;
 import ray.rage.util.Configuration;
+import ray.rml.Degreef;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
@@ -261,11 +262,12 @@ public class MyGame extends VariableFrameRateGame {
         }
         
         // player 1
-    	final Entity playerE = sm.createEntity(PLAYER_NAME, "dolphinHighPoly.obj");
+    	final Entity playerE = sm.createEntity(PLAYER_NAME, "mech_1.obj");
     	playerE.setPrimitive(Primitive.TRIANGLES);
         playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);
-        playerN.moveUp(0.3f);
+        playerN.moveUp(7.0f);
+		playerN.yaw(Degreef.createFrom(90.0f));
         playerN.attachObject(playerE);
 	}
 	
