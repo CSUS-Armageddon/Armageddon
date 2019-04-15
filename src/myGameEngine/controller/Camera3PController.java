@@ -25,6 +25,9 @@ public class Camera3PController {
 	private float radias; // distance between camera and target
 	private Vector3 worldUpVec; // the world's up vector
 	
+	private static final float MAX_ZOOM_OUT = 20.0f;
+	private static final float MAX_ZOOM_IN = 1.0f;
+	
 	public Camera3PController(SceneNode cameraN, SceneNode target, InputType inputType, InputManager im) {
 		this.cameraN = cameraN;
 		this.target = target;
@@ -129,7 +132,7 @@ public class Camera3PController {
 			}
 			
 			final float check = radias + zoomAmount;
-			if ((check < 1.0f) || (check > 10.0f)) return;
+			if ((check < MAX_ZOOM_IN) || (check > MAX_ZOOM_OUT)) return;
 			
 			radias = check;
 			radias = radias % 360;
