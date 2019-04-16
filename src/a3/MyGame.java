@@ -61,6 +61,7 @@ import ray.rage.util.Configuration;
 import ray.rml.Degreef;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
+import ray.rml.Vector3f;
 
 public class MyGame extends VariableFrameRateGame {
 	
@@ -494,5 +495,27 @@ public class MyGame extends VariableFrameRateGame {
         } catch (NullPointerException e) {
         	e.printStackTrace();
         }
+	}
+	
+	public void updateVerticalPosition() {
+		final SceneNode playerN = this.getEngine().getSceneManager().getSceneNode(PLAYER_NODE_NAME);
+		final SceneNode tessN = this.getEngine().getSceneManager().getSceneNode("tessN");
+		final Tessellation tessE = ((Tessellation)tessN.getAttachedObject("tessE"));
+		
+		// figure out Avatar's position relative to plane
+		final Vector3 worldAvatarPosition = playerN.getWorldPosition();
+		final Vector3 localAvatarPosition = playerN.getLocalPosition();
+		
+		// use avatar _WORLD_ coordinates to _get_ coordinated from height
+		final Vector3 newAvatarPosition = Vector3f.createFrom(
+					// Keep the X coordinate
+					localAvatarPosition.x(),
+					// The Y coordinate is the varying height
+					tessE.getWorldHeight(worldAvatarPosition.x(), worldAvatarPosition.z()),
+					// Keep the Z coordinate
+					localAvatarPosition.z()
+				);
+		// use avatar _LOCAL_ coordinates to _set_ position, including height
+		playerN.setLocalPosition(newAvatarPosition);
 	}
 }

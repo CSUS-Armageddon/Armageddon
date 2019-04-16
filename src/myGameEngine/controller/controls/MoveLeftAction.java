@@ -35,6 +35,7 @@ public class MoveLeftAction implements Action {
 			}
 		}
 		this.node.moveLeft(movement);
+		this.gameClient.getGame().updateVerticalPosition();
 		this.gameClient.sendMoveMessage(this.node.getLocalPosition());
 	}
 

@@ -33,6 +33,7 @@ public class YawAction implements Action {
 			movement = -1.0f * evt.getValue();
 		}
 		this.node.yaw(Degreef.createFrom(movement));
+		this.gameClient.getGame().updateVerticalPosition();
 		this.gameClient.sendRotateMessage(this.node.getLocalRotation());
 	}
 
