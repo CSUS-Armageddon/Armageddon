@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -33,6 +34,7 @@ public class MainMenu extends JDialog {
 	private JTextField serverIPAddress;
 	private JTextField serverPort;
 	private JCheckBox fullscreen;
+	private JComboBox<String> avatarSelect;
 	private JButton startStopButton;
 	
 	private final ClientStarter cs;
@@ -75,6 +77,11 @@ public class MainMenu extends JDialog {
 		fullscreen = new JCheckBox("Fullscreen", cs.isFullScreen());
 		setFont(fullscreen);
 		
+		avatarSelect = new JComboBox<String>();
+		avatarSelect.addItem("mech_1");
+		avatarSelect.addItem("mech_obj");
+		setFont(avatarSelect);
+		
 		startStopButton = new JButton("Start");
 		startStopButton.addActionListener(new StartStopButtonAction());
 		startStopButton.setPreferredSize(new Dimension(100, 75));
@@ -96,7 +103,9 @@ public class MainMenu extends JDialog {
 		middleContainer.setLayout(new BoxLayout(middleContainer, BoxLayout.PAGE_AXIS));
 		
 		fullscreen.setAlignmentX(Component.CENTER_ALIGNMENT);
+		avatarSelect.setAlignmentX(Component.CENTER_ALIGNMENT);
 		middleContainer.add(fullscreen);
+		middleContainer.add(avatarSelect);
 		
 		this.getContentPane().add(topContainer, BorderLayout.BEFORE_FIRST_LINE);
 		this.getContentPane().add(middleContainer, BorderLayout.CENTER);		
@@ -124,6 +133,7 @@ public class MainMenu extends JDialog {
 					cs.setIpAddress(serverIPAddress.getText().trim());
 					cs.setPort(Integer.parseInt(serverPort.getText().trim()));
 					cs.setFullScreen(fullscreen.isSelected());
+					cs.setAvatarModelName((String)avatarSelect.getSelectedItem());
 					cs.setDoRun(true);
 					clientStarted = true;
 					dispose();

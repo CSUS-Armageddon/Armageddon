@@ -106,13 +106,16 @@ public class MyGame extends VariableFrameRateGame {
 	private ScriptAsset buildingScript;
 	
 	private final boolean isFullScreen;
+	
+	private final String avatarModelName;
 
-	public MyGame(String serverAddress, int serverPort, boolean isFullScreen) {
+	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, String avatarModelName) {
 		super();
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		this.serverProtocol = ProtocolType.UDP;
 		this.isFullScreen = isFullScreen;
+		this.avatarModelName = avatarModelName;
 	}
 	
 	public void init() {
@@ -263,7 +266,7 @@ public class MyGame extends VariableFrameRateGame {
         }
         
         // player 1
-    	final Entity playerE = sm.createEntity(PLAYER_NAME, "mech_1.obj");
+    	final Entity playerE = sm.createEntity(PLAYER_NAME, avatarModelName + ".obj");
     	playerE.setPrimitive(Primitive.TRIANGLES);
         playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);

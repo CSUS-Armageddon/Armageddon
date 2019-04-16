@@ -5,6 +5,7 @@ public class ClientStarter {
 	private String ipAddress;
 	private int port = -1;
 	private boolean isFullScreen = false;
+	private String avatarModelName;
 	
 	private MyGame game;
 	
@@ -16,7 +17,7 @@ public class ClientStarter {
 	
 	public void init() {
 		new MainMenu(this);
-		this.game = new MyGame(this.ipAddress, this.port, this.isFullScreen);
+		this.game = new MyGame(this.ipAddress, this.port, this.isFullScreen, this.avatarModelName);
 		if (doRun) {
 			this.game.init();
 			this.doRun = false;
@@ -80,6 +81,20 @@ public class ClientStarter {
 	 */
 	public void setFullScreen(boolean isFullScreen) {
 		this.isFullScreen = isFullScreen;
+	}
+
+	/**
+	 * @return the avatarModelName
+	 */
+	public String getAvatarModelName() {
+		return avatarModelName;
+	}
+
+	/**
+	 * @param avatarModelName the avatarModelName to set
+	 */
+	public void setAvatarModelName(String avatarModelName) {
+		this.avatarModelName = avatarModelName;
 	}
 	
 }
