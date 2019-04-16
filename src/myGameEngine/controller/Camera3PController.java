@@ -36,7 +36,7 @@ public class Camera3PController {
 		
 		this.cameraAzimuth = 225.0f; // start from BEHIND and ABOVE the target
 		this.cameraElevation = 20.0f; // elevation is in degrees
-		this.radias = 2.0f;
+		this.radias = 25.0f;
 		this.worldUpVec = Vector3f.createFrom(0.0f, 1.0f, 0.0f); // Y is UP
 		setupInput(this.im, this.inputType);
 		updateCameraPosition();
