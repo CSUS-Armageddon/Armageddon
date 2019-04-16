@@ -11,12 +11,12 @@ var JavaPackages = new JavaImporter(
 with (JavaPackages) {
 	function configureSkybox(tm, sm, sb, conf, xform) {
 		tm.setBaseDirectoryPath(conf.valueOf("assets.skyboxes.path"));
-		var front = tm.getAssetByPath("posz.jpg");
-		var back = tm.getAssetByPath("negz.jpg");
-		var left = tm.getAssetByPath("negx.jpg");
-		var right = tm.getAssetByPath("posx.jpg");
-		var top = tm.getAssetByPath("posy.jpg");
-		var bottom = tm.getAssetByPath("negy.jpg");
+		var front = tm.getAssetByPath("Nalovardo/posz.jpg");
+		var back = tm.getAssetByPath("Nalovardo/negz.jpg");
+		var left = tm.getAssetByPath("Nalovardo/negx.jpg");
+		var right = tm.getAssetByPath("Nalovardo/posx.jpg");
+		var top = tm.getAssetByPath("Nalovardo/posy.jpg");
+		var bottom = tm.getAssetByPath("Nalovardo/negy.jpg");
 		tm.setBaseDirectoryPath(conf.valueOf("assets.textures.path"));
 		
 		// cubemap textures are flipped upside down
