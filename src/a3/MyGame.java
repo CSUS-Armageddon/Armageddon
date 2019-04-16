@@ -185,7 +185,7 @@ public class MyGame extends VariableFrameRateGame {
         playerCameraN = rootNode.createChildSceneNode(CAMERA_NODE_NAME);
         playerCameraN.attachObject(playerCamera);
         playerCamera.setMode('n');
-        playerCamera.getFrustum().setFarClipDistance(1000.0f);
+        playerCamera.getFrustum().setFarClipDistance(10000.0f);
 	}
 	
 	private void setupOrbitCamera(Engine eng, SceneManager sm) {
