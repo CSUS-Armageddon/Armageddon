@@ -91,16 +91,13 @@ public class MyGame extends VariableFrameRateGame {
 	public static final String PLAYER_NAME = "Player";
 	public static final String PLAYER_NODE_NAME = "PlayerNode";
 	
-	public static final String GROUND_PLANE_NAME = "GroundPlane";
-	public static final String GROUND_PLANE_NODE_NAME = "GroundPlaneNode";
-	
 	private static final String HUD_BASE = "Game Time: ";
 	
 	private InputManager im;
 	
 	private ScriptManager scriptManager;
 	private ScriptEngine jsEngine;
-	//private ScriptAsset groundPlaneScript;
+	private ScriptAsset groundPlaneScript;
 	private ScriptAsset terrainScript;
 	private ScriptAsset skyboxScript;
 	private ScriptAsset buildingScript;
@@ -204,6 +201,7 @@ public class MyGame extends VariableFrameRateGame {
 		
 		setupScripting();
 		setupSkybox(sm);
+		setupGroundPlane(sm);
 		setupTerrain(sm);
 		setupObjects(sm);
 		setupLights(sm);
@@ -230,7 +228,7 @@ public class MyGame extends VariableFrameRateGame {
 		this.jsEngine = factory.getEngineByName("js");
 		
 		try {
-			//this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
+			this.groundPlaneScript = this.scriptManager.getAssetByPath("GroundPlane.js");
 			this.terrainScript = this.scriptManager.getAssetByPath("Terrain.js");
 			this.skyboxScript = this.scriptManager.getAssetByPath("Skybox.js");
 			this.buildingScript = this.scriptManager.getAssetByPath("Buildings.js");
@@ -472,8 +470,6 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	private void setupTerrain(SceneManager sm) {
-		final Tessellation tessE = sm.createTessellation("tessE", 6);
-		final SceneNode tessN = sm.getRootSceneNode().createChildSceneNode("tessN");
 		
 		// setup terrain as configured in script
  		try (FileReader fileReader = new FileReader(this.terrainScript.getScriptFile())) {
@@ -490,7 +486,34 @@ public class MyGame extends VariableFrameRateGame {
         
         final Invocable invocableEngine = (Invocable)jsEngine;
         try {
-        	invocableEngine.invokeFunction("configureTerrain", this.getEngine(), tessE, tessN);
+        	invocableEngine.invokeFunction("configureTerrain", this.getEngine());
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
+	}
+	
+	private void setupGroundPlane(SceneManager sm) {
+		
+		// setup ground plane as configured in script
+ 		try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
+        
+        final Invocable invocableEngine = (Invocable)jsEngine;
+        try {
+        	invocableEngine.invokeFunction("configureGroundPlane", this.getEngine());
         } catch (ScriptException e) {
         	e.printStackTrace();
         } catch (NoSuchMethodException e) {

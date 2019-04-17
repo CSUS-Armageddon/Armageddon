@@ -7,12 +7,27 @@ var JavaPackages = new JavaImporter(
 );
 
 with (JavaPackages) {
-	function configureTerrain(engine, tessE, tessN) {
-		tessE.setQuality(8);
-		tessE.setSubdivisions(32);
-		tessE.setHeightMap(engine, "terrain/city_map_height.png");
-		tessE.setTexture(engine, "terrain/city_map.png");
+	
+	var TESSELLATION_QUALITY = 8;
+	var TESSELLATION_SUBDIVISIONS = 32;
+	
+	var TERRAIN_SCALE_X = 5000;
+	var TERRAIN_SCALE_Y = 1000;
+	var TERRAIN_SCALE_Z = 5000;
+	
+	var TERRAIN_HEIGHTMAP = "terrain/island/island-height-map2.png";
+	var TERRAIN_MAP = "terrain/island/island-map.png";
+	
+	var TESSELLATION_ENTITY = "tessE";
+	var TESSELLATION_NODE = "tessN";
+	
+	function configureTerrain(engine) {
+		var tessE = engine.getSceneManager().createTessellation(TESSELLATION_ENTITY, TESSELLATION_QUALITY);
+		var tessN = engine.getSceneManager().getRootSceneNode().createChildSceneNode(TESSELLATION_NODE);
+		tessE.setSubdivisions(TESSELLATION_SUBDIVISIONS);
+		tessE.setHeightMap(engine, TERRAIN_HEIGHTMAP);
+		tessE.setTexture(engine, TERRAIN_MAP);
 		tessN.attachObject(tessE);
-		tessN.scale(5000, 500 ,5000);
+		tessN.scale(TERRAIN_SCALE_X, TERRAIN_SCALE_Y ,TERRAIN_SCALE_Z);
 	}
 }

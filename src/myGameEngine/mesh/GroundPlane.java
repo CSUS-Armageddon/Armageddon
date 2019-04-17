@@ -9,7 +9,7 @@ public class GroundPlane extends CustomObject {
 	
 	final private String materialFilename = "default.mtl";
 	private String textureFilename = "ground-plane.jpeg";
-	final private Color emissiveColor = Color.YELLOW;
+	final private Color emissiveColor = null;//Color.BLUE;
 	
 	final private float[] verticies = new float[]
 			{
