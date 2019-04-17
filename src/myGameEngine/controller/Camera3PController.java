@@ -25,7 +25,7 @@ public class Camera3PController {
 	private float radias; // distance between camera and target
 	private Vector3 worldUpVec; // the world's up vector
 	
-	private static final float MAX_ZOOM_OUT = 20.0f;
+	private static final float MAX_ZOOM_OUT = 50.0f;
 	private static final float MAX_ZOOM_IN = 1.0f;
 	
 	public Camera3PController(SceneNode cameraN, SceneNode target, InputType inputType, InputManager im) {
