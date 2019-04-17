@@ -272,6 +272,7 @@ public class MyGame extends VariableFrameRateGame {
         playerN.moveUp(7.0f);
 		playerN.yaw(Degreef.createFrom(90.0f));
         playerN.attachObject(playerE);
+        this.updateVerticalPosition();
 	}
 	
 	private void setupLights(SceneManager sm) {
