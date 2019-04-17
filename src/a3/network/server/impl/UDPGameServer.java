@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import a3.avatar.Avatars;
 import a3.network.api.Position;
 import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
@@ -128,13 +129,14 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 
 	@Override
-	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation) {
+	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation, String avatarName) {
 		try {
 			final CreateMessage cm = new CreateMessage();
 			initMessage(cm);
 			cm.setUUID(uuid);
 			cm.setPosition(Position.fromVector3(playerPosition));
 			cm.setRotation(Rotation.fromMatrix3(playerRotation));
+			cm.setAvatar(Avatars.fromAvatarName(avatarName));
 			forwardPacketToAll(cm, uuid);
 		} catch (IOException e) {
 			ServerLogger.INSTANCE.log(e);
@@ -143,8 +145,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		sendCreateMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
-		sendDetailsMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
+		sendCreateMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3(), cm.getAvatar().getAvatarName());
+		sendDetailsMessage(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3(), cm.getAvatar().getAvatarName());
 	}
 
 	@Override
@@ -195,12 +197,14 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 
 	@Override
-	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation) {
+	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation, String avatarName) {
 		try {
 			final DetailsMessage dm = new DetailsMessage();
 			initMessage(dm);
+			dm.setUUID(uuid);
 			dm.setPosition(Position.fromVector3(localPosition));
 			dm.setRotation(Rotation.fromMatrix3(localRotation));
+			dm.setAvatar(Avatars.fromAvatarName(avatarName));
 			forwardPacketToAll(dm, uuid);
 		} catch (IOException e) {
 			ServerLogger.INSTANCE.log(e);
@@ -209,7 +213,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	@Override
 	public void handleDetailsMessage(DetailsMessage dm) {
-		sendDetailsMessage(dm.getUUID(), dm.getPosition().toVector3(), dm.getRotation().toMatrix3());
+		sendDetailsMessage(dm.getUUID(), dm.getPosition().toVector3(), dm.getRotation().toMatrix3(), dm.getAvatar().getAvatarName());
 	}
 
 	@Override

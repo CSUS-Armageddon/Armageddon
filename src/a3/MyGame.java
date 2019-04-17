@@ -133,7 +133,7 @@ public class MyGame extends VariableFrameRateGame {
 		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
-		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
+		//ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
 		setupNetworking();
 		super.startup();
 	}
@@ -403,7 +403,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), "cube.obj");
+			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
 			ghostE.setPrimitive(Primitive.TRIANGLES);
 			final SceneNode ghostN = this.getEngine().getSceneManager().getRootSceneNode().createChildSceneNode(avatar.getUUID().toString());
 			ghostN.attachObject(ghostE);
@@ -544,5 +544,12 @@ public class MyGame extends VariableFrameRateGame {
 				);
 		// use avatar _LOCAL_ coordinates to _set_ position, including height
 		playerN.setLocalPosition(newAvatarPosition);
+	}
+
+	/**
+	 * @return the avatar
+	 */
+	public Avatar getAvatar() {
+		return avatar;
 	}
 }

@@ -19,7 +19,7 @@ public interface Server {
 	
 	public void sendGhostCreateMessage(UUID uuid, UUID ghostUUID, IClientInfo ghostClientInfo);
 	
-	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation);
+	public void sendCreateMessage(UUID uuid, Vector3 playerPosition, Matrix3 playerRotation, String avatarName);
 	public void handleCreateMessage(CreateMessage cm);
 	
 	public void sendMoveMessage(UUID uuid, Vector3 localPosition);
@@ -30,7 +30,7 @@ public interface Server {
 	
 	public void sendRequestMessage();
 	
-	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation);
+	public void sendDetailsMessage(UUID uuid, Vector3 localPosition, Matrix3 localRotation, String avatarName);
 	public void handleDetailsMessage(DetailsMessage dm);
 	
 	public void sendHangupMessage(UUID uuid);

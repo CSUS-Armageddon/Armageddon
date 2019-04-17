@@ -15,7 +15,7 @@ public interface Client {
 	public void sendJoinMessage();
 	public void handleJoinMessage(JoinMessage jm);
 	
-	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation);
+	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation, String avatarName);
 	public void handleCreateMessage(CreateMessage cm);
 	
 	public void sendMoveMessage(Vector3 localPosition);
@@ -26,7 +26,7 @@ public interface Client {
 	
 	public void handleRequestMessage(RequestMessage rm);
 	
-	public void sendDetailsMessage(Vector3 localPosition, Matrix3 localRotation);
+	public void sendDetailsMessage(Vector3 localPosition, Matrix3 localRotation, String avatarName);
 	public void handleDetailsMessage(DetailsMessage dm);
 	
 	public void sendHangupMessage();

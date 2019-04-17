@@ -1,6 +1,8 @@
 package a3.avatar;
 
-public interface Avatar {
+import java.io.Serializable;
+
+public interface Avatar extends Serializable {
 
 	public String getAvatarName();
 	public String getAvatarFileName();

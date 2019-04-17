@@ -2,6 +2,7 @@ package a3.network.client;
 
 import java.util.UUID;
 
+import a3.avatar.Avatar;
 import ray.rage.scene.Entity;
 import ray.rage.scene.SceneNode;
 import ray.rml.Matrix3;
@@ -12,20 +13,23 @@ import ray.rml.Vector3f;
 public class GhostAvatar {
 
 	private final UUID uuid;
+	private Avatar avatar;
 	private SceneNode node;
 	private Entity entity;
 	private Vector3 position = Vector3f.createFrom(0.0f, 0.0f, 0.0f);
 	private Matrix3 rotation = Matrix3f.createIdentityMatrix();
 	
-	public GhostAvatar(UUID uuid, Vector3 position) {
+	public GhostAvatar(UUID uuid, Vector3 position, Avatar avatar) {
 		this.uuid = uuid;
 		this.position = position;
+		this.avatar = avatar;
 	}
 	
-	public GhostAvatar(UUID uuid, Vector3 position, Matrix3 rotation) {
+	public GhostAvatar(UUID uuid, Vector3 position, Matrix3 rotation, Avatar avatar) {
 		this.uuid = uuid;
 		this.position = position;
 		this.rotation = rotation;
+		this.avatar = avatar;
 	}
 
 	/**
@@ -90,5 +94,19 @@ public class GhostAvatar {
 	 */
 	public UUID getUUID() {
 		return uuid;
+	}
+
+	/**
+	 * @return the avatar
+	 */
+	public Avatar getAvatar() {
+		return avatar;
+	}
+	
+	/**
+	 * @param avatar the avatar to set
+	 */
+	public void setAvatar(Avatar avatar) {
+		this.avatar = avatar;
 	}
 }

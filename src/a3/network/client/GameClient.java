@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import a3.MyGame;
+import a3.avatar.Avatars;
 import a3.network.api.Position;
 import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
@@ -21,6 +22,8 @@ import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ClientLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
+import ray.rage.scene.Entity;
+import ray.rage.scene.SceneNode;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
@@ -98,7 +101,7 @@ public class GameClient extends GameConnectionClient implements Client {
 			game.setClientConnected(true);
 			this.remoteName = jm.getFromName();
 			System.out.println("Join Success");
-			sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation());
+			sendCreateMessage(game.getPlayerPosition(), game.getPlayerRotation(), game.getAvatar().getAvatarName());
 		} else {
 			game.setClientConnected(false);
 			System.out.println("Join Failure");
@@ -106,12 +109,13 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 
 	@Override
-	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation) {
+	public void sendCreateMessage(Vector3 playerPosition, Matrix3 playerRotation, String avatarName) {
 		try {
 			final CreateMessage cm = new CreateMessage();
 			initMessage(cm);
 			cm.setPosition(Position.fromVector3(playerPosition));
 			cm.setRotation(Rotation.fromMatrix3(playerRotation));
+			cm.setAvatar(Avatars.fromAvatarName(avatarName));
 			sendPacket(cm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,7 +124,7 @@ public class GameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3());
+		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3(), cm.getAvatar());
 		try {
 			game.addGhostAvatar(avatar);
 			ghostAvatars.add(avatar);
@@ -171,16 +175,17 @@ public class GameClient extends GameConnectionClient implements Client {
 	
 	@Override
 	public void handleRequestMessage(RequestMessage rm) {
-		sendDetailsMessage(game.getPlayerPosition(), game.getPlayerRotation());
+		sendDetailsMessage(game.getPlayerPosition(), game.getPlayerRotation(), game.getAvatar().getAvatarName());
 	}
 
 	@Override
-	public void sendDetailsMessage(Vector3 localPosition, Matrix3 localRotation) {
+	public void sendDetailsMessage(Vector3 localPosition, Matrix3 localRotation, String avatarName) {
 		try {
 			final DetailsMessage dm = new DetailsMessage();
 			initMessage(dm);
 			dm.setPosition(Position.fromVector3(localPosition));
 			dm.setRotation(Rotation.fromMatrix3(localRotation));
+			dm.setAvatar(Avatars.fromAvatarName(avatarName));
 			sendPacket(dm);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -193,6 +198,18 @@ public class GameClient extends GameConnectionClient implements Client {
 		if (avatar != null) {
 			avatar.getNode().setLocalPosition(dm.getPosition().toVector3());
 			avatar.getNode().setLocalRotation(dm.getRotation().toMatrix3());
+			try {
+				if ((avatar.getAvatar() == null && dm.getAvatar() != null) || !avatar.getAvatar().getAvatarName().contentEquals(dm.getAvatar().getAvatarName())) {
+					final SceneNode ghostN = game.getEngine().getSceneManager().getSceneNode(avatar.getUUID().toString()); // get existing node
+					ghostN.detachObject(avatar.getUUID().toString()); // detach the existing entity from the node
+					game.getEngine().getSceneManager().destroyEntity(avatar.getUUID().toString()); // make sure sm forgets about it
+					final Entity ghostE = game.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarFileName()); // make new entity
+					ghostN.attachObject(ghostE); // and attach it
+					avatar.setAvatar(dm.getAvatar()); // success, remember avatar
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

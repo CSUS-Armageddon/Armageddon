@@ -2,6 +2,8 @@ package a3.avatar;
 
 public abstract class BasicAvatar implements Avatar {
 
+	private static final long serialVersionUID = 3124433782849223911L;
+	
 	protected String avatarName = null;
 	protected String avatarFileName = null;
 	protected float avatarHeightOffset = 0.0f;
