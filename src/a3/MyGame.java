@@ -19,6 +19,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import a3.avatar.Avatar;
 import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
@@ -104,15 +105,15 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private final boolean isFullScreen;
 	
-	private final String avatarModelName;
+	private final Avatar avatar;
 
-	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, String avatarModelName) {
+	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, Avatar avatar) {
 		super();
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		this.serverProtocol = ProtocolType.UDP;
 		this.isFullScreen = isFullScreen;
-		this.avatarModelName = avatarModelName;
+		this.avatar = avatar;
 	}
 	
 	public void init() {
@@ -264,7 +265,7 @@ public class MyGame extends VariableFrameRateGame {
         }
         
         // player 1
-    	final Entity playerE = sm.createEntity(PLAYER_NAME, avatarModelName + ".obj");
+    	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
     	playerE.setPrimitive(Primitive.TRIANGLES);
         playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);
@@ -537,7 +538,7 @@ public class MyGame extends VariableFrameRateGame {
 					// Keep the X coordinate
 					localAvatarPosition.x(),
 					// The Y coordinate is the varying height
-					tessE.getWorldHeight(worldAvatarPosition.x(), worldAvatarPosition.z()),
+					tessE.getWorldHeight(worldAvatarPosition.x(), worldAvatarPosition.z()) + this.avatar.getAvatarHeightOffset(),
 					// Keep the Z coordinate
 					localAvatarPosition.z()
 				);

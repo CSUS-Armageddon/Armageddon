@@ -1,11 +1,13 @@
 package a3;
 
+import a3.avatar.Avatar;
+
 public class ClientStarter {
 	
 	private String ipAddress;
 	private int port = -1;
 	private boolean isFullScreen = false;
-	private String avatarModelName;
+	private Avatar avatar;
 	
 	private MyGame game;
 	
@@ -17,7 +19,7 @@ public class ClientStarter {
 	
 	public void init() {
 		new MainMenu(this);
-		this.game = new MyGame(this.ipAddress, this.port, this.isFullScreen, this.avatarModelName);
+		this.game = new MyGame(this.ipAddress, this.port, this.isFullScreen, this.avatar);
 		if (doRun) {
 			this.game.init();
 			this.doRun = false;
@@ -84,17 +86,17 @@ public class ClientStarter {
 	}
 
 	/**
-	 * @return the avatarModelName
+	 * @return the avatar
 	 */
-	public String getAvatarModelName() {
-		return avatarModelName;
+	public Avatar getAvatar() {
+		return avatar;
 	}
 
 	/**
-	 * @param avatarModelName the avatarModelName to set
+	 * @param avatar the avatar to set
 	 */
-	public void setAvatarModelName(String avatarModelName) {
-		this.avatarModelName = avatarModelName;
+	public void setAvatar(Avatar avatar) {
+		this.avatar = avatar;
 	}
 	
 }

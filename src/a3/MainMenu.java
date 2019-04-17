@@ -21,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import a3.avatar.Avatars;
 import a3.network.server.ServerConfig;
 
 public class MainMenu extends JDialog {
@@ -78,8 +79,10 @@ public class MainMenu extends JDialog {
 		setFont(fullscreen);
 		
 		avatarSelect = new JComboBox<String>();
-		avatarSelect.addItem("mech_1");
-		avatarSelect.addItem("mech_obj");
+		
+		for (Avatars avatar : Avatars.values()) {
+			avatarSelect.addItem(avatar.getAvatar().getAvatarName());
+		}
 		setFont(avatarSelect);
 		
 		startStopButton = new JButton("Start");
@@ -133,7 +136,7 @@ public class MainMenu extends JDialog {
 					cs.setIpAddress(serverIPAddress.getText().trim());
 					cs.setPort(Integer.parseInt(serverPort.getText().trim()));
 					cs.setFullScreen(fullscreen.isSelected());
-					cs.setAvatarModelName((String)avatarSelect.getSelectedItem());
+					cs.setAvatar(Avatars.fromAvatarName((String)avatarSelect.getSelectedItem()));
 					cs.setDoRun(true);
 					clientStarted = true;
 					dispose();
