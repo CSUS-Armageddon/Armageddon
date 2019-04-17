@@ -191,7 +191,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void setupOrbitCamera(Engine eng, SceneManager sm) {
 		final SceneNode abovePN = sm.getRootSceneNode().createChildSceneNode("AbovePlayerN");
     	playerN.attachChild(abovePN);
-    	abovePN.moveUp(0.25f);
+    	abovePN.moveUp(1.0f);
     	cameraController = new Camera3PController(playerCameraN, abovePN, InputType.MOUSE, im);
 	}
 
