@@ -104,7 +104,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private final boolean isFullScreen;
 	
-	private final Avatar avatar;
+	private Avatar avatar;
 
 	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, Avatar avatar) {
 		super();
@@ -551,5 +551,9 @@ public class MyGame extends VariableFrameRateGame {
 	 */
 	public Avatar getAvatar() {
 		return avatar;
+	}
+	
+	public void setAvatar(Avatar avatar) {
+		this.avatar = avatar;
 	}
 }
