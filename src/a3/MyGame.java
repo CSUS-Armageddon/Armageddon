@@ -1,6 +1,5 @@
 package a3;
 
-import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
@@ -94,7 +93,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private static final String HUD_BASE = "Game Time: ";
 	
-	private InputManager im;
+	protected InputManager im;
 	
 	private ScriptManager scriptManager;
 	private ScriptEngine jsEngine;
@@ -290,7 +289,7 @@ public class MyGame extends VariableFrameRateGame {
         plightNode.attachObject(plight);
     }
 	
-	private void setupInputs(SceneManager sm) throws AWTException {
+	protected void setupInputs(SceneManager sm) {
 		System.out.println("Initializing Inputs...");
 		
 		this.im = new GenericInputManager();
