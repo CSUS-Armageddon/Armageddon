@@ -237,7 +237,7 @@ public class MyGame extends VariableFrameRateGame {
 		}
 	}
 	
-	private void setupObjects(SceneManager sm) throws IOException {
+	protected void setupObjects(SceneManager sm) throws IOException {
         
         // setup buildings as configured in script
  		try (FileReader fileReader = new FileReader(this.buildingScript.getScriptFile())) {
