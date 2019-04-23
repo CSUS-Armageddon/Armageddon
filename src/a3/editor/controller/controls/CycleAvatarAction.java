@@ -3,6 +3,7 @@ package a3.editor.controller.controls;
 import java.io.IOException;
 
 import a3.MyGame;
+import a3.editor.MyGameEditor;
 import a3.editor.avatar.PlaceableAvatars;
 import net.java.games.input.Event;
 import ray.input.action.Action;
@@ -14,13 +15,15 @@ import ray.rage.scene.SceneNode;
 public class CycleAvatarAction implements Action {
 
 	private final SceneManager sm;
+	private final MyGameEditor editor;
 	private final SceneNode playerNode;
 	
 	private PlaceableAvatars[] placeableAvatars;
 	private int index;
 	
-	public CycleAvatarAction(SceneManager sm) {
+	public CycleAvatarAction(SceneManager sm, MyGameEditor editor) {
 		this.sm = sm;
+		this.editor = editor;
 		this.playerNode = (SceneNode) sm.getRootSceneNode().getChild(MyGame.PLAYER_NODE_NAME);
 	}
 	
@@ -52,6 +55,7 @@ public class CycleAvatarAction implements Action {
 						placeableAvatars[index].getPlaceableAvatar().getAvatarFileName());
 		en.setPrimitive(Primitive.TRIANGLES);
 		this.playerNode.attachObject(en);
+		editor.setAvatar(placeableAvatars[index].getPlaceableAvatar());
 	}
 	
 }
