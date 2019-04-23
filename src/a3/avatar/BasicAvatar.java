@@ -49,6 +49,7 @@ public abstract class BasicAvatar implements Avatar {
 	/**
 	 * @param avatarHeightOffset the avatarHeightOffset to set
 	 */
+	@Override
 	public void setAvatarHeightOffset(float avatarHeightOffset) {
 		this.avatarHeightOffset = avatarHeightOffset;
 	}
