@@ -5,6 +5,7 @@ import a3.avatar.Avatar;
 import a3.avatar.Avatars;
 import a3.editor.controller.controls.CycleAvatarAction;
 import a3.editor.controller.controls.ScaleAvatarAction;
+import a3.editor.controller.controls.VerticalAvatarAction;
 import net.java.games.input.Controller;
 import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Controller.Type;
@@ -38,8 +39,9 @@ public class MyGameEditor extends MyGame {
 	protected void setupInputs(SceneManager sm) {
 		super.setupInputs(sm);
 		
-		final CycleAvatarAction cycleAvatarAction = new CycleAvatarAction(sm);
+		final CycleAvatarAction cycleAvatarAction = new CycleAvatarAction(sm, this);
 		final ScaleAvatarAction scaleAvatarAction = new ScaleAvatarAction(sm);
+		final VerticalAvatarAction verticalAvatarAction = new VerticalAvatarAction(sm, this);
 		
 		// hack to change avatars to first placeableAvatar
 		cycleAvatarAction.performAction(0, null);
@@ -54,7 +56,9 @@ public class MyGameEditor extends MyGame {
 		    	im.associateAction(c, Key.J, scaleAvatarAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	im.associateAction(c, Key.L, scaleAvatarAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	
-		    	
+		    	// up and down
+		    	im.associateAction(c, Key.I, verticalAvatarAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	im.associateAction(c, Key.K, verticalAvatarAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 			}
 		}
 	}
