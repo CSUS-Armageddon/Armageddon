@@ -39,6 +39,9 @@ public class MyGameEditor extends MyGame {
 		
 		final CycleAvatarAction cycleAvatarAction = new CycleAvatarAction(sm);
 		
+		// hack to change avatars to first placeableAvatar
+		cycleAvatarAction.performAction(0, null);
+		
 		for (Controller c : super.im.getControllers()) {
 			if (c.getType() == Type.KEYBOARD && c.getName().toUpperCase().contains("KEYBOARD")) {	
 		    	// cycle avatars using iterator backward/forward
