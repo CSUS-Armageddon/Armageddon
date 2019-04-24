@@ -17,7 +17,6 @@ public class PlaceAvatarAction implements Action {
 	public PlaceAvatarAction(SceneManager sm, MyGameEditor editor) {
 		this.sm = sm;
 		this.editor = editor;
-		//this.playerNode = (SceneNode) sm.getRootSceneNode().getChild(MyGame.PLAYER_NODE_NAME);
 	}
 	
 	@Override
