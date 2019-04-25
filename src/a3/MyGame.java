@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
 import java.awt.geom.AffineTransform;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -97,10 +98,12 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private ScriptManager scriptManager;
 	private ScriptEngine jsEngine;
+	private Invocable invocableEngine;
 	private ScriptAsset groundPlaneScript;
 	private ScriptAsset terrainScript;
 	private ScriptAsset skyboxScript;
 	private ScriptAsset buildingScript;
+	private ScriptAsset sceneScript;
 	
 	private final boolean isFullScreen;
 	
@@ -235,33 +238,25 @@ public class MyGame extends VariableFrameRateGame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		try {
+			this.sceneScript = this.scriptManager.getAssetByPath("SceneGenerator.js");
+		} catch (IOException e) {
+			System.out.println("SceneGenerator.js Does Not Exist! Run Game Editor first!");
+		}
+		
+		if (this.groundPlaneScript != null) initScript(this.groundPlaneScript.getScriptFile());
+		if (this.terrainScript != null) initScript(this.terrainScript.getScriptFile());
+		if (this.skyboxScript != null) initScript(this.skyboxScript.getScriptFile());
+		if (this.buildingScript != null) initScript(this.buildingScript.getScriptFile());
+		if (this.sceneScript != null) initScript(this.sceneScript.getScriptFile());
+		
+		this.invocableEngine = (Invocable)jsEngine;
 	}
 	
 	protected void setupObjects(SceneManager sm) throws IOException {
-        
-        // setup buildings as configured in script
- 		try (FileReader fileReader = new FileReader(this.buildingScript.getScriptFile())) {
- 			jsEngine.eval(fileReader);
- 		} catch (FileNotFoundException e) {
- 			e.printStackTrace();
- 		} catch (IOException e) {
- 			e.printStackTrace();
- 		} catch (ScriptException e) {
- 			e.printStackTrace();
- 		} catch (NullPointerException e) {
- 			e.printStackTrace();
- 		}
-        
-        final Invocable invocableEngine = (Invocable)jsEngine;
-        try {
-        	invocableEngine.invokeFunction("configureBuildings", sm);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-        	e.printStackTrace();
-        } catch (NullPointerException e) {
-        	e.printStackTrace();
-        }
+		
+		invokeScript("configureBuildings", sm);
+		invokeScript("generate", sm);
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
@@ -443,85 +438,19 @@ public class MyGame extends VariableFrameRateGame {
 		final TextureManager tm = this.getEngine().getTextureManager();
 		final AffineTransform xform = new AffineTransform();
 		final SkyBox sb = sm.createSkyBox("SKYBOX");
-		
-		// setup terrain as configured in script
- 		try (FileReader fileReader = new FileReader(this.skyboxScript.getScriptFile())) {
- 			jsEngine.eval(fileReader);
- 		} catch (FileNotFoundException e) {
- 			e.printStackTrace();
- 		} catch (IOException e) {
- 			e.printStackTrace();
- 		} catch (ScriptException e) {
- 			e.printStackTrace();
- 		} catch (NullPointerException e) {
- 			e.printStackTrace();
- 		}
         
-        final Invocable invocableEngine = (Invocable)jsEngine;
-        try {
-        	invocableEngine.invokeFunction("configureSkybox", tm, sm, sb, conf, xform);
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-        	e.printStackTrace();
-        } catch (NullPointerException e) {
-        	e.printStackTrace();
-        }
+		invokeScript("configureSkybox", tm, sm, sb, conf, xform);
 		
 	}
 	
 	private void setupTerrain(SceneManager sm) {
-		
-		// setup terrain as configured in script
- 		try (FileReader fileReader = new FileReader(this.terrainScript.getScriptFile())) {
- 			jsEngine.eval(fileReader);
- 		} catch (FileNotFoundException e) {
- 			e.printStackTrace();
- 		} catch (IOException e) {
- 			e.printStackTrace();
- 		} catch (ScriptException e) {
- 			e.printStackTrace();
- 		} catch (NullPointerException e) {
- 			e.printStackTrace();
- 		}
         
-        final Invocable invocableEngine = (Invocable)jsEngine;
-        try {
-        	invocableEngine.invokeFunction("configureTerrain", this.getEngine());
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-        	e.printStackTrace();
-        } catch (NullPointerException e) {
-        	e.printStackTrace();
-        }
+		invokeScript("configureTerrain", this.getEngine());
 	}
 	
 	private void setupGroundPlane(SceneManager sm) {
 		
-		// setup ground plane as configured in script
- 		try (FileReader fileReader = new FileReader(this.groundPlaneScript.getScriptFile())) {
- 			jsEngine.eval(fileReader);
- 		} catch (FileNotFoundException e) {
- 			e.printStackTrace();
- 		} catch (IOException e) {
- 			e.printStackTrace();
- 		} catch (ScriptException e) {
- 			e.printStackTrace();
- 		} catch (NullPointerException e) {
- 			e.printStackTrace();
- 		}
-        
-        final Invocable invocableEngine = (Invocable)jsEngine;
-        try {
-        	invocableEngine.invokeFunction("configureGroundPlane", this.getEngine());
-        } catch (ScriptException e) {
-        	e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-        	e.printStackTrace();
-        } catch (NullPointerException e) {
-        	e.printStackTrace();
-        }
+		invokeScript("configureGroundPlane", this.getEngine());
 	}
 	
 	public void updateVerticalPosition() {
@@ -555,5 +484,32 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void setAvatar(Avatar avatar) {
 		this.avatar = avatar;
+	}
+	
+	private void initScript(File scriptFile) {
+		// setup buildings as configured in script
+ 		try (FileReader fileReader = new FileReader(scriptFile)) {
+ 			jsEngine.eval(fileReader);
+ 		} catch (FileNotFoundException e) {
+ 			e.printStackTrace();
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} catch (ScriptException e) {
+ 			e.printStackTrace();
+ 		} catch (NullPointerException e) {
+ 			e.printStackTrace();
+ 		}
+	}
+	
+	private void invokeScript(String func, Object ... args) {
+		try {
+        	this.invocableEngine.invokeFunction(func, args);
+        } catch (ScriptException e) {
+        	e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+        	e.printStackTrace();
+        } catch (NullPointerException e) {
+        	e.printStackTrace();
+        }
 	}
 }
