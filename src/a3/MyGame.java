@@ -256,7 +256,7 @@ public class MyGame extends VariableFrameRateGame {
 	protected void setupObjects(SceneManager sm) throws IOException {
 		
 		invokeScript("configureBuildings", sm);
-		invokeScript("generate", sm);
+		invokeScript("generateSceneObjects", sm);
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());

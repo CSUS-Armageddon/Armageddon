@@ -40,7 +40,7 @@ public class SaveMapAction implements Action {
 			");\r\n" +
 			"\r\n" +
 			"with (JavaPackages) {\r\n" +
-			"    function generate(sm) {\r\n" + 
+			"    function generateSceneObjects(sm) {\r\n" + 
 			         BODY_PLACEHOLDER + 
 			"    }\r\n" + 
 			"\r\n}\r\n";
@@ -112,7 +112,7 @@ public class SaveMapAction implements Action {
 					+ entityName + "', " + "'" 
 					+ editor.getPlaceableAvatar(obj.getName()).getAvatarFileName() + "');").append("\r\n");
 		sb.append("        ")
-			.append(entityName + ".setPrimitive(Primitive.TRIANGLES);").append("\r\n");
+			.append("entity_" + objId + ".setPrimitive(Primitive.TRIANGLES);").append("\r\n");
 		sb.append("        ")
 			.append("var node_" + objId + " = sm.getRootSceneNode().createChildSceneNode('" + nodeName + "');").append("\r\n");
 		sb.append("        ")
