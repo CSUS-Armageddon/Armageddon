@@ -1,12 +1,16 @@
 package a3.editor;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import a3.MyGame;
 import a3.avatar.Avatar;
 import a3.avatar.Avatars;
+import a3.editor.avatar.PlaceableAvatar;
 import a3.editor.controller.controls.CycleAvatarAction;
 import a3.editor.controller.controls.PlaceAvatarAction;
+import a3.editor.controller.controls.SaveMapAction;
 import a3.editor.controller.controls.ScaleAvatarAction;
 import a3.editor.controller.controls.VerticalAvatarAction;
 import net.java.games.input.Controller;
@@ -19,6 +23,8 @@ public class MyGameEditor extends MyGame {
 	
 	public static String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
 	private int objectCount = 0;
+	
+	private final Map<String, PlaceableAvatar> avatarMap = new HashMap<String, PlaceableAvatar>();
 	
 	public static void main(String ... args) {
 		new MyGameEditor(null, 6868, false, Avatars.MECH.getAvatar()).init();
@@ -55,6 +61,7 @@ public class MyGameEditor extends MyGame {
 		final ScaleAvatarAction scaleAvatarAction = new ScaleAvatarAction(sm);
 		final VerticalAvatarAction verticalAvatarAction = new VerticalAvatarAction(sm, this);
 		final PlaceAvatarAction placeAvatarAction = new PlaceAvatarAction(sm, this);
+		final SaveMapAction saveMapAction = new SaveMapAction(sm, this);
 		
 		// hack to change avatars to first placeableAvatar
 		cycleAvatarAction.performAction(0, null);
@@ -75,6 +82,9 @@ public class MyGameEditor extends MyGame {
 		    	
 		    	// place avatar
 		    	im.associateAction(c, Key.SPACE, placeAvatarAction, INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+		    	
+		    	// save generated map
+		    	im.associateAction(c, Key.HOME, saveMapAction, INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 			}
 		}
 	}
@@ -85,6 +95,14 @@ public class MyGameEditor extends MyGame {
 	
 	public int getObjectCount() {
 		return this.objectCount;
+	}
+	
+	public void addPlaceableAvatar(String entityName, PlaceableAvatar avatar) {
+		this.avatarMap.put(entityName, avatar);
+	}
+	
+	public PlaceableAvatar getPlaceableAvatar(String entityName) {
+		return this.avatarMap.get(entityName);
 	}
 
 }

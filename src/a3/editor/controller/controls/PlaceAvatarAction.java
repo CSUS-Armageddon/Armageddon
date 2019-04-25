@@ -2,6 +2,7 @@ package a3.editor.controller.controls;
 
 import a3.MyGame;
 import a3.editor.MyGameEditor;
+import a3.editor.avatar.PlaceableAvatar;
 import net.java.games.input.Event;
 import ray.input.action.Action;
 import ray.rage.rendersystem.Renderable.Primitive;
@@ -29,7 +30,7 @@ public class PlaceAvatarAction implements Action {
 			// new object being created
 			editor.incrementObjectCount();
 			final Entity en = 
-					sm.createEntity("Object_" + editor.getObjectCount(), editor.getAvatar().getAvatarFileName());
+					sm.createEntity("Object_" + editor.getObjectCount() + "_Entity", editor.getAvatar().getAvatarFileName());
 			en.setPrimitive(Primitive.TRIANGLES);
 			
 			// new node for this object
@@ -43,7 +44,10 @@ public class PlaceAvatarAction implements Action {
 			final SceneNode playerNode = (SceneNode) sm.getRootSceneNode().getChild(MyGame.PLAYER_NODE_NAME);
 			newObjectNode.setLocalPosition(playerNode.getLocalPosition());
 			newObjectNode.setLocalRotation(playerNode.getLocalRotation());
-			newObjectNode.scale(playerNode.getWorldScale());
+			newObjectNode.scale(playerNode.getLocalScale());
+			
+			// record object
+			editor.addPlaceableAvatar("Object_" + editor.getObjectCount() + "_Entity", (PlaceableAvatar)editor.getAvatar());
 		} catch (Exception e) {
 			e.printStackTrace(); // don't crash no matter what... please...
 		}
