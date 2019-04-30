@@ -37,10 +37,10 @@ public class SaveMapAction implements Action {
 			" */\r\n" +
 			"\r\n" + 
 			"var JavaPackages = new JavaImporter(\r\n" + 
-			"	Packages.ray.rage.scene.SceneManager,\r\n" + 
-			"   Packages.ray.rml.Matrix3f,\r\n" +
-			"	Packages.ray.rage.rendersystem.Renderable.Primitive,\r\n" +
-			"   Packages.a3.editor.avatar.PlaceableAvatars\r\n" +
+			"    Packages.ray.rage.scene.SceneManager,\r\n" + 
+			"    Packages.ray.rml.Matrix3f,\r\n" +
+			"    Packages.ray.rage.rendersystem.Renderable.Primitive,\r\n" +
+			"    Packages.a3.editor.avatar.PlaceableAvatars\r\n" +
 			");\r\n" +
 			"\r\n" +
 			"with (JavaPackages) {\r\n" +
