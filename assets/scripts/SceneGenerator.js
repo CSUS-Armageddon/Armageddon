@@ -1,15 +1,15 @@
 /**
  * %%% AUTO-GENERATED %%%
  * Scenery Configuration Script
- * Generated: 2019-04-29T19:48:39.711-07:00[America/Los_Angeles]
+ * Generated: 2019-04-29T19:58:06.116-07:00[America/Los_Angeles]
  * %%% AUTO-GENERATED %%%
  */
 
 var JavaPackages = new JavaImporter(
-	Packages.ray.rage.scene.SceneManager,
-   Packages.ray.rml.Matrix3f,
-	Packages.ray.rage.rendersystem.Renderable.Primitive,
-   Packages.a3.editor.avatar.PlaceableAvatars
+    Packages.ray.rage.scene.SceneManager,
+    Packages.ray.rml.Matrix3f,
+    Packages.ray.rage.rendersystem.Renderable.Primitive,
+    Packages.a3.editor.avatar.PlaceableAvatars
 );
 
 with (JavaPackages) {
@@ -64,6 +64,30 @@ with (JavaPackages) {
         node_4.attachObject(entity_4);
         placeableAvatarMap.put('Object_4_Entity', PlaceableAvatars.fromPlaceableAvatarFileName('Tree_02.obj'));
         /******** >>> END Object_4 <<< ********/
+
+        /******** >>> BEGIN Object_5 <<< ********/
+        var entity_5 = sm.createEntity('Object_5_Entity', 'Tree_01.obj');
+        entity_5.setPrimitive(Primitive.TRIANGLES);
+        var node_5 = sm.getSceneNode(container).createChildSceneNode('Object_5_Node');
+        node_5.setLocalPosition(76.00002, 9.368875, -18.224998);
+        var rotArray = [-4.371139E-8, 0.0, -1.0, 0.0, 0.99999994, 0.0, 1.0, 0.0, -4.371139E-8];
+        node_5.setLocalRotation(Matrix3f['createFrom(float[])'](rotArray));
+        node_5.setLocalScale(9.289378, 9.289378, 9.289378);
+        node_5.attachObject(entity_5);
+        placeableAvatarMap.put('Object_5_Entity', PlaceableAvatars.fromPlaceableAvatarFileName('Tree_01.obj'));
+        /******** >>> END Object_5 <<< ********/
+
+        /******** >>> BEGIN Object_6 <<< ********/
+        var entity_6 = sm.createEntity('Object_6_Entity', 'Tree_02.obj');
+        entity_6.setPrimitive(Primitive.TRIANGLES);
+        var node_6 = sm.getSceneNode(container).createChildSceneNode('Object_6_Node');
+        node_6.setLocalPosition(76.00002, 9.999604, -113.400055);
+        var rotArray = [-4.371139E-8, 0.0, -1.0, 0.0, 0.99999994, 0.0, 1.0, 0.0, -4.371139E-8];
+        node_6.setLocalRotation(Matrix3f['createFrom(float[])'](rotArray));
+        node_6.setLocalScale(9.289378, 9.289378, 9.289378);
+        node_6.attachObject(entity_6);
+        placeableAvatarMap.put('Object_6_Entity', PlaceableAvatars.fromPlaceableAvatarFileName('Tree_02.obj'));
+        /******** >>> END Object_6 <<< ********/
 
     }
 

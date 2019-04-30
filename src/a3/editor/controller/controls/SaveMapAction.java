@@ -65,6 +65,7 @@ public class SaveMapAction implements Action {
 		final String doc = finalizeDocument(template, body);
 		try {
 			writeDocument("assets/scripts/SceneGenerator.js", doc);
+			writeDocument("../assets/scripts/SceneGenerator.js", doc);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
