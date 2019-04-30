@@ -1,6 +1,6 @@
 # Blender v2.79 (sub 0) OBJ File: 'mechanimatecomplete2.blend'
 # www.blender.org
-mtllib mech2.0.mtl
+mtllib mech2.1obj.mtl
 o missile_turret.l_Cube.012
 v 3.120733 5.111942 4.420338
 v 3.120732 6.761552 -0.643097
