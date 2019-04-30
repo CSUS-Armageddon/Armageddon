@@ -4,6 +4,7 @@ public enum PlaceableAvatars {
 
 	Tree_01(new a3.editor.avatar.impl.Tree_01()),
 	Tree_02(new a3.editor.avatar.impl.Tree_02()),
+	Skyscrapper_1(new a3.editor.avatar.impl.Skyscrapper_1()),
 	;
 	
 	private PlaceableAvatars(PlaceableAvatar placeableAvatar) {

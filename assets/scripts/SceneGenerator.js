@@ -1,7 +1,7 @@
 /**
  * %%% AUTO-GENERATED %%%
  * Scenery Configuration Script
- * Generated: 2019-04-29T19:58:06.116-07:00[America/Los_Angeles]
+ * Generated: 2019-04-29T20:03:49.669-07:00[America/Los_Angeles]
  * %%% AUTO-GENERATED %%%
  */
 
@@ -88,6 +88,18 @@ with (JavaPackages) {
         node_6.attachObject(entity_6);
         placeableAvatarMap.put('Object_6_Entity', PlaceableAvatars.fromPlaceableAvatarFileName('Tree_02.obj'));
         /******** >>> END Object_6 <<< ********/
+
+        /******** >>> BEGIN Object_7 <<< ********/
+        var entity_7 = sm.createEntity('Object_7_Entity', 'skyscrapper_1.obj');
+        entity_7.setPrimitive(Primitive.TRIANGLES);
+        var node_7 = sm.getSceneNode(container).createChildSceneNode('Object_7_Node');
+        node_7.setLocalPosition(150.92499, 11.794185, -151.875);
+        var rotArray = [-4.371139E-8, 0.0, -1.0, 0.0, 0.99999994, 0.0, 1.0, 0.0, -4.371139E-8];
+        node_7.setLocalRotation(Matrix3f['createFrom(float[])'](rotArray));
+        node_7.setLocalScale(11.795043, 11.795043, 11.795043);
+        node_7.attachObject(entity_7);
+        placeableAvatarMap.put('Object_7_Entity', PlaceableAvatars.fromPlaceableAvatarFileName('skyscrapper_1.obj'));
+        /******** >>> END Object_7 <<< ********/
 
     }
 
