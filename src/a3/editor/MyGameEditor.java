@@ -21,7 +21,6 @@ import ray.rage.scene.SceneManager;
 
 public class MyGameEditor extends MyGame {
 	
-	public static String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
 	private int objectCount = 0;
 	
 	private final Map<String, PlaceableAvatar> avatarMap = new HashMap<String, PlaceableAvatar>();
@@ -50,7 +49,6 @@ public class MyGameEditor extends MyGame {
 	@Override
 	protected void setupObjects(SceneManager sm) throws IOException {
 		super.setupObjects(sm);
-		sm.getRootSceneNode().createChildSceneNode(MyGameEditor.SCENE_OBJECTS_NODE_GROUP);
 	}
 	
 	@Override

@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 
+import a3.MyGame;
 import a3.editor.MyGameEditor;
 import net.java.games.input.Event;
 import ray.input.action.Action;
@@ -42,7 +43,7 @@ public class SaveMapAction implements Action {
 			");\r\n" +
 			"\r\n" +
 			"with (JavaPackages) {\r\n" +
-			"    function generateSceneObjects(sm) {\r\n" + 
+			"    function generateSceneObjects(sm, container) {\r\n" + 
 			         BODY_PLACEHOLDER + 
 			"    }\r\n" + 
 			"\r\n}\r\n";
@@ -56,7 +57,7 @@ public class SaveMapAction implements Action {
 	public void performAction(float time, Event evt) {
 		
 		final SceneNode sceneObjectGroup = 
-				(SceneNode) sm.getRootSceneNode().getChild(MyGameEditor.SCENE_OBJECTS_NODE_GROUP);
+				(SceneNode) sm.getRootSceneNode().getChild(MyGame.SCENE_OBJECTS_NODE_GROUP);
 		
 		final StringBuilder template = initDocument();
 		final StringBuilder body = generateDocumentBody(sceneObjectGroup);
@@ -76,6 +77,8 @@ public class SaveMapAction implements Action {
 	
 	private StringBuilder generateDocumentBody(SceneNode sceneObjectGroup) {
 		final StringBuilder body = new StringBuilder();
+		body.append("        ").
+			append("var conatiner = '" + MyGame.SCENE_OBJECTS_NODE_GROUP + "';").append("\r\n");
 		body.append("        ").
 			append("var Matrix3f = Java.type('ray.rml.Matrix3f');").append("\r\n");
 		for (Node node : sceneObjectGroup.getChildNodes()) {
@@ -118,7 +121,7 @@ public class SaveMapAction implements Action {
 		sb.append("        ")
 			.append("entity_" + objId + ".setPrimitive(Primitive.TRIANGLES);").append("\r\n");
 		sb.append("        ")
-			.append("var node_" + objId + " = sm.getRootSceneNode().createChildSceneNode('" + nodeName + "');").append("\r\n");
+			.append("var node_" + objId + " = sm.getSceneNode(container).createChildSceneNode('" + nodeName + "');").append("\r\n");
 		sb.append("        ")
 			.append("node_" + objId + ".setLocalPosition(" + pos.x() + ", " + pos.y() + ", " + pos.z() + ");").append("\r\n");
 		sb.append("        ")

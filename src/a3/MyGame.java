@@ -94,6 +94,8 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private static final String HUD_BASE = "Game Time: ";
 	
+	public static final String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
+	
 	protected InputManager im;
 	
 	private ScriptManager scriptManager;
@@ -255,8 +257,11 @@ public class MyGame extends VariableFrameRateGame {
 	
 	protected void setupObjects(SceneManager sm) throws IOException {
 		
+		// create root node for all scene objects
+		sm.getRootSceneNode().createChildSceneNode(MyGame.SCENE_OBJECTS_NODE_GROUP);
+		
 		invokeScript("configureBuildings", sm);
-		invokeScript("generateSceneObjects", sm);
+		invokeScript("generateSceneObjects", sm, MyGame.SCENE_OBJECTS_NODE_GROUP);
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
