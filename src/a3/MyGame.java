@@ -267,7 +267,7 @@ public class MyGame extends VariableFrameRateGame {
 		// create root node for all scene objects
 		sm.getRootSceneNode().createChildSceneNode(MyGame.SCENE_OBJECTS_NODE_GROUP);
 		
-		invokeScript("configureBuildings", sm);
+		//invokeScript("configureBuildings", sm);
 		invokeScript("generateSceneObjects", sm, MyGame.SCENE_OBJECTS_NODE_GROUP);
         
         // player 1
