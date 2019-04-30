@@ -39,7 +39,8 @@ public class SaveMapAction implements Action {
 			"var JavaPackages = new JavaImporter(\r\n" + 
 			"	Packages.ray.rage.scene.SceneManager,\r\n" + 
 			"   Packages.ray.rml.Matrix3f,\r\n" +
-			"	Packages.ray.rage.rendersystem.Renderable.Primitive\r\n" + 
+			"	Packages.ray.rage.rendersystem.Renderable.Primitive,\r\n" +
+			"   Packages.a3.editor.avatar.PlaceableAvatars\r\n" +
 			");\r\n" +
 			"\r\n" +
 			"with (JavaPackages) {\r\n" +
@@ -81,6 +82,8 @@ public class SaveMapAction implements Action {
 			append("var conatiner = '" + MyGame.SCENE_OBJECTS_NODE_GROUP + "';").append("\r\n");
 		body.append("        ").
 			append("var Matrix3f = Java.type('ray.rml.Matrix3f');").append("\r\n");
+		body.append("        ").
+			append("var PlaceableAvatars = Java.type('a3.editor.avatar.PlaceableAvatars');").append("\r\n");
 		for (Node node : sceneObjectGroup.getChildNodes()) {
 			final SceneNode sn = (SceneNode) node;
 			appendSceneObject(body, sn);
@@ -132,6 +135,10 @@ public class SaveMapAction implements Action {
 			.append("node_" + objId + ".setLocalScale(" + scl.x() + ", " + scl.y() + ", " + scl.z() + ");").append("\r\n");
 		sb.append("        ")
 			.append("node_" + objId + ".attachObject(entity_" + objId + ");").append("\r\n");
+		sb.append("        ").
+			append("placeableAvatarMap.put('" + entityName + "', " + 
+						"PlaceableAvatars.fromPlaceableAvatarFileName('" + 
+						editor.getPlaceableAvatar(obj.getName()).getAvatarFileName() + "'));").append("\r\n");
 		sb.append("        ")
 			.append("/******** >>> END Object_" + objId + " <<< ********/").append("\r\n").append("\r\n");
 	}

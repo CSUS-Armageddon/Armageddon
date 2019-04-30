@@ -27,4 +27,15 @@ public enum PlaceableAvatars {
 		return null;
 	}
 	
+	public static PlaceableAvatar fromPlaceableAvatarFileName(String fileName) {
+		if (fileName != null && !fileName.isEmpty()) {
+			for (PlaceableAvatars avatar : PlaceableAvatars.values()) {
+				if (avatar.getPlaceableAvatar().getAvatarFileName().contentEquals(fileName)) {
+					return avatar.getPlaceableAvatar();
+				}
+			}
+		}
+		return null;
+	}
+	
 }

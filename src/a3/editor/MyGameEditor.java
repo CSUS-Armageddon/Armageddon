@@ -17,13 +17,13 @@ import net.java.games.input.Controller;
 import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Controller.Type;
 import ray.input.InputManager.INPUT_ACTION_TYPE;
+import ray.rage.scene.Node;
 import ray.rage.scene.SceneManager;
+import ray.rage.scene.SceneNode;
 
 public class MyGameEditor extends MyGame {
 	
 	private int objectCount = 0;
-	
-	private final Map<String, PlaceableAvatar> avatarMap = new HashMap<String, PlaceableAvatar>();
 	
 	public static void main(String ... args) {
 		new MyGameEditor(null, 6868, false, Avatars.MECH.getAvatar()).init();
@@ -49,6 +49,11 @@ public class MyGameEditor extends MyGame {
 	@Override
 	protected void setupObjects(SceneManager sm) throws IOException {
 		super.setupObjects(sm);
+		final SceneNode sceneObjectGroup = 
+				(SceneNode) sm.getRootSceneNode().getChild(MyGame.SCENE_OBJECTS_NODE_GROUP);
+		for (@SuppressWarnings("unused") Node node : sceneObjectGroup.getChildNodes()) {
+			objectCount++;
+		}
 	}
 	
 	@Override
@@ -96,11 +101,11 @@ public class MyGameEditor extends MyGame {
 	}
 	
 	public void addPlaceableAvatar(String entityName, PlaceableAvatar avatar) {
-		this.avatarMap.put(entityName, avatar);
+		super.placeableAvatarMap.put(entityName, avatar);
 	}
 	
 	public PlaceableAvatar getPlaceableAvatar(String entityName) {
-		return this.avatarMap.get(entityName);
+		return super.placeableAvatarMap.get(entityName);
 	}
 
 }

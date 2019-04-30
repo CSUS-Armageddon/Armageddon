@@ -10,7 +10,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -20,6 +22,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import a3.avatar.Avatar;
+import a3.editor.avatar.PlaceableAvatar;
 import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
@@ -95,6 +98,8 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String HUD_BASE = "Game Time: ";
 	
 	public static final String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
+	
+	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
 	
 	protected InputManager im;
 	
@@ -251,6 +256,8 @@ public class MyGame extends VariableFrameRateGame {
 		if (this.skyboxScript != null) initScript(this.skyboxScript.getScriptFile());
 		if (this.buildingScript != null) initScript(this.buildingScript.getScriptFile());
 		if (this.sceneScript != null) initScript(this.sceneScript.getScriptFile());
+		
+		this.jsEngine.put("placeableAvatarMap", placeableAvatarMap);
 		
 		this.invocableEngine = (Invocable)jsEngine;
 	}
