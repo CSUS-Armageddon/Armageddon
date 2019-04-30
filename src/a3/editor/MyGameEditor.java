@@ -1,8 +1,6 @@
 package a3.editor;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import a3.MyGame;
 import a3.avatar.Avatar;
