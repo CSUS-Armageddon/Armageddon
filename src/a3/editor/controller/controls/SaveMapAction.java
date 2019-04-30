@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 
 import a3.editor.MyGameEditor;
@@ -36,6 +37,7 @@ public class SaveMapAction implements Action {
 			"\r\n" + 
 			"var JavaPackages = new JavaImporter(\r\n" + 
 			"	Packages.ray.rage.scene.SceneManager,\r\n" + 
+			"   Packages.ray.rml.Matrix3f,\r\n" +
 			"	Packages.ray.rage.rendersystem.Renderable.Primitive\r\n" + 
 			");\r\n" +
 			"\r\n" +
@@ -74,6 +76,8 @@ public class SaveMapAction implements Action {
 	
 	private StringBuilder generateDocumentBody(SceneNode sceneObjectGroup) {
 		final StringBuilder body = new StringBuilder();
+		body.append("        ").
+			append("var Matrix3f = Java.type('ray.rml.Matrix3f');").append("\r\n");
 		for (Node node : sceneObjectGroup.getChildNodes()) {
 			final SceneNode sn = (SceneNode) node;
 			appendSceneObject(body, sn);
@@ -118,7 +122,9 @@ public class SaveMapAction implements Action {
 		sb.append("        ")
 			.append("node_" + objId + ".setLocalPosition(" + pos.x() + ", " + pos.y() + ", " + pos.z() + ");").append("\r\n");
 		sb.append("        ")
-			.append("node_" + objId + ".setLocalRotation(" + rot + ");").append("\r\n");
+			.append("var rotArray = " + Arrays.toString(rot.toFloatArray()) + ";").append("\r\n");
+		sb.append("        ")
+			.append("node_" + objId + ".setLocalRotation(Matrix3f['createFrom(float[])'](rotArray));").append("\r\n");
 		sb.append("        ")
 			.append("node_" + objId + ".setLocalScale(" + scl.x() + ", " + scl.y() + ", " + scl.z() + ");").append("\r\n");
 		sb.append("        ")
