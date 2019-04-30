@@ -4,6 +4,7 @@
 call _clean.bat
 
 javac a3\*.java
+javac a3\editor\*.java
 javac a3\network\server\*.java
 javac myGameEngine\mesh\*.java
 
