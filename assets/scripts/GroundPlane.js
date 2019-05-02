@@ -17,10 +17,10 @@ with (JavaPackages) {
 	var GROUNDPLANE_ENTITY = "GroundPlaneE";
 	var GROUNDPLANE_NODE = "GroundPlaneN";
 	
-	function configureGroundPlane(engine) {
+	function configureGroundPlane(engine, groupName) {
 		var GroundPlane = Java.type("myGameEngine.mesh.GroundPlane");
 		var groundPlane = new GroundPlane(GROUNDPLANE_ENTITY, engine, engine.getSceneManager(), false);
-        var groundPlaneN = engine.getSceneManager().getRootSceneNode().createChildSceneNode(GROUNDPLANE_NODE);
+        var groundPlaneN = engine.getSceneManager().getSceneNode(groupName).createChildSceneNode(GROUNDPLANE_NODE);
 		groundPlane.setTextureFilename(GROUNDPLANE_TEXTURE);
 		groundPlane.init();
 		groundPlaneN.attachObject(groundPlane.getManualObject());

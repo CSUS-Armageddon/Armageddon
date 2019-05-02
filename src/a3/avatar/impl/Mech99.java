@@ -10,6 +10,8 @@ public class Mech99 extends BasicAvatar {
 		super.setAvatarName("Mech99");
 		super.setAvatarFileName("mech_1.obj");
 		super.setAvatarHeightOffset(6.75f);
+		super.setScale(1.0f);
+		super.setMass(1.0f);
 	}
 	
 }

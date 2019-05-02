@@ -60,6 +60,7 @@ import ray.rage.scene.Camera;
 import ray.rage.scene.Camera.Frustum.Projection;
 import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
+import ray.rage.scene.Node;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
@@ -67,6 +68,8 @@ import ray.rage.scene.Tessellation;
 import ray.rage.util.Configuration;
 import ray.rml.Degreef;
 import ray.rml.Matrix3;
+import ray.rml.Matrix4;
+import ray.rml.Matrix4f;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
@@ -100,7 +103,9 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private static final String HUD_BASE = "Game Time: ";
 	
+	public static final String TERRAIN_OBJECTS_NODE_GROUP = "TERRAIN_OBJECTS";
 	public static final String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
+	public static final String AVATAR_OBJECTS_NODE_GROUP = "AVATAR_OBJECTS";
 	
 	private static final String PHYSICS_ENGINE_CLASS = "ray.physics.JBullet.JBulletPhysicsEngine";
 	private static final float[] GRAVITY = { 0.0f, -3.0f, 0.0f };
@@ -166,6 +171,14 @@ public class MyGame extends VariableFrameRateGame {
 		im.update(gameTime);
 		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
+		
+		physicsEngine.update(gameTime);
+		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
+			if (sn.getPhysicsObject() != null) {
+				final Matrix4 mat = Matrix4f.createFrom(toFloatArray(sn.getPhysicsObject().getTransform()));
+				sn.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
+			}
+		}
 	}
 	
 	@Override
@@ -218,6 +231,7 @@ public class MyGame extends VariableFrameRateGame {
 		System.out.println("Initializing Scene...");
 		
 		setupScripting();
+		setupSceneNodeContainers(sm);
 		setupSkybox(sm);
 		setupGroundPlane(sm);
 		setupTerrain(sm);
@@ -231,6 +245,15 @@ public class MyGame extends VariableFrameRateGame {
 			e.printStackTrace();
 		}
 		setupOrbitCamera(eng, sm);
+	}
+	
+	private void setupSceneNodeContainers(SceneManager sm) {
+		// root node for terrain
+		sm.getRootSceneNode().createChildSceneNode(MyGame.TERRAIN_OBJECTS_NODE_GROUP);
+		// create root node for all scene objects
+		sm.getRootSceneNode().createChildSceneNode(MyGame.SCENE_OBJECTS_NODE_GROUP);
+		// root node for all avatars
+		sm.getRootSceneNode().createChildSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP);
 	}
 	
 	private void setupScripting() {
@@ -274,21 +297,29 @@ public class MyGame extends VariableFrameRateGame {
 	
 	protected void setupObjects(SceneManager sm) throws IOException {
 		
-		// create root node for all scene objects
-		sm.getRootSceneNode().createChildSceneNode(MyGame.SCENE_OBJECTS_NODE_GROUP);
-		
 		//invokeScript("configureBuildings", sm);
 		invokeScript("generateSceneObjects", sm, MyGame.SCENE_OBJECTS_NODE_GROUP);
         
         // player 1
     	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
     	playerE.setPrimitive(Primitive.TRIANGLES);
-        playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
+        playerN = sm.getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);
-        playerN.moveUp(7.0f);
+        playerN.moveUp(17.0f);
 		playerN.yaw(Degreef.createFrom(90.0f));
         playerN.attachObject(playerE);
         this.updateVerticalPosition();
+        
+        Entity ball1Entity = sm.createEntity("ball1", "earth.obj");
+        SceneNode ball1Node = sm.getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode("Ball1Node");
+        ball1Node.attachObject(ball1Entity);
+        ball1Node.setLocalPosition(0, 20, -2);
+        
+        Entity groundEntity = sm.createEntity("GROUND_E", "cube.obj");
+        SceneNode groundNode = sm.getSceneNode(MyGame.TERRAIN_OBJECTS_NODE_GROUP).createChildSceneNode("GROUND_N");
+        groundNode.attachObject(groundEntity);
+        groundNode.setLocalPosition(0, -7, -2);
+        groundNode.scale(5000f, .05f, 5000f);
 	}
 	
 	private void setupLights(SceneManager sm) {
@@ -422,7 +453,7 @@ public class MyGame extends VariableFrameRateGame {
 		if (avatar != null) {
 			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
 			ghostE.setPrimitive(Primitive.TRIANGLES);
-			final SceneNode ghostN = this.getEngine().getSceneManager().getRootSceneNode().createChildSceneNode(avatar.getUUID().toString());
+			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
 			ghostN.attachObject(ghostE);
 			ghostN.setLocalPosition(avatar.getPosition());
 			avatar.setNode(ghostN);
@@ -467,12 +498,12 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private void setupTerrain(SceneManager sm) {
         
-		invokeScript("configureTerrain", this.getEngine());
+		invokeScript("configureTerrain", this.getEngine(), MyGame.TERRAIN_OBJECTS_NODE_GROUP);
 	}
 	
 	private void setupGroundPlane(SceneManager sm) {
 		
-		invokeScript("configureGroundPlane", this.getEngine());
+		invokeScript("configureGroundPlane", this.getEngine(), MyGame.TERRAIN_OBJECTS_NODE_GROUP);
 	}
 	
 	public void updateVerticalPosition() {
@@ -544,15 +575,41 @@ public class MyGame extends VariableFrameRateGame {
 	private void createRAGEPhysicsWorld(SceneManager sm) {
 		final float mass = 1.0f;
 		final float[] up = { 0.0f, 1.0f, 0.0f };
-		final SceneNode groundPlaneN = sm.getSceneNode("GroundPlaneN");
 		
 		double[] temptf;
 		
-		temptf = toDoubleArray(groundPlaneN.getLocalTransform().toFloatArray());
-		final PhysicsObject groundPlaneP = 
-				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, up, 0.0f);
-		groundPlaneP.setBounciness(1.0f);
-		groundPlaneN.setPhysicsObject(groundPlaneP);
+		// setup terrain and ground plane
+		final SceneNode terrainGroup = sm.getSceneNode("GroundPlaneN");//MyGame.TERRAIN_OBJECTS_NODE_GROUP);
+		for (Node node : terrainGroup.getChildNodes()) {
+			final SceneNode sn = (SceneNode) node;
+			temptf = toDoubleArray(sn.getLocalTransform().toFloatArray());
+			final PhysicsObject physicsObj = 
+					physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, up, 0.0f);
+			physicsObj.setBounciness(1.0f);
+			sn.setPhysicsObject(physicsObj);
+		}
+		
+		// setup avatars
+		final SceneNode avatarGroup = sm.getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP);
+		for (Node node : avatarGroup.getChildNodes()) {
+			final SceneNode sn = (SceneNode) node;
+			System.out.println(sn.getName());
+			temptf = toDoubleArray(sn.getLocalTransform().toFloatArray());
+			final PhysicsObject physicsObj = 
+					physicsEngine.addSphereObject(physicsEngine.nextUID(), 1.0f, temptf, 2.0f);
+			physicsObj.setBounciness(1.0f);
+			sn.setPhysicsObject(physicsObj);
+		}
+	}
+	
+	private float[] toFloatArray(double[] arr) {
+		if (arr == null) return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (float)arr[i];
+		}
+		return ret;
 	}
 	
 	private double[] toDoubleArray(float[] arr) {

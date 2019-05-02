@@ -7,6 +7,8 @@ public abstract class BasicAvatar implements Avatar {
 	protected String avatarName = null;
 	protected String avatarFileName = null;
 	protected float avatarHeightOffset = 0.0f;
+	protected float scale = 1.0f;
+	protected float mass = 1.0f;
 	
 	/**
 	 * @return the avatarName
@@ -54,6 +56,34 @@ public abstract class BasicAvatar implements Avatar {
 		this.avatarHeightOffset = avatarHeightOffset;
 	}
 	
+	/**
+	 * @return the scale
+	 */
+	public float getScale() {
+		return scale;
+	}
+
+	/**
+	 * @param scale the scale to set
+	 */
+	public void setScale(float scale) {
+		this.scale = scale;
+	}
+
+	/**
+	 * @return the mass
+	 */
+	public float getMass() {
+		return mass;
+	}
+
+	/**
+	 * @param mass the mass to set
+	 */
+	public void setMass(float mass) {
+		this.mass = mass;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

@@ -10,6 +10,8 @@ public class Mech extends BasicAvatar {
 		super.setAvatarName("Mech");
 		super.setAvatarFileName("mechfinalone.obj");
 		super.setAvatarHeightOffset(2.0f);
+		super.setScale(1.0f);
+		super.setMass(1.0f);
 	}
 
 }
