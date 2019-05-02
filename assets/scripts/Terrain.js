@@ -21,9 +21,9 @@ with (JavaPackages) {
 	var TESSELLATION_ENTITY = "tessE";
 	var TESSELLATION_NODE = "tessN";
 	
-	function configureTerrain(engine) {
+	function configureTerrain(engine, groupName) {
 		var tessE = engine.getSceneManager().createTessellation(TESSELLATION_ENTITY, TESSELLATION_QUALITY);
-		var tessN = engine.getSceneManager().getRootSceneNode().createChildSceneNode(TESSELLATION_NODE);
+		var tessN = engine.getSceneManager().getSceneNode(groupName).createChildSceneNode(TESSELLATION_NODE);
 		tessE.setSubdivisions(TESSELLATION_SUBDIVISIONS);
 		tessE.setHeightMap(engine, TERRAIN_HEIGHTMAP);
 		tessE.setTexture(engine, TERRAIN_MAP);
