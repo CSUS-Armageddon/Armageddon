@@ -263,7 +263,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private void setupSceneNodeContainers(SceneManager sm) {
 		// ground plane nodes
-		sm.getRootSceneNode().createChildSceneNode(GROUNDPLANE_OBJECTS_NODE_GROUP);
+		sm.getRootSceneNode().createChildSceneNode(MyGame.GROUNDPLANE_OBJECTS_NODE_GROUP);
 		// root node for terrain
 		sm.getRootSceneNode().createChildSceneNode(MyGame.TERRAIN_OBJECTS_NODE_GROUP);
 		// create root node for all scene objects
