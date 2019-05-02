@@ -34,7 +34,10 @@ import myGameEngine.controller.Camera3PController;
 import myGameEngine.controller.InputType;
 import myGameEngine.controller.controls.MoveForwardAction;
 import myGameEngine.controller.controls.MoveLeftAction;
+import myGameEngine.controller.controls.ShootAction;
 import myGameEngine.controller.controls.YawAction;
+import myGameEngine.util.ArrayUtils;
+import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.Event;
 import net.java.games.input.Component.Identifier.Axis;
@@ -60,7 +63,6 @@ import ray.rage.scene.Camera;
 import ray.rage.scene.Camera.Frustum.Projection;
 import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
-import ray.rage.scene.Node;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkyBox;
@@ -103,12 +105,14 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private static final String HUD_BASE = "Game Time: ";
 	
+	public static final String GROUNDPLANE_OBJECTS_NODE_GROUP = "GROUNDPLANE_OBJECTS";
 	public static final String TERRAIN_OBJECTS_NODE_GROUP = "TERRAIN_OBJECTS";
 	public static final String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
 	public static final String AVATAR_OBJECTS_NODE_GROUP = "AVATAR_OBJECTS";
 	
 	private static final String PHYSICS_ENGINE_CLASS = "ray.physics.JBullet.JBulletPhysicsEngine";
-	private static final float[] GRAVITY = { 0.0f, -3.0f, 0.0f };
+	private static final float[] GRAVITY = { 0.0f, -30.0f, 0.0f };
+	private static final float[] UP_VECTOR = { 0.0f, 1.0f, 0.0f };
 	
 	private PhysicsEngine physicsEngine;
 	
@@ -175,7 +179,7 @@ public class MyGame extends VariableFrameRateGame {
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
-				final Matrix4 mat = Matrix4f.createFrom(toFloatArray(sn.getPhysicsObject().getTransform()));
+				final Matrix4 mat = Matrix4f.createFrom(ArrayUtils.toFloatArray(sn.getPhysicsObject().getTransform()));
 				sn.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
 			}
 		}
@@ -248,6 +252,8 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	private void setupSceneNodeContainers(SceneManager sm) {
+		// ground plane nodes
+		sm.getRootSceneNode().createChildSceneNode(GROUNDPLANE_OBJECTS_NODE_GROUP);
 		// root node for terrain
 		sm.getRootSceneNode().createChildSceneNode(MyGame.TERRAIN_OBJECTS_NODE_GROUP);
 		// create root node for all scene objects
@@ -309,17 +315,6 @@ public class MyGame extends VariableFrameRateGame {
 		playerN.yaw(Degreef.createFrom(90.0f));
         playerN.attachObject(playerE);
         this.updateVerticalPosition();
-        
-        Entity ball1Entity = sm.createEntity("ball1", "earth.obj");
-        SceneNode ball1Node = sm.getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode("Ball1Node");
-        ball1Node.attachObject(ball1Entity);
-        ball1Node.setLocalPosition(0, 20, -2);
-        
-        Entity groundEntity = sm.createEntity("GROUND_E", "cube.obj");
-        SceneNode groundNode = sm.getSceneNode(MyGame.TERRAIN_OBJECTS_NODE_GROUP).createChildSceneNode("GROUND_N");
-        groundNode.attachObject(groundEntity);
-        groundNode.setLocalPosition(0, -7, -2);
-        groundNode.scale(5000f, .05f, 5000f);
 	}
 	
 	private void setupLights(SceneManager sm) {
@@ -350,6 +345,7 @@ public class MyGame extends VariableFrameRateGame {
     	final MoveForwardAction p1MoveForwardAction = new MoveForwardAction(playerN, gameClient);
     	final MoveLeftAction p1MoveLeftAction = new MoveLeftAction(playerN, gameClient);
     	final YawAction p1YawAction = new YawAction(playerN, gameClient);
+    	final ShootAction p1ShootAction = new ShootAction(sm, playerN, gameClient);
     	
     	// because gaming keyboards having "n-key rollover" typically emulate multiple keyboards,
     	// we must look for all "KeyBoard" devices and bind to them...
@@ -391,6 +387,12 @@ public class MyGame extends VariableFrameRateGame {
 		    	
 		    	// move left / right
 		    	im.associateAction(c, Axis.X, p1MoveLeftAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+    		} 
+    		else if (c.getType() == Type.MOUSE || c.getType() == Type.TRACKPAD) {
+    			/************************************
+    	    	 * Mouse/Trackpad Bindings
+    	    	 ***********************************/
+    			im.associateAction(c, Component.Identifier.Button.LEFT, p1ShootAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
     		}
     	}
     	
@@ -503,7 +505,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private void setupGroundPlane(SceneManager sm) {
 		
-		invokeScript("configureGroundPlane", this.getEngine(), MyGame.TERRAIN_OBJECTS_NODE_GROUP);
+		invokeScript("configureGroundPlane", sm, GROUNDPLANE_OBJECTS_NODE_GROUP);
 	}
 	
 	public void updateVerticalPosition() {
@@ -573,52 +575,17 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	private void createRAGEPhysicsWorld(SceneManager sm) {
-		final float mass = 1.0f;
-		final float[] up = { 0.0f, 1.0f, 0.0f };
-		
-		double[] temptf;
-		
-		// setup terrain and ground plane
-		final SceneNode terrainGroup = sm.getSceneNode("GroundPlaneN");//MyGame.TERRAIN_OBJECTS_NODE_GROUP);
-		for (Node node : terrainGroup.getChildNodes()) {
-			final SceneNode sn = (SceneNode) node;
-			temptf = toDoubleArray(sn.getLocalTransform().toFloatArray());
-			final PhysicsObject physicsObj = 
-					physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, up, 0.0f);
-			physicsObj.setBounciness(1.0f);
-			sn.setPhysicsObject(physicsObj);
-		}
-		
-		// setup avatars
-		final SceneNode avatarGroup = sm.getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP);
-		for (Node node : avatarGroup.getChildNodes()) {
-			final SceneNode sn = (SceneNode) node;
-			System.out.println(sn.getName());
-			temptf = toDoubleArray(sn.getLocalTransform().toFloatArray());
-			final PhysicsObject physicsObj = 
-					physicsEngine.addSphereObject(physicsEngine.nextUID(), 1.0f, temptf, 2.0f);
-			physicsObj.setBounciness(1.0f);
-			sn.setPhysicsObject(physicsObj);
-		}
+		 //setup terrain and ground plane
+		final SceneNode terrainGroup = sm.getSceneNode(GROUNDPLANE_OBJECTS_NODE_GROUP);
+		final SceneNode sn = (SceneNode) terrainGroup;
+		final double[] temptf = ArrayUtils.toDoubleArray(sn.getLocalTransform().toFloatArray());
+		PhysicsObject physicsObj = 
+				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, MyGame.UP_VECTOR, 0.0f);
+		physicsObj.setBounciness(1.0f);
+		sn.setPhysicsObject(physicsObj);
 	}
 	
-	private float[] toFloatArray(double[] arr) {
-		if (arr == null) return null;
-		int n = arr.length;
-		float[] ret = new float[n];
-		for (int i = 0; i < n; i++) {
-			ret[i] = (float)arr[i];
-		}
-		return ret;
-	}
-	
-	private double[] toDoubleArray(float[] arr) {
-		if (arr == null) return null;
-		int n = arr.length;
-		double[] ret = new double[n];
-		for (int i = 0; i < n; i++) {
-			ret[i] = (double)arr[i];
-		}
-		return ret;
+	public PhysicsEngine getPhysicsEngine() {
+		return this.physicsEngine;
 	}
 }
