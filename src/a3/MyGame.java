@@ -46,6 +46,9 @@ import ray.input.InputManager;
 import ray.input.InputManager.INPUT_ACTION_TYPE;
 import ray.input.action.AbstractInputAction;
 import ray.networking.IGameConnection.ProtocolType;
+import ray.physics.PhysicsEngine;
+import ray.physics.PhysicsEngineFactory;
+import ray.physics.PhysicsObject;
 import ray.rage.Engine;
 import ray.rage.asset.texture.TextureManager;
 import ray.rage.game.VariableFrameRateGame;
@@ -98,6 +101,11 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String HUD_BASE = "Game Time: ";
 	
 	public static final String SCENE_OBJECTS_NODE_GROUP = "SCENE_OBJECTS";
+	
+	private static final String PHYSICS_ENGINE_CLASS = "ray.physics.JBullet.JBulletPhysicsEngine";
+	private static final float[] GRAVITY = { 0.0f, -3.0f, 0.0f };
+	
+	private PhysicsEngine physicsEngine;
 	
 	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
 	
@@ -214,6 +222,8 @@ public class MyGame extends VariableFrameRateGame {
 		setupGroundPlane(sm);
 		setupTerrain(sm);
 		setupObjects(sm);
+		initPhysicsSystem();
+		createRAGEPhysicsWorld(sm);
 		setupLights(sm);
 		try {
 			setupInputs(sm);
@@ -523,5 +533,35 @@ public class MyGame extends VariableFrameRateGame {
         } catch (NullPointerException e) {
         	e.printStackTrace();
         }
+	}
+	
+	private void initPhysicsSystem() {
+		this.physicsEngine = PhysicsEngineFactory.createPhysicsEngine(MyGame.PHYSICS_ENGINE_CLASS);
+		this.physicsEngine.initSystem();
+		this.physicsEngine.setGravity(MyGame.GRAVITY);
+	}
+	
+	private void createRAGEPhysicsWorld(SceneManager sm) {
+		final float mass = 1.0f;
+		final float[] up = { 0.0f, 1.0f, 0.0f };
+		final SceneNode groundPlaneN = sm.getSceneNode("GroundPlaneN");
+		
+		double[] temptf;
+		
+		temptf = toDoubleArray(groundPlaneN.getLocalTransform().toFloatArray());
+		final PhysicsObject groundPlaneP = 
+				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, up, 0.0f);
+		groundPlaneP.setBounciness(1.0f);
+		groundPlaneN.setPhysicsObject(groundPlaneP);
+	}
+	
+	private double[] toDoubleArray(float[] arr) {
+		if (arr == null) return null;
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++) {
+			ret[i] = (double)arr[i];
+		}
+		return ret;
 	}
 }
