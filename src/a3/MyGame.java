@@ -50,18 +50,22 @@ import ray.physics.PhysicsEngine;
 import ray.physics.PhysicsEngineFactory;
 import ray.physics.PhysicsObject;
 import ray.rage.Engine;
+import ray.rage.asset.texture.Texture;
 import ray.rage.asset.texture.TextureManager;
+import ray.rage.rendersystem.states.RenderState;
 import ray.rage.game.VariableFrameRateGame;
 import ray.rage.rendersystem.RenderSystem;
 import ray.rage.rendersystem.RenderWindow;
 import ray.rage.rendersystem.Renderable.Primitive;
 import ray.rage.rendersystem.gl4.GL4RenderSystem;
+import ray.rage.rendersystem.states.TextureState;
 import ray.rage.scene.Camera;
 import ray.rage.scene.Camera.Frustum.Projection;
 import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
+import ray.rage.scene.SkeletalEntity;
 import ray.rage.scene.SkyBox;
 import ray.rage.scene.Tessellation;
 import ray.rage.util.Configuration;
@@ -106,6 +110,8 @@ public class MyGame extends VariableFrameRateGame {
 	private static final float[] GRAVITY = { 0.0f, -3.0f, 0.0f };
 	
 	private PhysicsEngine physicsEngine;
+	
+	private SkeletalEntity playerE;
 	
 	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
 	
@@ -162,6 +168,10 @@ public class MyGame extends VariableFrameRateGame {
 		gameTime += eng.getElapsedTimeMillis();
 		
 		rs.setHUD(HUD_BASE + ((((int)((gameTime / 1000.0d) * 10))/10.0d)), 15, 15);
+		
+		SkeletalEntity mechSE =
+				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+		mechSE.update();
 		
 		im.update(gameTime);
 		cameraController.updateCameraPosition();
@@ -281,14 +291,31 @@ public class MyGame extends VariableFrameRateGame {
 		invokeScript("generateSceneObjects", sm, MyGame.SCENE_OBJECTS_NODE_GROUP);
         
         // player 1
-    	final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
+		//replace parameters with avatar.getrkmfile, and avatar.getrksfile
+		final SkeletalEntity playerE = sm.createSkeletalEntity(PLAYER_NAME, avatar.getAvatarSkeletalMeshFileName(), avatar.getAvatarSkeletalFileName());
+    	//final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
+		Texture tex = sm.getTextureManager().getAssetByPath(avatar.getAvatarTextureFileName());
+		TextureState tstate = (TextureState)sm.getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
+		tstate.setTexture(tex);
+		playerE.setRenderState(tstate);
     	playerE.setPrimitive(Primitive.TRIANGLES);
         playerN = sm.getRootSceneNode().createChildSceneNode(PLAYER_NODE_NAME);
         playerN.moveLeft(5.0f);
         playerN.moveUp(7.0f);
 		playerN.yaw(Degreef.createFrom(90.0f));
         playerN.attachObject(playerE);
+        
+        //replace with avatar.getrunanimation for second parameter
+        playerE.loadAnimation("runAnimation", avatar.getAvatarAnimationFileName());
+        
         this.updateVerticalPosition();
+	}
+	
+	public void mechrunAnimate(Engine eng)
+	{ 	SkeletalEntity manSE =
+		(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+		manSE.stopAnimation();
+		manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
 	}
 	
 	private void setupLights(SceneManager sm) {

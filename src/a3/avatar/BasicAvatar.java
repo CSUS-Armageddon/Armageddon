@@ -7,6 +7,10 @@ public abstract class BasicAvatar implements Avatar {
 	protected String avatarName = null;
 	protected String avatarFileName = null;
 	protected float avatarHeightOffset = 0.0f;
+	protected String avatarSkeletalFileName = null;
+	protected String avatarSkeletalMeshFileName = null;
+	protected String avatarAnimationFileName = null;
+	protected String avatarTextureFileName = null;
 	
 	/**
 	 * @return the avatarName
@@ -38,6 +42,38 @@ public abstract class BasicAvatar implements Avatar {
 		this.avatarFileName = avatarFileName;
 	}
 	
+	public String getAvatarSkeletalFileName() {
+		return avatarSkeletalFileName;
+	}
+	
+	public void setAvatarSkeletalFileName(String avatarSkeletalFileName) {
+		this.avatarSkeletalFileName = avatarSkeletalFileName;
+	}
+	
+	public String getAvatarSkeletalMeshFileName() {
+		return this.avatarSkeletalMeshFileName;
+	}
+	
+	public void setAvatarSkeletalMeshFileName(String avatarSkeletalMeshFileName) {
+		this.avatarSkeletalMeshFileName = avatarSkeletalMeshFileName;
+	}
+	
+	public String getAvatarAnimationFileName() {
+		return this.avatarAnimationFileName;
+	}
+	
+	public void setAvatarAnimationFileName(String avatarAnimationFileName) {
+		this.avatarAnimationFileName = avatarAnimationFileName;
+	}
+	
+	public String getAvatarTextureFileName() {
+		return this.avatarTextureFileName;
+	}
+	
+	public void setAvatarTextureFileName(String avatarTextureFileName) {
+		this.avatarTextureFileName = avatarTextureFileName;
+	}
+	
 	/**
 	 * @return the avatarHeightOffset
 	 */
@@ -60,6 +96,9 @@ public abstract class BasicAvatar implements Avatar {
 		sb.append(getClass().getSimpleName()).append(" [ ")
 			.append("avatarName=\"").append(getAvatarName())
 			.append("\", avatarFileName=\"").append(getAvatarFileName())
+			.append("\", avatarSkeletalFileName=\"").append(getAvatarSkeletalFileName())
+			.append("\", avatarSkeletalMeshFileName=\"").append(getAvatarSkeletalMeshFileName())
+			.append("\", avatarAnimationFileName=\"").append(getAvatarAnimationFileName())
 			.append("\", avatarHeightOffset=\"").append(getAvatarHeightOffset())
 		.append("\" ]");
 		return sb.toString();
