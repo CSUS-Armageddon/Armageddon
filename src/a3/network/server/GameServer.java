@@ -29,6 +29,7 @@ import javax.swing.JTextField;
 import a3.network.api.messages.MessageType;
 import a3.network.logging.ServerLogger;
 import a3.network.server.impl.UDPGameServer;
+import a3.network.server.impl.ai.NPCGameServer;
 
 public class GameServer extends JFrame {
 
@@ -160,7 +161,7 @@ public class GameServer extends JFrame {
 				serverName.setEditable(true);
 			} else {
 				try {
-					gameServer = new UDPGameServer(
+					gameServer = new NPCGameServer(
 							serverIPAddress.getSelectedItem().toString(),
 							Integer.parseInt(serverPort.getText()),
 							serverName.getText().trim());
