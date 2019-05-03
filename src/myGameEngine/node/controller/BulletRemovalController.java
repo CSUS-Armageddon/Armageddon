@@ -37,6 +37,8 @@ public class BulletRemovalController extends AbstractController {
 		// remove and destroy any timed-out bullets
 		for (Node n : removalList) {
 			this.removeNode(n);
+			sm.destroyEntity(((SceneNode)n).getAttachedObject(0).getName());
+
 			sm.destroySceneNode((SceneNode)n);
 			nodeMap.remove(n);
 		}
