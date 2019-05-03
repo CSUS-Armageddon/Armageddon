@@ -5,6 +5,7 @@ import java.util.UUID;
 import a3.avatar.Avatar;
 import ray.rage.scene.Entity;
 import ray.rage.scene.SceneNode;
+import ray.rage.scene.SkeletalEntity;
 import ray.rml.Matrix3;
 import ray.rml.Matrix3f;
 import ray.rml.Vector3;
@@ -16,6 +17,7 @@ public class GhostAvatar {
 	private Avatar avatar;
 	private SceneNode node;
 	private Entity entity;
+	private SkeletalEntity skEntity;
 	private Vector3 position = Vector3f.createFrom(0.0f, 0.0f, 0.0f);
 	private Matrix3 rotation = Matrix3f.createIdentityMatrix();
 	
@@ -58,6 +60,14 @@ public class GhostAvatar {
 	 */
 	public void setEntity(Entity entity) {
 		this.entity = entity;
+	}
+	
+	public SkeletalEntity getSkeletalEntity() {
+		return skEntity;
+	}
+	
+	public void setSkeletalEntity(SkeletalEntity skEntity) {
+		this.skEntity = skEntity;
 	}
 
 	/**

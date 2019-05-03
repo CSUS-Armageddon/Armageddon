@@ -165,7 +165,7 @@ public class MyGame extends VariableFrameRateGame {
 		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
-		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
+		//ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
 		setupNetworking();
 		super.startup();
 	}
@@ -480,14 +480,23 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
+			//final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
+			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "testmech.rkm" : avatar.getAvatar().getAvatarSkeletalMeshFileName(),avatar.getAvatar() == null ? "testmech.rks" : avatar.getAvatar().getAvatarSkeletalFileName());
+			Texture ghostTex = this.getEngine().getTextureManager().getAssetByPath(avatar.getAvatar() == null ? "blue.jpeg" :avatar.getAvatar().getAvatarTextureFileName());
+			TextureState ghostTState = (TextureState) this.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
+			ghostTState.setTexture(ghostTex);
+			ghostE.setRenderState(ghostTState);
 			ghostE.setPrimitive(Primitive.TRIANGLES);
 			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
 			ghostN.attachObject(ghostE);
+			ghostE.loadAnimation("runAnimation", avatar.getAvatar() == null ? "testmechrun.rka" :avatar.getAvatar().getAvatarAnimationFileName());
 			ghostN.setLocalPosition(avatar.getPosition());
 			avatar.setNode(ghostN);
-			avatar.setEntity(ghostE);
+			
+			//avatar.setEntity(ghostE);
+			avatar.setSkeletalEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
+			
 		}
 	}
 	
