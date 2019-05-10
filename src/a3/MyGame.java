@@ -117,6 +117,9 @@ public class MyGame extends VariableFrameRateGame {
 	private static final String PHYSICS_ENGINE_CLASS = "ray.physics.JBullet.JBulletPhysicsEngine";
 	private static final float[] GRAVITY = { 0.0f, -30.0f, 0.0f };
 	private static final float[] UP_VECTOR = { 0.0f, 1.0f, 0.0f };
+	public boolean isRunning = false; 
+	public boolean animatePlaying = false;
+
 	
 	private PhysicsEngine physicsEngine;
 	
@@ -181,11 +184,17 @@ public class MyGame extends VariableFrameRateGame {
 		SkeletalEntity mechSE =
 				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
 		mechSE.update();
-		
+		this.setX(this.getPlayerPosition().x());
+		this.setY(this.getPlayerPosition().y());
+		this.setZ(this.getPlayerPosition().z());
 		im.update(gameTime);
+		this.setNextX(this.getPlayerPosition().x());
+		this.setNextY(this.getPlayerPosition().y());
+		this.setNextZ(this.getPlayerPosition().z());
+		this.checkIfMoved();
 		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
-		
+		//this.stopMechRunAnimate(eng);
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
@@ -193,8 +202,63 @@ public class MyGame extends VariableFrameRateGame {
 				sn.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
 			}
 		}
+		
+		
 	}
-	
+	public float getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
+	}
+
+	public float getZ() {
+		return z;
+	}
+
+	public void setZ(float z) {
+		this.z = z;
+	}
+
+	public float getNextX() {
+		return nextX;
+	}
+
+	public void setNextX(float nextX) {
+		this.nextX = nextX;
+	}
+
+	public float getNextY() {
+		return nextY;
+	}
+
+	public void setNextY(float nextY) {
+		this.nextY = nextY;
+	}
+
+	public float getNextZ() {
+		return nextZ;
+	}
+
+	public void setNextZ(float nextZ) {
+		this.nextZ = nextZ;
+	}
+
+	public float x;
+	public float y;
+	public float z;
+	public float nextX;
+	public float nextY;
+	public float nextZ;
 	@Override
 	protected void setupWindow(RenderSystem rs, GraphicsEnvironment ge) {
 		
@@ -319,7 +383,6 @@ public class MyGame extends VariableFrameRateGame {
         // player 1
 		//replace parameters with avatar.getrkmfile, and avatar.getrksfile
 		final SkeletalEntity playerE = sm.createSkeletalEntity(PLAYER_NAME, avatar.getAvatarSkeletalMeshFileName(), avatar.getAvatarSkeletalFileName());
-    	//final Entity playerE = sm.createEntity(PLAYER_NAME, avatar.getAvatarFileName());
 		Texture tex = sm.getTextureManager().getAssetByPath(avatar.getAvatarTextureFileName());
 		TextureState tstate = (TextureState)sm.getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
 		tstate.setTexture(tex);
@@ -340,8 +403,100 @@ public class MyGame extends VariableFrameRateGame {
 	public void mechrunAnimate(Engine eng)
 	{ 	SkeletalEntity manSE =
 		(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
-		manSE.stopAnimation();
+	
+		if(this.getIsRunning() == true && this.getIsAnimated() == false ) {
+			
 		manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+		this.setAnimateIsPlaying(true);
+		} 
+		
+		if(this.getIsRunning() == false) {
+			manSE.stopAnimation();
+		}
+	}
+	
+	public void checkIfMoved() {
+		boolean checkX = false;
+		boolean checkY = false;
+		boolean checkZ = false; 
+		
+		boolean xHasChanged = false;
+		boolean yHasChanged = false;
+		boolean zHasChanged = false; 
+		if(this.getX() - this.getNextX() != 0) {
+			//System.out.println("mech has moved!!");
+			
+			xHasChanged = true;
+		} else {
+			xHasChanged = false;
+		}
+		
+		checkX = true;
+		
+		if(this.getY() - this.getNextY() != 0) {
+			//System.out.println("mech has moved!!!");
+			yHasChanged = true;
+		} else {
+			yHasChanged = false;
+		}
+		
+		checkY = true;
+		
+		if(this.getZ() - this.getNextZ() != 0) {
+			//System.out.println("mech has moved!!!");
+			zHasChanged = true;
+		} else {
+			zHasChanged = false;
+		}
+		
+		checkZ = true;
+		
+		//once we check all of them then do the following
+		if(checkX = true && checkY == true && checkZ == true) {
+			if(xHasChanged == false && yHasChanged == false && zHasChanged == false) {
+				System.out.println("mech has not moved");
+				//this.stopMechRunAnimate(this.getEngine());
+				//this.mechrunAnimate(getEngine());
+				this.setIsRunning(false);
+				this.setAnimateIsPlaying(false);
+				this.mechrunAnimate(this.getEngine());
+				
+			}
+			else {
+				System.out.println("mech HAS moved!!!");
+				this.setIsRunning(true);
+				this.mechrunAnimate(this.getEngine());
+				//this.stopMechRunAnimate(getEngine());
+				
+				
+			}
+		}
+		
+		
+	}
+	
+	public boolean getIsAnimated() {
+		return this.animatePlaying;
+	}
+	
+	public void setAnimateIsPlaying(boolean isPlaying) {
+		this.animatePlaying = isPlaying;
+	}
+	
+	public void stopMechRunAnimate(Engine eng)
+	{
+		SkeletalEntity manSE =
+		(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+			
+		manSE.stopAnimation();
+	}
+	
+	public boolean getIsRunning() {
+		return this.isRunning;
+	}
+	
+	public void setIsRunning(boolean isRunning) {
+		this.isRunning = isRunning;
 	}
 	
 	private void setupLights(SceneManager sm) {
@@ -384,6 +539,7 @@ public class MyGame extends VariableFrameRateGame {
 		    	
 		    	// yaw left
 		    	im.associateAction(c, Key.Q, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		    	
 		    	// yaw right
 		    	im.associateAction(c, Key.E, p1YawAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		    	
@@ -480,13 +636,20 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
-			ghostE.setPrimitive(Primitive.TRIANGLES);
+			//final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
+			//ghostE.setPrimitive(Primitive.TRIANGLES);
+			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getAvatar().getAvatarFileName(), avatar.getAvatar().getAvatarSkeletalMeshFileName(), avatar.getAvatar().getAvatarSkeletalFileName());
+			Texture tex = this.getEngine().getSceneManager().getTextureManager().getAssetByPath(avatar.getAvatar().getAvatarTextureFileName());
+			TextureState tstate = (TextureState)this.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
+			tstate.setTexture(tex);
+			ghostE.setRenderState(tstate);
+	    	ghostE.setPrimitive(Primitive.TRIANGLES);
 			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
-			ghostN.attachObject(ghostE);
 			ghostN.setLocalPosition(avatar.getPosition());
+			ghostN.attachObject(ghostE);
 			avatar.setNode(ghostN);
-			avatar.setEntity(ghostE);
+			avatar.setSkeletalEntity(ghostE);
+			//avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
 		}
 	}

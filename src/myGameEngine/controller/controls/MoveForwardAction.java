@@ -37,7 +37,12 @@ public class MoveForwardAction implements Action {
 		
 		
 		this.node.moveForward(movement);
-		this.gameClient.getGame().mechrunAnimate(this.gameClient.getGame().getEngine());
+		
+		
+			//this.gameClient.getGame().mechrunAnimate(this.gameClient.getGame().getEngine());
+			//this.gameClient.getGame().setAnimateIsPlaying(true);
+			//this.gameClient.getGame().set
+		
 		this.gameClient.getGame().updateVerticalPosition();
 		this.gameClient.sendMoveMessage(this.node.getLocalPosition());
 	}
