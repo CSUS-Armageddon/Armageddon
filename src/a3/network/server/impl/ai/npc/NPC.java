@@ -12,6 +12,8 @@ import a3.MyGame;
 import a3.avatar.Avatar;
 import a3.network.client.GhostAvatar;
 import ray.networking.IGameConnection.ProtocolType;
+import ray.rage.scene.SceneNode;
+import ray.rage.scene.Tessellation;
 import ray.rml.Degreef;
 import ray.rml.Matrix3;
 import ray.rml.Matrix3f;
@@ -122,6 +124,7 @@ public class NPC {
 		
 		setPlayerPosition(newPos);
 		this.gameClient.sendMoveMessage(this.getPlayerPosition());
+		this.gameClient.sendHeightMessage(this.gameClient.getUUID(), this.getPlayerPosition());
 	}
 	
 	public void moveLeft() {
@@ -131,11 +134,13 @@ public class NPC {
 		
 		setPlayerPosition(newPos);
 		this.gameClient.sendMoveMessage(this.getPlayerPosition());
+		this.gameClient.sendHeightMessage(this.gameClient.getUUID(), this.getPlayerPosition());
 	}
 	
 	public void yaw() {
 		setPlayerRotation(getPlayerRotation().rotate(Degreef.createFrom(1.0f), Vector3f.createFrom(0.0f, 1.0f, 0.0f)));
 		this.gameClient.sendRotateMessage(this.getPlayerRotation());
+		this.gameClient.sendHeightMessage(this.gameClient.getUUID(), this.getPlayerPosition());
 	}
 	
 }

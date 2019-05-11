@@ -15,6 +15,7 @@ import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
 import a3.network.api.messages.impl.HangupMessage;
+import a3.network.api.messages.impl.HeightMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
@@ -75,6 +76,9 @@ public class GameClient extends GameConnectionClient implements Client {
 			break;
 		case HANGUP:
 			handleHangupMessage((HangupMessage)msg);
+			break;
+		case HEIGHT:
+			handleHeightMessage((HeightMessage)msg);
 			break;
 		default:
 			System.out.println("Unknown Message Type!");
@@ -234,6 +238,26 @@ public class GameClient extends GameConnectionClient implements Client {
 			ghostAvatars.remove(avatar);
 			game.removeGhostAvatar(avatar);
 		}
+	}
+	
+	@Override
+	public void sendHeightMessage(UUID requestor, Vector3 globalPosition) {
+		 try {
+			 final HeightMessage hm = new HeightMessage();
+			 initMessage(hm);
+			 hm.setUUID(this.uuid);
+			 hm.setRequestor(requestor);
+			 hm.setDirection(HeightMessage.Direction.RECEIVE);
+			 hm.setHeight(getGame().getEngine().getSceneManager().getTessellation("tessE").getWorldHeight(globalPosition.x(), globalPosition.z()));
+			 sendPacket(hm);
+		 } catch (IOException e) {
+			 e.printStackTrace();
+		 }
+	}
+	
+	@Override
+	public void handleHeightMessage(HeightMessage hm) {
+		sendHeightMessage(hm.getRequestor(), hm.getPosition().toVector3());
 	}
 	
 	private GhostAvatar findGhostAvatarByUUID(UUID uuid) {

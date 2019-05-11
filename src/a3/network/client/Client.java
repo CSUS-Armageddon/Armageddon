@@ -1,8 +1,11 @@
 package a3.network.client;
 
+import java.util.UUID;
+
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
 import a3.network.api.messages.impl.HangupMessage;
+import a3.network.api.messages.impl.HeightMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
@@ -31,5 +34,8 @@ public interface Client {
 	
 	public void sendHangupMessage();
 	public void handleHangupMessage(HangupMessage hm);
+	
+	public void sendHeightMessage(UUID requestor, Vector3 globalPosition);
+	public void handleHeightMessage(HeightMessage hm);
 	
 }

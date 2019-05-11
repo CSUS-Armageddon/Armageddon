@@ -14,6 +14,7 @@ import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
 import a3.network.api.messages.impl.HangupMessage;
+import a3.network.api.messages.impl.HeightMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
@@ -21,10 +22,12 @@ import a3.network.api.messages.impl.RotateMessage;
 import a3.network.client.Client;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ClientLogger;
+import a3.network.logging.ServerLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
+import ray.rml.Vector3f;
 
 public class NPCGameClient extends GameConnectionClient implements Client {
 
@@ -76,6 +79,9 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 			break;
 		case HANGUP:
 			handleHangupMessage((HangupMessage)msg);
+			break;
+		case HEIGHT:
+			handleHeightMessage((HeightMessage)msg);
 			break;
 		default:
 			//System.out.println("Unknown Message Type!");
@@ -227,6 +233,30 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 			ghostAvatars.remove(avatar);
 			npc.removeGhostAvatar(avatar);
 		}
+	}
+	
+	@Override
+	public void sendHeightMessage(UUID requestor, Vector3 globalPosition) {
+		 try {
+			 final HeightMessage hm = new HeightMessage();
+			 initMessage(hm);
+			 hm.setUUID(this.uuid);
+			 hm.setRequestor(requestor);
+			 hm.setPosition(Position.fromVector3(globalPosition));
+			 hm.setDirection(HeightMessage.Direction.REQUEST);
+			 sendPacket(hm);
+		 } catch (IOException e) {
+			 e.printStackTrace();
+		 }
+	}
+	
+	@Override
+	public void handleHeightMessage(HeightMessage hm) {
+		final Vector3 oldPosition = getNPC().getPlayerPosition();
+		final Vector3 newPosition = Vector3f.createFrom(oldPosition.x(), hm.getHeight(), oldPosition.z());
+		getNPC().setPlayerPosition(newPosition);
+		sendMoveMessage(getNPC().getPlayerPosition());
+		ServerLogger.INSTANCE.logln("New position: " + newPosition);
 	}
 	
 	private GhostAvatar findGhostAvatarByUUID(UUID uuid) {

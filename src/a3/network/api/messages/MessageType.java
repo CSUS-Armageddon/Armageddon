@@ -11,6 +11,7 @@ public enum MessageType {
 	REQUEST,
 	DETAILS,
 	HANGUP,
+	HEIGHT,
 	;
 	
 	public static MessageType getMessageType(String message) throws IOException {

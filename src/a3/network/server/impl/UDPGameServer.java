@@ -252,7 +252,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		ServerLogger.INSTANCE.logln("GameServer Stoped");
 	}
 	
-	private void initMessage(Message msg) throws UnknownHostException {
+	protected void initMessage(Message msg) throws UnknownHostException {
 		msg.setProtocol(PROTOCOL_TYPE);
 		msg.setFromName(this.serverName);
 		msg.setFromIP(this.ipAddress);
