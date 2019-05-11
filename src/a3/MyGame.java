@@ -184,14 +184,14 @@ public class MyGame extends VariableFrameRateGame {
 		SkeletalEntity mechSE =
 				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
 		mechSE.update();
-		this.setX(this.getPlayerPosition().x());
-		this.setY(this.getPlayerPosition().y());
-		this.setZ(this.getPlayerPosition().z());
+	//	this.setX(this.getPlayerPosition().x());
+	//	this.setY(this.getPlayerPosition().y());
+		//this.setZ(this.getPlayerPosition().z());
 		im.update(gameTime);
-		this.setNextX(this.getPlayerPosition().x());
-		this.setNextY(this.getPlayerPosition().y());
-		this.setNextZ(this.getPlayerPosition().z());
-		this.checkIfMoved();
+	//	this.setNextX(this.getPlayerPosition().x());
+	//	this.setNextY(this.getPlayerPosition().y());
+	//	this.setNextZ(this.getPlayerPosition().z());
+	//	this.checkIfMoved();
 		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
 		//this.stopMechRunAnimate(eng);
@@ -637,8 +637,10 @@ public class MyGame extends VariableFrameRateGame {
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
 			//final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
+			
 			//ghostE.setPrimitive(Primitive.TRIANGLES);
-			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getAvatar().getAvatarFileName(), avatar.getAvatar().getAvatarSkeletalMeshFileName(), avatar.getAvatar().getAvatarSkeletalFileName());
+			try{
+			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "mechhope777.skm": avatar.getAvatar().getAvatarSkeletalMeshFileName() , avatar.getAvatar() == null ? "mechhope777.rks": avatar.getAvatar().getAvatarSkeletalFileName());
 			Texture tex = this.getEngine().getSceneManager().getTextureManager().getAssetByPath(avatar.getAvatar().getAvatarTextureFileName());
 			TextureState tstate = (TextureState)this.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
 			tstate.setTexture(tex);
@@ -649,8 +651,13 @@ public class MyGame extends VariableFrameRateGame {
 			ghostN.attachObject(ghostE);
 			avatar.setNode(ghostN);
 			avatar.setSkeletalEntity(ghostE);
-			//avatar.setEntity(ghostE);
+			avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
+			} 
+			catch(Exception e) {
+				e.printStackTrace();
+				
+			}
 		}
 	}
 	

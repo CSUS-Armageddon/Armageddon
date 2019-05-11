@@ -209,8 +209,9 @@ public class GameClient extends GameConnectionClient implements Client {
 					ghostN.detachObject(avatar.getUUID().toString()); // detach the existing entity from the node
 					//game.getEngine().getSceneManager().de
 					game.getEngine().getSceneManager().destroyEntity(avatar.getUUID().toString()); // make sure sm forgets about it
+					//game.getEngine().getSceneManager().destroyEntity((SkeletalEntity);
 					//final Entity ghostE = game.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarFileName()); // make new entity
-					final SkeletalEntity ghostE = game.getEngine().getSceneManager().createSkeletalEntity(dm.getAvatar().getAvatarFileName(), dm.getAvatar().getAvatarSkeletalMeshFileName(), dm.getAvatar().getAvatarSkeletalFileName());
+					final SkeletalEntity ghostE = game.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarSkeletalMeshFileName(), dm.getAvatar().getAvatarSkeletalFileName());
 					Texture tex = game.getEngine().getSceneManager().getTextureManager().getAssetByPath(dm.getAvatar().getAvatarTextureFileName());
 					TextureState tstate = (TextureState)game.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
 					tstate.setTexture(tex);
