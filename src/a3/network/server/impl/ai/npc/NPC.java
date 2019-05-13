@@ -14,7 +14,6 @@ import a3.network.client.GhostAvatar;
 import a3.network.logging.ServerLogger;
 import myGameEngine.util.MovementUtils;
 import ray.networking.IGameConnection.ProtocolType;
-import ray.networking.client.UDPClientSocket;
 import ray.rml.Degreef;
 import ray.rml.Matrix3;
 import ray.rml.Matrix3f;
@@ -37,9 +36,8 @@ public class NPC {
 	
 	final private UUID followPlayerUUID;
 	private static final float MAX_SEPARATION = 15.0f;
-	private static final float CATCHUP_SEPARATION = 5.0f;
 	
-	private Vector3 position = Vector3f.createFrom(0, 10, 0);
+	private Vector3 position = Vector3f.createFrom(0, 35, 0);
 	private Matrix3 rotation = Matrix3f.createIdentityMatrix();
 	
 	public NPC(String serverAddress, int serverPort, Avatar avatar, UUID followPlayerUUID) {
@@ -52,8 +50,6 @@ public class NPC {
 	
 	public void init() {
 		setupNetworking();
-		//this.isClientConnected = true;
-		//gameClient.sendCreateMessage(getPlayerPosition(), getPlayerRotation(), avatar.getAvatarName());
 	}
 
 	private void setupNetworking() {
@@ -71,9 +67,6 @@ public class NPC {
 		
 		if (gameClient == null) {
 			ServerLogger.INSTANCE.logln("Missing Game Host");
-		} else {
-			// send join message
-			//gameClient.sendJoinMessage();
 		}
 	}
 	
@@ -85,7 +78,6 @@ public class NPC {
 		try {
 			// process packets received by the client from the server
 			if (gameClient != null) {
-				ServerLogger.INSTANCE.logln("processing packets...");
 				gameClient.processPackets();
 			}
 			gameObjectsToRemove.clear();
@@ -166,12 +158,12 @@ public class NPC {
 	
 	public void followPlayer(UUID messageUUID, Vector3 playerPosition) {
 		if (messageUUID.equals(getFollowPlayerUUID())) {
-			setHeight(messageUUID, playerPosition.y());
 			if (!MovementUtils.validateSeparation(playerPosition, getPlayerPosition(), MAX_SEPARATION)) {
 				// player has strayed farther than the allowed separation... so lets move the npc closer
-				while (!MovementUtils.validateSeparation(playerPosition, getPlayerPosition(), CATCHUP_SEPARATION)) {
-					moveForward(1.0f);
-				}
+				setPlayerPosition(playerPosition);
+				setHeight(messageUUID, playerPosition.y());
+				// fake a move so we can send the message to other clients
+				this.gameClient.sendMoveMessage(getPlayerPosition());
 			}
 		}
 	}
@@ -179,10 +171,9 @@ public class NPC {
 	public void setHeight(UUID messageUUID, float height) {
 		if (messageUUID == getFollowPlayerUUID()) {
 			final Vector3f pos = (Vector3f) getPlayerPosition();
-			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height, pos.z());
+			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height + this.getAvatar().getAvatarHeightOffset(), pos.z());
 			
 			setPlayerPosition(newPos);
-			this.gameClient.sendMoveMessage(this.getPlayerPosition());
 		}
 	}
 

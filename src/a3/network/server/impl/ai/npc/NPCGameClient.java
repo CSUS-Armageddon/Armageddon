@@ -154,7 +154,6 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 		final NPCGhostAvatar avatar = (NPCGhostAvatar) findGhostAvatarByUUID(mm.getUUID());
 		if (avatar != null) {
 			avatar.getNode().setLocalPosition(mm.getPosition().toVector3());
-			ServerLogger.INSTANCE.logln("Moving!");
 			npc.followPlayer(mm.getUUID(), avatar.getNode().getLocalPosition());
 		}
 	}

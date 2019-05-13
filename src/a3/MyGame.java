@@ -28,7 +28,6 @@ import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ClientLogger;
-import a3.network.logging.ServerLogger;
 import myGameEngine.asset.JavaScriptLoader;
 import myGameEngine.asset.ScriptAsset;
 import myGameEngine.asset.ScriptManager;
@@ -51,7 +50,6 @@ import ray.input.InputManager;
 import ray.input.InputManager.INPUT_ACTION_TYPE;
 import ray.input.action.AbstractInputAction;
 import ray.networking.IGameConnection.ProtocolType;
-import ray.networking.client.UDPClientSocket;
 import ray.physics.PhysicsEngine;
 import ray.physics.PhysicsEngineFactory;
 import ray.physics.PhysicsObject;
@@ -67,7 +65,6 @@ import ray.rage.rendersystem.gl4.GL4RenderSystem;
 import ray.rage.rendersystem.states.TextureState;
 import ray.rage.scene.Camera;
 import ray.rage.scene.Camera.Frustum.Projection;
-import ray.rage.scene.Entity;
 import ray.rage.scene.Light;
 import ray.rage.scene.SceneManager;
 import ray.rage.scene.SceneNode;
@@ -165,7 +162,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	@Override
 	public void startup() {
-		//ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
+		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
 		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);

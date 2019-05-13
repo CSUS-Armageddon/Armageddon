@@ -42,7 +42,7 @@ public class NPCGameServer extends UDPGameServer {
 				final NPC npc = new NPC(this.ipAddress, this.localPort, Avatars.SPHEREBOT.getAvatar(), cm.getUUID());
 				final NPCRunner npcRunner = new NPCRunner(npc);
 				npcs.add(npc);
-				npcExecutorService.scheduleAtFixedRate(npcRunner, 5, 5, TimeUnit.SECONDS);
+				npcExecutorService.scheduleAtFixedRate(npcRunner, 3000, 50, TimeUnit.MILLISECONDS);
 			}
 		}
 	}

@@ -26,7 +26,6 @@ import ray.rage.asset.texture.Texture;
 import ray.rage.rendersystem.Renderable.Primitive;
 import ray.rage.rendersystem.states.RenderState;
 import ray.rage.rendersystem.states.TextureState;
-import ray.rage.scene.Entity;
 import ray.rage.scene.SceneNode;
 import ray.rage.scene.SkeletalEntity;
 import ray.rml.Matrix3;

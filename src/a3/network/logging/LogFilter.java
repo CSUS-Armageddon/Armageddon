@@ -31,6 +31,9 @@ public class LogFilter {
 			if (msg.toUpperCase().startsWith((t.toString().toUpperCase() + "MESSAGE"))) {
 				return true;
 			}
+			if (msg.toUpperCase().startsWith(("NPC > " + t.toString().toUpperCase() + "MESSAGE"))) {
+				return true;
+			}
 		}
 		return false;
 	}
