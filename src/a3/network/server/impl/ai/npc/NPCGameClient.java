@@ -20,7 +20,7 @@ import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.client.Client;
 import a3.network.client.GhostAvatar;
-import a3.network.logging.ClientLogger;
+import a3.network.logging.ServerLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
 import ray.rml.Matrix3;
@@ -52,33 +52,36 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 	
 	@Override
 	protected void processPacket(Object obj) {
-		final Message msg = (Message)obj;
-		System.out.println(msg);
-		ClientLogger.INSTANCE.logln(msg.toString());
-		switch (msg.getMessageType()) {
-		case JOIN:
-			handleJoinMessage((JoinMessage)msg);
-			break;
-		case CREATE:
-			handleCreateMessage((CreateMessage)msg);
-			break;
-		case MOVE:
-			handleMoveMessage((MoveMessage)msg);
-			break;
-		case ROTATE:
-			handleRotateMessage((RotateMessage)msg);
-			break;
-		case REQUEST:
-			handleRequestMessage((RequestMessage)msg);
-			break;
-		case DETAILS:
-			handleDetailsMessage((DetailsMessage)msg);
-			break;
-		case HANGUP:
-			handleHangupMessage((HangupMessage)msg);
-			break;
-		default:
-			//System.out.println("Unknown Message Type!");
+		try {
+			final Message msg = (Message)obj;
+			ServerLogger.INSTANCE.logln("NPC > " + msg.toString());
+			switch (msg.getMessageType()) {
+			case JOIN:
+				handleJoinMessage((JoinMessage)msg);
+				break;
+			case CREATE:
+				handleCreateMessage((CreateMessage)msg);
+				break;
+			case MOVE:
+				handleMoveMessage((MoveMessage)msg);
+				break;
+			case ROTATE:
+				handleRotateMessage((RotateMessage)msg);
+				break;
+			case REQUEST:
+				handleRequestMessage((RequestMessage)msg);
+				break;
+			case DETAILS:
+				handleDetailsMessage((DetailsMessage)msg);
+				break;
+			case HANGUP:
+				handleHangupMessage((HangupMessage)msg);
+				break;
+			default:
+				ServerLogger.INSTANCE.logln("Unknown Message Type!");
+			}
+		} catch (Exception e) {
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 	
@@ -102,7 +105,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 			npc.setClientConnected(true);
 			this.remoteName = jm.getFromName();
 			//System.out.println("Join Success");
-			//sendCreateMessage(npc.getPlayerPosition(), npc.getPlayerRotation(), npc.getAvatar().getAvatarName());
+			sendCreateMessage(npc.getPlayerPosition(), npc.getPlayerRotation(), npc.getAvatar().getAvatarName());
 		} else {
 			npc.setClientConnected(false);
 			//System.out.println("Join Failure");
@@ -125,7 +128,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleCreateMessage(CreateMessage cm) {
-		final GhostAvatar avatar = new GhostAvatar(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3(), cm.getAvatar());
+		final NPCGhostAvatar avatar = new NPCGhostAvatar(cm.getUUID(), cm.getPosition().toVector3(), cm.getRotation().toMatrix3(), cm.getAvatar());
 		try {
 			npc.addGhostAvatar(avatar);
 			ghostAvatars.add(avatar);
@@ -148,9 +151,11 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleMoveMessage(MoveMessage mm) {
-		final GhostAvatar avatar = findGhostAvatarByUUID(mm.getUUID());
+		final NPCGhostAvatar avatar = (NPCGhostAvatar) findGhostAvatarByUUID(mm.getUUID());
 		if (avatar != null) {
 			avatar.getNode().setLocalPosition(mm.getPosition().toVector3());
+			ServerLogger.INSTANCE.logln("Moving!");
+			npc.followPlayer(mm.getUUID(), avatar.getNode().getLocalPosition());
 		}
 	}
 
@@ -168,7 +173,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleRotateMessage(RotateMessage rm) {
-		final GhostAvatar avatar = findGhostAvatarByUUID(rm.getUUID());
+		final NPCGhostAvatar avatar = (NPCGhostAvatar) findGhostAvatarByUUID(rm.getUUID());
 		if (avatar != null) {
 			avatar.getNode().setLocalRotation(rm.getRotation().toMatrix3());
 		}
@@ -195,14 +200,18 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleDetailsMessage(DetailsMessage dm) {
-		final GhostAvatar avatar = findGhostAvatarByUUID(dm.getUUID());
+		final NPCGhostAvatar avatar = (NPCGhostAvatar) findGhostAvatarByUUID(dm.getUUID());
 		if (avatar != null) {
+			if (avatar.getNode() == null) {
+				avatar.setNode(new GhostSceneNode());
+			}
 			avatar.getNode().setLocalPosition(dm.getPosition().toVector3());
 			avatar.getNode().setLocalRotation(dm.getRotation().toMatrix3());
 			if ((avatar.getAvatar() == null && dm.getAvatar() != null) 
 					|| !avatar.getAvatar().getAvatarName().contentEquals(dm.getAvatar().getAvatarName())) {
 				avatar.setAvatar(dm.getAvatar()); // success, remember avatar
 			}
+			npc.followPlayer(dm.getUUID(), avatar.getNode().getLocalPosition());
 		}
 	}
 
@@ -222,10 +231,18 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 	@Override
 	public void handleHangupMessage(HangupMessage hm) {
 		//System.out.println("Received Hangup for: " + hm.getUUID());
-		final GhostAvatar avatar = findGhostAvatarByUUID(hm.getUUID());
+		final NPCGhostAvatar avatar = (NPCGhostAvatar) findGhostAvatarByUUID(hm.getUUID());
 		if (avatar != null) {
 			ghostAvatars.remove(avatar);
 			npc.removeGhostAvatar(avatar);
+		}
+		if (hm.getUUID() == npc.getFollowPlayerUUID()) {
+			sendHangupMessage();
+			try {
+				this.shutdown();
+			} catch (Exception e) {
+				ServerLogger.INSTANCE.log(e);
+			}
 		}
 	}
 	
@@ -233,7 +250,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 		if (uuid == null) return null;
 		final Iterator<GhostAvatar> it = ghostAvatars.iterator();
 		while (it.hasNext()) {
-			final GhostAvatar avatar = it.next();
+			final NPCGhostAvatar avatar = (NPCGhostAvatar) it.next();
 			if (avatar.getUUID().toString().contentEquals(uuid.toString())) {
 				return avatar;
 			}

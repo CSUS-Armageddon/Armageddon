@@ -22,11 +22,13 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import a3.avatar.Avatar;
+import a3.avatar.Avatars;
 import a3.editor.avatar.PlaceableAvatar;
 import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ClientLogger;
+import a3.network.logging.ServerLogger;
 import myGameEngine.asset.JavaScriptLoader;
 import myGameEngine.asset.ScriptAsset;
 import myGameEngine.asset.ScriptManager;
@@ -49,6 +51,7 @@ import ray.input.InputManager;
 import ray.input.InputManager.INPUT_ACTION_TYPE;
 import ray.input.action.AbstractInputAction;
 import ray.networking.IGameConnection.ProtocolType;
+import ray.networking.client.UDPClientSocket;
 import ray.physics.PhysicsEngine;
 import ray.physics.PhysicsEngineFactory;
 import ray.physics.PhysicsObject;
@@ -162,7 +165,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	@Override
 	public void startup() {
-		ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
+		//ClientLogger.INSTANCE.addFilter(MessageType.MOVE);
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
 		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
@@ -480,11 +483,27 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
-			ghostE.setPrimitive(Primitive.TRIANGLES);
-			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
+//			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
+//			ghostE.setPrimitive(Primitive.TRIANGLES);
+//			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
+//			ghostN.attachObject(ghostE);
+//			ghostN.setLocalPosition(avatar.getPosition());
+//			avatar.setNode(ghostN);
+//			avatar.setEntity(ghostE);
+//			avatar.setPosition(ghostN.getLocalPosition());
+			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(),
+							avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarSkeletalMeshFileName() : avatar.getAvatar().getAvatarSkeletalMeshFileName(), 
+							avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarSkeletalFileName() : avatar.getAvatar().getAvatarSkeletalFileName());
+			final Texture tex = this.getEngine().getSceneManager().getTextureManager().getAssetByPath(avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarTextureFileName() : avatar.getAvatar().getAvatarTextureFileName());
+			final TextureState tstate = (TextureState)this.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
+			tstate.setTexture(tex);
+			ghostE.setRenderState(tstate);
+	    	ghostE.setPrimitive(Primitive.TRIANGLES);
+	    	ghostE.loadAnimation("runAnimation", avatar.getAvatar() == null ? "Sphere_Bot_Attack.rka" : avatar.getAvatar().getAvatarAnimationFileName());
+	    	final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
+	    	ghostN.setLocalPosition(avatar.getPosition());
 			ghostN.attachObject(ghostE);
-			ghostN.setLocalPosition(avatar.getPosition());
+			
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());

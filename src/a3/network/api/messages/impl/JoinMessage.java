@@ -7,7 +7,7 @@ public class JoinMessage extends BasicMessage {
 
 	private static final long serialVersionUID = 8930487733152468168L;
 	
-	private boolean joinSuccess = false;
+	private Boolean joinSuccess = false;
 	
 	public JoinMessage() {
 		super.setMessageType(MessageType.JOIN);
@@ -16,14 +16,14 @@ public class JoinMessage extends BasicMessage {
 	/**
 	 * @return the joinSuccess
 	 */
-	public boolean isJoinSuccess() {
+	public Boolean isJoinSuccess() {
 		return joinSuccess;
 	}
 
 	/**
 	 * @param joinSuccess the joinSuccess to set
 	 */
-	public void setJoinSuccess(boolean joinSuccess) {
+	public void setJoinSuccess(Boolean joinSuccess) {
 		this.joinSuccess = joinSuccess;
 	}
 	

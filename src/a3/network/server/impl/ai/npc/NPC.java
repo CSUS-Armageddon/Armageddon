@@ -11,7 +11,10 @@ import java.util.Vector;
 import a3.MyGame;
 import a3.avatar.Avatar;
 import a3.network.client.GhostAvatar;
+import a3.network.logging.ServerLogger;
+import myGameEngine.util.MovementUtils;
 import ray.networking.IGameConnection.ProtocolType;
+import ray.networking.client.UDPClientSocket;
 import ray.rml.Degreef;
 import ray.rml.Matrix3;
 import ray.rml.Matrix3f;
@@ -19,6 +22,8 @@ import ray.rml.Vector3;
 import ray.rml.Vector3f;
 
 public class NPC {
+	
+	private boolean shouldRemove = false;
 	
 	final private String serverAddress;
 	final private int serverPort;
@@ -30,20 +35,25 @@ public class NPC {
 	
 	final private Avatar avatar;
 	
+	final private UUID followPlayerUUID;
+	private static final float MAX_SEPARATION = 15.0f;
+	private static final float CATCHUP_SEPARATION = 5.0f;
+	
 	private Vector3 position = Vector3f.createFrom(0, 10, 0);
 	private Matrix3 rotation = Matrix3f.createIdentityMatrix();
 	
-	public NPC(String serverAddress, int serverPort, Avatar avatar) {
+	public NPC(String serverAddress, int serverPort, Avatar avatar, UUID followPlayerUUID) {
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		this.serverProtocol = ProtocolType.UDP;
 		this.avatar = avatar;
+		this.followPlayerUUID = followPlayerUUID;
 	}
 	
 	public void init() {
 		setupNetworking();
-		this.isClientConnected = true;
-		gameClient.sendCreateMessage(getPlayerPosition(), getPlayerRotation(), avatar.getAvatarName());
+		//this.isClientConnected = true;
+		//gameClient.sendCreateMessage(getPlayerPosition(), getPlayerRotation(), avatar.getAvatarName());
 	}
 
 	private void setupNetworking() {
@@ -51,7 +61,6 @@ public class NPC {
 		gameObjectsToRemove = new Vector<UUID>();
 		ghosts = new ArrayList<GhostAvatar>();
 		isClientConnected = false;
-		
 		try {
 			gameClient = new NPCGameClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this, InetAddress.getLocalHost().getHostName());
 		} catch (UnknownHostException e) {
@@ -61,19 +70,28 @@ public class NPC {
 		}
 		
 		if (gameClient == null) {
-			System.out.println("Missing Game Host");
+			ServerLogger.INSTANCE.logln("Missing Game Host");
 		} else {
 			// send join message
-			gameClient.sendJoinMessage();
+			//gameClient.sendJoinMessage();
 		}
 	}
 	
-	protected void processNetworking(float gameTime) {
-		// process packets received by the client from the server
-		if (gameClient != null) {
-			gameClient.processPackets();
+	public void joinSession() {
+		gameClient.sendJoinMessage();
+	}
+	
+	protected void processNetworking() {
+		try {
+			// process packets received by the client from the server
+			if (gameClient != null) {
+				ServerLogger.INSTANCE.logln("processing packets...");
+				gameClient.processPackets();
+			}
+			gameObjectsToRemove.clear();
+		} catch (Exception e) {
+			ServerLogger.INSTANCE.log(e);;
 		}
-		gameObjectsToRemove.clear();
 	}
 	
 	public void setPlayerPosition(Vector3 position) {
@@ -95,6 +113,7 @@ public class NPC {
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
 			ghosts.add(avatar);
+			avatar.setNode(new GhostSceneNode());
 		}
 	}
 	
@@ -116,26 +135,69 @@ public class NPC {
 		return avatar;
 	}
 	
-	public void moveForward() {
+	public void moveForward(float amount) {
 		final Vector3f pos = (Vector3f) getPlayerPosition();
-		final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), pos.y(), (pos.z() + (1.0f * MyGame.PLAYER_SPEED)));
+		final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), pos.y(), (pos.z() + (amount * MyGame.PLAYER_SPEED)));
 		
 		setPlayerPosition(newPos);
 		this.gameClient.sendMoveMessage(this.getPlayerPosition());
 	}
 	
-	public void moveLeft() {
+	public void moveLeft(float amount) {
 		final Vector3f pos = (Vector3f) getPlayerPosition();
 		final Vector3f newPos = 
-				(Vector3f) Vector3f.createFrom((pos.x() + (1.0f * MyGame.PLAYER_SPEED)), pos.y(), pos.z());
+				(Vector3f) Vector3f.createFrom((pos.x() + (amount * MyGame.PLAYER_SPEED)), pos.y(), pos.z());
 		
 		setPlayerPosition(newPos);
 		this.gameClient.sendMoveMessage(this.getPlayerPosition());
 	}
 	
-	public void yaw() {
-		setPlayerRotation(getPlayerRotation().rotate(Degreef.createFrom(1.0f), Vector3f.createFrom(0.0f, 1.0f, 0.0f)));
+	public void yaw(float amount) {
+		setPlayerRotation(getPlayerRotation().rotate(Degreef.createFrom(amount), Vector3f.createFrom(0.0f, 1.0f, 0.0f)));
 		this.gameClient.sendRotateMessage(this.getPlayerRotation());
+	}
+
+	/**
+	 * @return the followPlayerUUID
+	 */
+	public UUID getFollowPlayerUUID() {
+		return followPlayerUUID;
+	}
+	
+	public void followPlayer(UUID messageUUID, Vector3 playerPosition) {
+		if (messageUUID.equals(getFollowPlayerUUID())) {
+			setHeight(messageUUID, playerPosition.y());
+			if (!MovementUtils.validateSeparation(playerPosition, getPlayerPosition(), MAX_SEPARATION)) {
+				// player has strayed farther than the allowed separation... so lets move the npc closer
+				while (!MovementUtils.validateSeparation(playerPosition, getPlayerPosition(), CATCHUP_SEPARATION)) {
+					moveForward(1.0f);
+				}
+			}
+		}
+	}
+	
+	public void setHeight(UUID messageUUID, float height) {
+		if (messageUUID == getFollowPlayerUUID()) {
+			final Vector3f pos = (Vector3f) getPlayerPosition();
+			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height, pos.z());
+			
+			setPlayerPosition(newPos);
+			this.gameClient.sendMoveMessage(this.getPlayerPosition());
+		}
+	}
+
+	/**
+	 * @return the shouldRemove
+	 */
+	public boolean isShouldRemove() {
+		return shouldRemove;
+	}
+
+	/**
+	 * @param shouldRemove the shouldRemove to set
+	 */
+	public void setShouldRemove(boolean shouldRemove) {
+		this.shouldRemove = shouldRemove;
 	}
 	
 }

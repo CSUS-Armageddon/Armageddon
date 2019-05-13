@@ -4,6 +4,7 @@ public enum Avatars {
 
 	MECH(new a3.avatar.impl.Mech()),
 	MECH99(new a3.avatar.impl.Mech99()),
+	SPHEREBOT(new a3.avatar.impl.SphereBot()),
 	;
 	
 	private Avatars(Avatar avatar) {

@@ -1,9 +1,14 @@
 package a3.network.server.impl.ai.npc;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import a3.network.logging.ServerLogger;
+
 public class NPCRunner implements Runnable {
 	
 	private final NPC npc;
-	private boolean isRunning = false;
+	private AtomicBoolean isRunning = new AtomicBoolean(false);
+	private AtomicBoolean isInit = new AtomicBoolean(false);
 	
 	public NPCRunner(NPC npc) {
 		this.npc = npc;
@@ -11,25 +16,21 @@ public class NPCRunner implements Runnable {
 
 	@Override
 	public void run() {
-		if (!isRunning) {
-			npc.init();
+		try {
+			if (!isInit.get()) {
+				npc.init();
+				npc.joinSession();
+				isInit.set(true);
+			}
+			if (!isRunning.get()) {
+				npc.processNetworking();
+			}
 			if (npc.isClientConnected()) {
-				isRunning = true;
+				isRunning.set(true);
 			}
-		}
-		if (random() == 1) {
-			if (random() == 1) {
-				npc.moveForward();
-			} else {
-				npc.moveLeft();
-			}
-		} else {
-			npc.yaw();
+			npc.processNetworking();
+		} catch (Exception e) {
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
-	
-	private long random() {
-		return Math.round(Math.random());
-	}
-
 }

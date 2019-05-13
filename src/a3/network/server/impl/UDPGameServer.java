@@ -51,6 +51,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	public void processPacket(Object obj, InetAddress senderIP, int senderPort) {
 		final Message msg = (Message)obj;
 		msg.setFromIP(senderIP.getHostAddress());
+		msg.setFromPort(senderPort);
 		ServerLogger.INSTANCE.logln(msg.toString());
 		switch (msg.getMessageType()) {
 		case JOIN:
@@ -107,7 +108,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			addClient(ci, jm.getUUID());
 			sendJoinMessage(jm.getUUID(), true);
 			return; // if successful, return here
-		} catch (IOException e) {
+		} catch (Exception e) {
 			ServerLogger.INSTANCE.log(e);
 		}
 		sendJoinMessage(jm.getUUID(), false);
@@ -191,8 +192,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			final RequestMessage rm = new RequestMessage();
 			initMessage(rm);
 			sendPacketToAll(rm);
-		} catch (IOException e) {
-			
+		} catch (Exception e) {
+			ServerLogger.INSTANCE.log(e);
 		}
 	}
 
@@ -230,8 +231,8 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 
 	@Override
 	public void handleHangupMessage(HangupMessage hm) {
-		sendHangupMessage(hm.getUUID());
 		removeClient(hm.getUUID());
+		sendHangupMessage(hm.getUUID());
 		ServerLogger.INSTANCE.logln("Joined Clients:");
 		this.getClients().forEach((k,v) -> ServerLogger.INSTANCE.logln("\t" + k));
 	}
@@ -241,6 +242,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		final HangupMessage hm = new HangupMessage();
 		try {
 			sendPacketToAll(hm);
+			this.ses.shutdown();
 		} catch (IOException e) {
 			ServerLogger.INSTANCE.log(e);
 		}

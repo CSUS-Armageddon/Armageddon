@@ -22,8 +22,13 @@ import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ClientLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
+import ray.rage.asset.texture.Texture;
+import ray.rage.rendersystem.Renderable.Primitive;
+import ray.rage.rendersystem.states.RenderState;
+import ray.rage.rendersystem.states.TextureState;
 import ray.rage.scene.Entity;
 import ray.rage.scene.SceneNode;
+import ray.rage.scene.SkeletalEntity;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
@@ -202,8 +207,21 @@ public class GameClient extends GameConnectionClient implements Client {
 				if ((avatar.getAvatar() == null && dm.getAvatar() != null) || !avatar.getAvatar().getAvatarName().contentEquals(dm.getAvatar().getAvatarName())) {
 					final SceneNode ghostN = game.getEngine().getSceneManager().getSceneNode(avatar.getUUID().toString()); // get existing node
 					ghostN.detachObject(avatar.getUUID().toString()); // detach the existing entity from the node
-					game.getEngine().getSceneManager().destroyEntity(avatar.getUUID().toString()); // make sure sm forgets about it
-					final Entity ghostE = game.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarFileName()); // make new entity
+					try {
+						game.getEngine().getSceneManager().destroyEntity(dm.getUUID().toString()); // make sure sm forgets about it
+					} catch (RuntimeException re) {
+						// nothing to do here, just ensuring the entity does not exist
+					}
+//					final Entity ghostE = game.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarFileName()); // make new entity
+					
+					final SkeletalEntity ghostE = game.getEngine().getSceneManager().createSkeletalEntity(dm.getAvatar().getAvatarFileName(), dm.getAvatar().getAvatarSkeletalMeshFileName(), dm.getAvatar().getAvatarSkeletalFileName());
+					final Texture tex = game.getEngine().getSceneManager().getTextureManager().getAssetByPath(dm.getAvatar().getAvatarTextureFileName());
+					final TextureState tstate = (TextureState)game.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
+					tstate.setTexture(tex);
+					ghostE.setRenderState(tstate);
+			    	ghostE.setPrimitive(Primitive.TRIANGLES);
+			    	ghostE.loadAnimation("runAnimation", dm.getAvatar().getAvatarAnimationFileName());
+			    	
 					ghostN.attachObject(ghostE); // and attach it
 					avatar.setAvatar(dm.getAvatar()); // success, remember avatar
 				}
