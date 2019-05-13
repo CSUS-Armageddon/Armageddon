@@ -12,5 +12,9 @@ public interface Avatar extends Serializable {
 	public String getAvatarTextureFileName();
 	public float getAvatarHeightOffset();
 	public void setAvatarHeightOffset(float offset);
+	public float getScale();
+	public void setScale(float scale);
+	public float getMass();
+	public void setMass(float mass);
 	
 }

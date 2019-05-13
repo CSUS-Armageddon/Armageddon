@@ -213,7 +213,7 @@ public class GameClient extends GameConnectionClient implements Client {
 					}
 //					final Entity ghostE = game.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarFileName()); // make new entity
 					
-					final SkeletalEntity ghostE = game.getEngine().getSceneManager().createSkeletalEntity(dm.getAvatar().getAvatarFileName(), dm.getAvatar().getAvatarSkeletalMeshFileName(), dm.getAvatar().getAvatarSkeletalFileName());
+					final SkeletalEntity ghostE = game.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(), dm.getAvatar().getAvatarSkeletalMeshFileName(), dm.getAvatar().getAvatarSkeletalFileName());
 					final Texture tex = game.getEngine().getSceneManager().getTextureManager().getAssetByPath(dm.getAvatar().getAvatarTextureFileName());
 					final TextureState tstate = (TextureState)game.getEngine().getSceneManager().getRenderSystem().createRenderState(RenderState.Type.TEXTURE);
 					tstate.setTexture(tex);

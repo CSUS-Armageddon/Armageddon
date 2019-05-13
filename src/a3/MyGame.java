@@ -500,6 +500,8 @@ public class MyGame extends VariableFrameRateGame {
 	    	final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
 	    	ghostN.setLocalPosition(avatar.getPosition());
 			ghostN.attachObject(ghostE);
+			ghostN.scale(avatar.getAvatar().getScale(), avatar.getAvatar().getScale(), avatar.getAvatar().getScale());
+			ghostN.moveUp(avatar.getAvatar().getAvatarHeightOffset());
 			
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
