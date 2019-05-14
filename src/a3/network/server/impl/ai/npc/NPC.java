@@ -169,7 +169,7 @@ public class NPC {
 	}
 	
 	public void setHeight(UUID messageUUID, float height) {
-		if (messageUUID == getFollowPlayerUUID()) {
+		if (messageUUID.equals(getFollowPlayerUUID())) {
 			final Vector3f pos = (Vector3f) getPlayerPosition();
 			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height + this.getAvatar().getAvatarHeightOffset(), pos.z());
 			

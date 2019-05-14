@@ -235,7 +235,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 			ghostAvatars.remove(avatar);
 			npc.removeGhostAvatar(avatar);
 		}
-		if (hm.getUUID() == npc.getFollowPlayerUUID()) {
+		if (hm.getUUID().equals(npc.getFollowPlayerUUID())) {
 			sendHangupMessage();
 			try {
 				this.shutdown();

@@ -12,7 +12,7 @@ public class SphereBot extends BasicAvatar {
 		super.setAvatarSkeletalMeshFileName("Sphere_Bot.rkm");
 		super.setAvatarAnimationFileName("Sphere_Bot_Attack.rka");
 		super.setAvatarTextureFileName("Sphere_Bot_color_1.jpg");
-		super.setAvatarHeightOffset(35.0f);
+		super.setAvatarHeightOffset(10.0f);
 		super.setScale(2.0f);
 		super.setMass(1.0f);
 	}
