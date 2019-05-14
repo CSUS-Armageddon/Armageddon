@@ -25,8 +25,8 @@ public class Camera3PController {
 	private float radias; // distance between camera and target
 	private Vector3 worldUpVec; // the world's up vector
 	
-	private static final float MAX_ZOOM_OUT = 75.0f;
-	private static final float MAX_ZOOM_IN = 10.0f;
+	private static final float MAX_ZOOM_OUT = 150.0f;
+	private static final float MAX_ZOOM_IN = 50.0f;
 	
 	public Camera3PController(SceneNode cameraN, SceneNode target, InputType inputType, InputManager im) {
 		this.cameraN = cameraN;
@@ -36,7 +36,7 @@ public class Camera3PController {
 		
 		this.cameraAzimuth = 225.0f; // start from BEHIND and ABOVE the target
 		this.cameraElevation = 20.0f; // elevation is in degrees
-		this.radias = 50.0f;
+		this.radias = 75.0f;
 		this.worldUpVec = Vector3f.createFrom(0.0f, 1.0f, 0.0f); // Y is UP
 		setupInput(this.im, this.inputType);
 		updateCameraPosition();
@@ -157,7 +157,7 @@ public class Camera3PController {
 			}
 			
 			final float check = cameraElevation + elevateAmount;
-			if ((check < 0.0f) || (check > 180.0f)) return;
+			if ((check < 0.0f) || (check > 75.0f)) return;
 			
 			cameraElevation = check;
 			cameraElevation = cameraElevation % 360;
