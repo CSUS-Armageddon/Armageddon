@@ -14,7 +14,7 @@ public class Mech99 extends BasicAvatar {
 		super.setAvatarAnimationFileName("jasonmechrun.rka");
 		super.setAvatarTextureFileName("mech_1.png");
 		super.setAvatarHeightOffset(6.75f);
-		super.setScale(1.0f);
+		super.setScale(3.0f);
 		super.setMass(1.0f);
 	}
 	

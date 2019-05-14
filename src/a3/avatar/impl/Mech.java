@@ -14,7 +14,7 @@ public class Mech extends BasicAvatar {
 		super.setAvatarAnimationFileName("mechhope777.rka");
 		super.setAvatarTextureFileName("mech2textures.png");
 		super.setAvatarHeightOffset(2.0f);
-		super.setScale(1.0f);
+		super.setScale(3.0f);
 		super.setMass(1.0f);
 	}
 

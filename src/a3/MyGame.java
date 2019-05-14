@@ -329,6 +329,9 @@ public class MyGame extends VariableFrameRateGame {
         playerN.moveLeft(5.0f);
         playerN.moveUp(17.0f);
 		playerN.yaw(Degreef.createFrom(90.0f));
+		
+		playerN.scale(avatar.getScale(), avatar.getScale(), avatar.getScale());
+		
         playerN.attachObject(playerE);
         
         //replace with avatar.getrunanimation for second parameter
