@@ -36,11 +36,13 @@ public class MoveForwardAction implements Action {
 			}
 		}
 		
-		
-		//this.node.moveForward(movement);
 		final Vector3 forward = this.node.getLocalForwardAxis();
-		System.out.println(forward.x() + " " + forward.y() + " " + forward.z());
-		this.node.getPhysicsObject().applyForce(forward.x() == 0 ? 0 : 250, forward.y() == 0 ? 0 : 250, forward.z() == 0 ? 0 : 250, 0, 0, 0);
+		final float xForce = forward.x() == 0 ? 0 : forward.x() * movement;
+		final float yForce = forward.y() == 0 ? 0 : forward.y() * movement;
+		final float zForce = forward.z() == 0 ? 0 : forward.z() * movement;
+		
+		this.node.getPhysicsObject().applyForce(xForce, yForce, zForce, 0, 0, 0);
+		
 		this.gameClient.getGame().mechrunAnimate(this.gameClient.getGame().getEngine());
 		this.gameClient.getGame().updateVerticalPosition();
 		this.gameClient.sendMoveMessage(this.node.getLocalPosition());

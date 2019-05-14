@@ -108,7 +108,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private float gameTime;
 	
-	public static final float PLAYER_SPEED = 2.025f;
+	public static final float PLAYER_SPEED = 250.0f;
 	public static final float LOOK_SPEED = 0.75f;
 	
 	public static final String LIGHT_NAME = "Lamp1";
@@ -745,6 +745,7 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject physicsObj = 
 				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, MyGame.UP_VECTOR, 0.0f);
 		physicsObj.setBounciness(1.0f);
+		physicsObj.setFriction(1.0f);
 		sn.setPhysicsObject(physicsObj);
 		
 		// setup player
@@ -752,6 +753,8 @@ public class MyGame extends VariableFrameRateGame {
 		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
 		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1.0f);//avatar.getScale());
 		playerPhys.setBounciness(0.0f);
+		playerPhys.setFriction(1.0f);
+		playerPhys.setDamping(0.98f, 0.98f);
 		playerN.setPhysicsObject(playerPhys);
 		
 		// dirty hack to get the JBullet physics engine since RAGE does not expose it... for some reason...
