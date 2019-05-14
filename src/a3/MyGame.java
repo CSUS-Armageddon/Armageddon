@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
 import java.util.ArrayList;
@@ -24,6 +25,14 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+
+import com.bulletphysics.collision.broadphase.Dispatcher;
+import com.bulletphysics.collision.narrowphase.ManifoldPoint;
+import com.bulletphysics.collision.narrowphase.PersistentManifold;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.DynamicsWorld;
+import com.bulletphysics.dynamics.InternalTickCallback;
+import com.bulletphysics.dynamics.RigidBody;
 
 import a3.avatar.Avatar;
 import a3.avatar.Avatars;
@@ -744,6 +753,49 @@ public class MyGame extends VariableFrameRateGame {
 		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1.0f);//avatar.getScale());
 		playerPhys.setBounciness(0.0f);
 		playerN.setPhysicsObject(playerPhys);
+		
+		// dirty hack to get the JBullet physics engine since RAGE does not expose it... for some reason...
+		try {
+			final Field dynamicsWorldField = this.physicsEngine.getClass().getDeclaredField("dynamicsWorld");
+			dynamicsWorldField.setAccessible(true);
+			final Object discreteDynamicsWorldObj = dynamicsWorldField.get(this.physicsEngine);
+			final DiscreteDynamicsWorld dynamicsWorld = (DiscreteDynamicsWorld) discreteDynamicsWorldObj;
+			
+			// now attempt to set a callback on each tick so we can see if we've collided objects (bullets & avatars)
+			dynamicsWorld.setInternalTickCallback(new InternalTickCallback() {
+
+				@Override
+				public void internalTick(DynamicsWorld world, float timeStep) {
+					final Dispatcher dispatcher = dynamicsWorld.getDispatcher();
+					final int manifoldCount = dispatcher.getNumManifolds();
+					for (int i = 0; i < manifoldCount; i++) {
+						
+					    final PersistentManifold manifold = dispatcher.getManifoldByIndexInternal(i);
+					    final RigidBody object1 = (RigidBody) manifold.getBody0();
+					    final RigidBody object2 = (RigidBody) manifold.getBody1();
+//					    final PhysicsObject physicsObject1 = (PhysicsObject) object1.getUserPointer();
+//					    final PhysicsObject physicsObject2 = (PhysicsObject) object2.getUserPointer();
+					    
+					    boolean hit = false;
+					    javax.vecmath.Vector3f normal = null;
+					    for (int j = 0; j < manifold.getNumContacts(); j++) {
+					        ManifoldPoint contactPoint = manifold.getContactPoint(j);
+					        if (contactPoint.getDistance() < 0.0f) {
+					            hit = true;
+					            normal = contactPoint.normalWorldOnB;
+					            break;
+					        }
+					    }
+					    if (hit) {
+					        // Collision happened between physicsObject1 and physicsObject2. Collision normal is in variable 'normal'.
+					    }
+					}
+				}
+				
+			}, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public PhysicsEngine getPhysicsEngine() {
