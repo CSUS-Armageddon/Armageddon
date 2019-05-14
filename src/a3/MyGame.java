@@ -480,14 +480,6 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void addGhostAvatar(GhostAvatar avatar) throws IOException {
 		if (avatar != null) {
-//			final Entity ghostE = this.getEngine().getSceneManager().createEntity(avatar.getUUID().toString(), avatar.getAvatar() == null ? "cube.obj" : avatar.getAvatar().getAvatarFileName());
-//			ghostE.setPrimitive(Primitive.TRIANGLES);
-//			final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
-//			ghostN.attachObject(ghostE);
-//			ghostN.setLocalPosition(avatar.getPosition());
-//			avatar.setNode(ghostN);
-//			avatar.setEntity(ghostE);
-//			avatar.setPosition(ghostN.getLocalPosition());
 			final SkeletalEntity ghostE = this.getEngine().getSceneManager().createSkeletalEntity(avatar.getUUID().toString(),
 							avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarSkeletalMeshFileName() : avatar.getAvatar().getAvatarSkeletalMeshFileName(), 
 							avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarSkeletalFileName() : avatar.getAvatar().getAvatarSkeletalFileName());
