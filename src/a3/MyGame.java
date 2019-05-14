@@ -200,6 +200,7 @@ public class MyGame extends VariableFrameRateGame {
 				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
 		mechSE.update();
 		
+		
 		this.setX(this.getPlayerPosition().x());
 		this.setY(this.getPlayerPosition().y());
 		this.setZ(this.getPlayerPosition().z());
@@ -231,8 +232,13 @@ public class MyGame extends VariableFrameRateGame {
 		this.printTrackAvatarListInfo();
 		System.out.println("*******************************************************");
 		
-		this.playGhostRunAnimation(eng);
 		
+		for(int i =0 ; i<trackAvatarList.size(); i++) {
+		SkeletalEntity mechGhost =
+				(SkeletalEntity) eng.getSceneManager().getEntity(trackAvatarList.get(i).getName());
+		mechGhost.update();
+		this.playGhostRunAnimation(eng);
+		}
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
@@ -403,7 +409,7 @@ public class MyGame extends VariableFrameRateGame {
 		for(int i =0; i<trackAvatarList.size(); i++) {
 			SceneNode snode = eng.getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
 					SkeletalEntity manSE = (SkeletalEntity) eng.getSceneManager().getEntity(snode.getAttachedObject(0).getName());
-		
+				//	manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
 		if(trackAvatarList.get(i).isIfAvatarMoved() == true && trackAvatarList.get(i).isIfAvatarAnimationPlayed() == false) {
 			manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
 			trackAvatarList.get(i).setIfAvatarAnimationPlayed(true);
@@ -415,6 +421,8 @@ public class MyGame extends VariableFrameRateGame {
 		//}
 		
 		}
+		
+		
 	}
 	
 	private void setupLights(SceneManager sm) {
