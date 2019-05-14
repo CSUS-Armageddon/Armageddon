@@ -56,32 +56,36 @@ public class GameClient extends GameConnectionClient implements Client {
 	
 	@Override
 	protected void processPacket(Object obj) {
-		final Message msg = (Message)obj;
-		ClientLogger.INSTANCE.logln(msg.toString());
-		switch (msg.getMessageType()) {
-		case JOIN:
-			handleJoinMessage((JoinMessage)msg);
-			break;
-		case CREATE:
-			handleCreateMessage((CreateMessage)msg);
-			break;
-		case MOVE:
-			handleMoveMessage((MoveMessage)msg);
-			break;
-		case ROTATE:
-			handleRotateMessage((RotateMessage)msg);
-			break;
-		case REQUEST:
-			handleRequestMessage((RequestMessage)msg);
-			break;
-		case DETAILS:
-			handleDetailsMessage((DetailsMessage)msg);
-			break;
-		case HANGUP:
-			handleHangupMessage((HangupMessage)msg);
-			break;
-		default:
-			System.out.println("Unknown Message Type!");
+		try {
+			final Message msg = (Message)obj;
+			ClientLogger.INSTANCE.logln(msg.toString());
+			switch (msg.getMessageType()) {
+			case JOIN:
+				handleJoinMessage((JoinMessage)msg);
+				break;
+			case CREATE:
+				handleCreateMessage((CreateMessage)msg);
+				break;
+			case MOVE:
+				handleMoveMessage((MoveMessage)msg);
+				break;
+			case ROTATE:
+				handleRotateMessage((RotateMessage)msg);
+				break;
+			case REQUEST:
+				handleRequestMessage((RequestMessage)msg);
+				break;
+			case DETAILS:
+				handleDetailsMessage((DetailsMessage)msg);
+				break;
+			case HANGUP:
+				handleHangupMessage((HangupMessage)msg);
+				break;
+			default:
+				System.out.println("Unknown Message Type!");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -205,7 +209,11 @@ public class GameClient extends GameConnectionClient implements Client {
 			try {
 				if ((avatar.getAvatar() == null && dm.getAvatar() != null) || !avatar.getAvatar().getAvatarName().contentEquals(dm.getAvatar().getAvatarName())) {
 					final SceneNode ghostN = game.getEngine().getSceneManager().getSceneNode(avatar.getUUID().toString()); // get existing node
-					ghostN.detachObject(avatar.getUUID().toString()); // detach the existing entity from the node
+					try {
+						ghostN.detachObject(avatar.getUUID().toString()); // detach the existing entity from the node
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 					try {
 						game.getEngine().getSceneManager().destroyEntity(dm.getUUID().toString()); // make sure sm forgets about it
 					} catch (RuntimeException re) {
@@ -220,6 +228,11 @@ public class GameClient extends GameConnectionClient implements Client {
 					ghostE.setRenderState(tstate);
 			    	ghostE.setPrimitive(Primitive.TRIANGLES);
 			    	ghostE.loadAnimation("runAnimation", dm.getAvatar().getAvatarAnimationFileName());
+			    	
+			    	final float scale = dm.getAvatar().getScale();
+					final float heightOffset = dm.getAvatar().getAvatarHeightOffset();
+					ghostN.scale(scale, scale, scale);
+					ghostN.moveUp(heightOffset);
 			    	
 					ghostN.attachObject(ghostE); // and attach it
 					avatar.setAvatar(dm.getAvatar()); // success, remember avatar
