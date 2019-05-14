@@ -26,7 +26,7 @@ public class ShootAction implements Action {
 		this.sm = sm;
 		this.node = node;
 		this.gameClient = gameClient;
-		this.brc = new BulletRemovalController(sm, 5000);
+		this.brc = new BulletRemovalController(gameClient.getGame().getPhysicsEngine(), sm, 5000);
 	}
 
 	@Override
