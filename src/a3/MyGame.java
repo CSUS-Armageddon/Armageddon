@@ -628,11 +628,18 @@ public class MyGame extends VariableFrameRateGame {
 		 //setup terrain and ground plane
 		final SceneNode terrainGroup = sm.getSceneNode(GROUNDPLANE_OBJECTS_NODE_GROUP);
 		final SceneNode sn = (SceneNode) terrainGroup;
-		final double[] temptf = ArrayUtils.toDoubleArray(sn.getLocalTransform().toFloatArray());
+		double[] temptf = ArrayUtils.toDoubleArray(sn.getLocalTransform().toFloatArray());
 		PhysicsObject physicsObj = 
 				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, MyGame.UP_VECTOR, 0.0f);
 		physicsObj.setBounciness(1.0f);
 		sn.setPhysicsObject(physicsObj);
+		
+		// setup player
+		final SceneNode playerN = sm.getSceneNode(PLAYER_NODE_NAME);
+		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
+		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1.0f);//avatar.getScale());
+		playerPhys.setBounciness(0.0f);
+		playerN.setPhysicsObject(playerPhys);
 	}
 	
 	public PhysicsEngine getPhysicsEngine() {
