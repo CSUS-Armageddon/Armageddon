@@ -171,7 +171,12 @@ public class NPC {
 	public void setHeight(UUID messageUUID, float height) {
 		if (messageUUID.equals(getFollowPlayerUUID())) {
 			final Vector3f pos = (Vector3f) getPlayerPosition();
-			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height + this.getAvatar().getAvatarHeightOffset(), pos.z());
+			float scaleMultiplier = 1.0f;
+			final NPCGhostAvatar ghost = (NPCGhostAvatar) gameClient.findGhostAvatarByUUID(messageUUID);
+			if (ghost != null) {
+				scaleMultiplier = ghost.getAvatar().getScale() / 1.33333333f;
+			}
+			final Vector3f newPos = (Vector3f) Vector3f.createFrom(pos.x(), height + (this.getAvatar().getAvatarHeightOffset() * scaleMultiplier), pos.z());
 			
 			setPlayerPosition(newPos);
 		}

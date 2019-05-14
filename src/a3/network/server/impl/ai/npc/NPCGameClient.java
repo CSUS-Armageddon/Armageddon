@@ -245,7 +245,7 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 		}
 	}
 	
-	private GhostAvatar findGhostAvatarByUUID(UUID uuid) {
+	public GhostAvatar findGhostAvatarByUUID(UUID uuid) {
 		if (uuid == null) return null;
 		final Iterator<GhostAvatar> it = ghostAvatars.iterator();
 		while (it.hasNext()) {
