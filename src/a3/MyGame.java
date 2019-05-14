@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -118,6 +119,8 @@ public class MyGame extends VariableFrameRateGame {
 	private static final float[] GRAVITY = { 0.0f, -30.0f, 0.0f };
 	private static final float[] UP_VECTOR = { 0.0f, 1.0f, 0.0f };
 	
+	
+	
 	public float x;
 	public float y;
 	public float z;
@@ -128,7 +131,11 @@ public class MyGame extends VariableFrameRateGame {
 	public boolean isRunning = false; 
 	public boolean animatePlaying = false;
 	
+	public boolean checkIfGhostMoveInitial = false;
+	public boolean checkIfGhostMoveFinal = false;
 	
+	
+	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
 	private PhysicsEngine physicsEngine;
 	
 	private SkeletalEntity playerE;
@@ -197,6 +204,11 @@ public class MyGame extends VariableFrameRateGame {
 		this.setY(this.getPlayerPosition().y());
 		this.setZ(this.getPlayerPosition().z());
 		
+		//this.checkIfGhostMoved();
+		System.out.println("*******************************************************");
+		this.checkIfGhostMovedIntially();
+		this.printTrackAvatarListInfo();
+		System.out.println("*******************************************************");
 		im.update(gameTime);
 		
 		this.setNextX(this.getPlayerPosition().x());
@@ -207,6 +219,19 @@ public class MyGame extends VariableFrameRateGame {
 	
 		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
+		
+		
+		System.out.println("*******************************************************");
+		this.checkIfGhostMovedFinal();
+		this.printTrackAvatarListInfo();
+		System.out.println("*******************************************************");
+		
+		System.out.println("*******************************************************");
+		this.checkIfGhostMoved();
+		this.printTrackAvatarListInfo();
+		System.out.println("*******************************************************");
+		
+		this.playGhostRunAnimation(eng);
 		
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
@@ -374,6 +399,24 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	}
 	
+	public void playGhostRunAnimation(Engine eng) {
+		for(int i =0; i<trackAvatarList.size(); i++) {
+			SceneNode snode = eng.getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+					SkeletalEntity manSE = (SkeletalEntity) eng.getSceneManager().getEntity(snode.getAttachedObject(0).getName());
+		
+		if(trackAvatarList.get(i).isIfAvatarMoved() == true && trackAvatarList.get(i).isIfAvatarAnimationPlayed() == false) {
+			manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+			trackAvatarList.get(i).setIfAvatarAnimationPlayed(true);
+		}
+		
+		//if(trackAvatarList.get(i).ifAvatarMoved == false) {
+		//	manSE.stopAnimation();
+		//	trackAvatarList.get(i).setIfAvatarAnimationPlayed(false);
+		//}
+		
+		}
+	}
+	
 	private void setupLights(SceneManager sm) {
 		System.out.println("Initializing Lighting...");
 		
@@ -536,8 +579,15 @@ public class MyGame extends VariableFrameRateGame {
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
+			TrackGhostAvatars trackavatar = new TrackGhostAvatars(avatar.getUUID().toString(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
+			trackAvatarList.add(trackavatar);
+	
+			
+			//this.checkIfGhostMoved();
 		}
 	}
+	
+	
 	
 	public void removeGhostAvatar(GhostAvatar avatar) {
 		if (avatar != null) {
@@ -751,7 +801,7 @@ public class MyGame extends VariableFrameRateGame {
 		//once we check all of them then do the following
 		if(checkX = true && checkY == true && checkZ == true) {
 			if(xHasChanged == false && yHasChanged == false && zHasChanged == false) {
-				System.out.println("mech has not moved");
+			//	System.out.println("mech has not moved");
 				//this.stopMechRunAnimate(this.getEngine());
 				//this.mechrunAnimate(getEngine());
 				this.setIsRunning(false);
@@ -760,7 +810,7 @@ public class MyGame extends VariableFrameRateGame {
 				
 			}
 			else {
-				System.out.println("mech HAS moved!!!");
+			//	System.out.println("mech HAS moved!!!");
 				this.setIsRunning(true);
 				this.mechrunAnimate(this.getEngine());
 				//this.stopMechRunAnimate(getEngine());
@@ -772,6 +822,113 @@ public class MyGame extends VariableFrameRateGame {
 		
 	}
 	
+	public void checkIfGhostMoved() {
+	
+		if(this.isCheckIfGhostMoveInitial() == true && this.isCheckIfGhostMoveFinal() == true) {
+			
+			boolean checkX = false;
+			boolean checkY = false;
+			boolean checkZ = false;
+			boolean checkComplete = false;
+			float xtotal = 99999999;
+			float ytotal = 99999999;
+			float ztotal = 99999999;
+			System.out.println("now checking if ghost moved for all");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				xtotal = trackAvatarList.get(i).getX() - trackAvatarList.get(i).getNextX();
+				ytotal = trackAvatarList.get(i).getY() - trackAvatarList.get(i).getNextY();
+				ztotal = trackAvatarList.get(i).getZ() - trackAvatarList.get(i).getNextZ();
+				
+				if(xtotal == 0 && ytotal == 0 && ztotal == 0) {
+				//	trackAvatarList.get(i).setIfAvatarMoved(false);
+					System.out.println("avatar has not moved!!!!!");
+					System.out.println("value of x is : " + xtotal);
+					System.out.println("value of y is: " + ytotal);
+					System.out.println("value of z is: " + ztotal);
+					xtotal = -1; ytotal = -1; ztotal = -1;
+				}
+				else if(xtotal != 0 || ytotal !=0 || ztotal!= 0){
+					System.out.println("avatar has moved!!!");
+					trackAvatarList.get(i).setIfAvatarMoved(true);
+					System.out.println("value of x is : " + xtotal);
+					System.out.println("value of y is: " + ytotal);
+					System.out.println("value of z is: " + ztotal);
+					xtotal = -1; ytotal = -1; ztotal = -1;
+				}
+		
+		
+			}
+			
+			
+			checkComplete = true;
+			
+			if(checkComplete == true) {
+				for(int i = 0; i<trackAvatarList.size(); i++) {
+					trackAvatarList.get(i).setIfAvatarMoved(false);
+				}
+			
+			this.setCheckIfGhostMoveInitial(false);
+			this.setCheckIfGhostMoveFinal(false);
+			checkComplete = false;
+			}
+		}
+		
+	}
+	
+	public void checkIfGhostMovedIntially() {
+		if(this.isCheckIfGhostMoveInitial() == false && this.isCheckIfGhostMoveFinal() == false) {
+			System.out.println("Now checking to see if ghost moved initially");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				trackAvatarList.get(i).setX(snode.getLocalPosition().x());
+				trackAvatarList.get(i).setY(snode.getLocalPosition().y());
+				trackAvatarList.get(i).setZ(snode.getLocalPosition().z());
+		
+		
+			}
+			this.setCheckIfGhostMoveInitial(true);
+		}
+	}
+	
+	public void checkIfGhostMovedFinal() {
+		if(this.isCheckIfGhostMoveInitial() == true && this.isCheckIfGhostMoveFinal() == false) {
+			System.out.println("now checking to see if ghost move final");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				trackAvatarList.get(i).setNextX(snode.getLocalPosition().x());
+				trackAvatarList.get(i).setNextY(snode.getLocalPosition().y());
+				trackAvatarList.get(i).setNextZ(snode.getLocalPosition().z());
+		
+		
+			}
+			this.setCheckIfGhostMoveFinal(true);
+		}
+	}
+	
+	
+	public void printTrackAvatarListInfo() {
+		for(int i = 0; i< trackAvatarList.size(); i++) {
+			System.out.println(trackAvatarList.get(i).toString());
+		}
+	}
+	
+	public boolean isCheckIfGhostMoveInitial() {
+		return checkIfGhostMoveInitial;
+	}
+
+	public void setCheckIfGhostMoveInitial(boolean checkIfGhostMoveInitial) {
+		this.checkIfGhostMoveInitial = checkIfGhostMoveInitial;
+	}
+
+	public boolean isCheckIfGhostMoveFinal() {
+		return checkIfGhostMoveFinal;
+	}
+
+	public void setCheckIfGhostMoveFinal(boolean checkIfGhostMoveFinal) {
+		this.checkIfGhostMoveFinal = checkIfGhostMoveFinal;
+	}
+
 	public boolean getIsAnimated() {
 		return this.animatePlaying;
 	}
