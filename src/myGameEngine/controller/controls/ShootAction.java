@@ -16,6 +16,8 @@ import ray.rml.Vector3;
 
 public class ShootAction implements Action {
 	
+	private static final float SHOOTING_FORCE = 50000.0f;
+	
 	private final SceneManager sm;
 	private final SceneNode node;
 	private final GameClient gameClient;
@@ -48,7 +50,12 @@ public class ShootAction implements Action {
 			physicsObj.setBounciness(0.5f);
 			bulletNode.setPhysicsObject(physicsObj);
 			
-			physicsObj.applyForce(5000.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			final Vector3 forward = this.node.getLocalForwardAxis();
+			final float xForce = forward.x() == 0 ? 0 : forward.x() * SHOOTING_FORCE;
+			final float yForce = forward.y() == 0 ? 0 : forward.y() * SHOOTING_FORCE;
+			final float zForce = forward.z() == 0 ? 0 : forward.z() * SHOOTING_FORCE;
+			
+			physicsObj.applyForce(xForce, yForce, zForce, 0, 0, 0);
 			
 			brc.addNode(bulletNode);
 			sm.addController(brc);
