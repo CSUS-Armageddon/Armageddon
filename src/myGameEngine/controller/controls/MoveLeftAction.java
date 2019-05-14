@@ -5,6 +5,7 @@ import a3.network.client.GameClient;
 import net.java.games.input.Event;
 import ray.input.action.Action;
 import ray.rage.scene.SceneNode;
+import ray.rml.Vector3;
 
 public class MoveLeftAction implements Action {
 	
@@ -34,7 +35,15 @@ public class MoveLeftAction implements Action {
 				movement = evt.getValue() * MyGame.PLAYER_SPEED;
 			}
 		}
-		this.node.moveLeft(movement);
+		
+		final Vector3 forward = this.node.getLocalRightAxis();
+		final float xForce = forward.x() == 0 ? 0 : forward.x() * movement;
+		final float yForce = forward.y() == 0 ? 0 : forward.y() * movement;
+		final float zForce = forward.z() == 0 ? 0 : forward.z() * movement;
+		
+		this.node.getPhysicsObject().applyForce(xForce, yForce, zForce, 0, 0, 0);
+		
+		this.gameClient.getGame().mechrunAnimate(this.gameClient.getGame().getEngine());
 		this.gameClient.getGame().updateVerticalPosition();
 		this.gameClient.sendMoveMessage(this.node.getLocalPosition());
 	}

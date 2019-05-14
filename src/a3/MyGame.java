@@ -745,7 +745,7 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject physicsObj = 
 				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, MyGame.UP_VECTOR, 0.0f);
 		physicsObj.setBounciness(1.0f);
-		physicsObj.setFriction(1.0f);
+		//physicsObj.setFriction(1.0f);
 		sn.setPhysicsObject(physicsObj);
 		
 		// setup player
@@ -753,7 +753,7 @@ public class MyGame extends VariableFrameRateGame {
 		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
 		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1.0f);//avatar.getScale());
 		playerPhys.setBounciness(0.0f);
-		playerPhys.setFriction(1.0f);
+		//playerPhys.setFriction(1.0f);
 		playerPhys.setDamping(0.98f, 0.98f);
 		playerN.setPhysicsObject(playerPhys);
 		
