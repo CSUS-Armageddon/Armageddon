@@ -15,6 +15,10 @@ public class SphereBot extends BasicAvatar {
 		super.setAvatarHeightOffset(10.0f);
 		super.setScale(2.0f);
 		super.setMass(1.0f);
+		super.setGunNode1HeightOffset(0.0f);
+		super.setGunNode1RightOffset(0.0f);
+		super.setGunNode2HeightOffset(0.0f);
+		super.setGunNode2LeftOffset(0.0f);
 	}
 	
 }

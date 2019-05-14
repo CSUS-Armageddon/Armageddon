@@ -16,6 +16,11 @@ public abstract class BasicAvatar implements Avatar {
 	protected float scale = 1.0f;
 	protected float mass = 1.0f;
 	
+	protected float gunNode1HeightOffset = 0.0f;
+	protected float gunNode1RightOffset = 0.0f;
+	protected float gunNode2HeightOffset = 0.0f;
+	protected float gunNode2LeftOffset = 0.0f;
+	
 	/**
 	 * @return the avatarName
 	 */
@@ -120,6 +125,62 @@ public abstract class BasicAvatar implements Avatar {
 	 */
 	public void setMass(float mass) {
 		this.mass = mass;
+	}
+
+	/**
+	 * @return the gunNode1HeightOffset
+	 */
+	public float getGunNode1HeightOffset() {
+		return gunNode1HeightOffset;
+	}
+
+	/**
+	 * @param gunNode1HeightOffset the gunNode1HeightOffset to set
+	 */
+	public void setGunNode1HeightOffset(float gunNode1HeightOffset) {
+		this.gunNode1HeightOffset = gunNode1HeightOffset;
+	}
+
+	/**
+	 * @return the gunNode1RightOffset
+	 */
+	public float getGunNode1RightOffset() {
+		return gunNode1RightOffset;
+	}
+
+	/**
+	 * @param gunNode1RightOffset the gunNode1RightOffset to set
+	 */
+	public void setGunNode1RightOffset(float gunNode1RightOffset) {
+		this.gunNode1RightOffset = gunNode1RightOffset;
+	}
+
+	/**
+	 * @return the gunNode2HeightOffset
+	 */
+	public float getGunNode2HeightOffset() {
+		return gunNode2HeightOffset;
+	}
+
+	/**
+	 * @param gunNode2HeightOffset the gunNode2HeightOffset to set
+	 */
+	public void setGunNode2HeightOffset(float gunNode2HeightOffset) {
+		this.gunNode2HeightOffset = gunNode2HeightOffset;
+	}
+
+	/**
+	 * @return the gunNode2LeftOffset
+	 */
+	public float getGunNode2LeftOffset() {
+		return gunNode2LeftOffset;
+	}
+
+	/**
+	 * @param gunNode2LeftOffset the gunNode2LeftOffset to set
+	 */
+	public void setGunNode2LeftOffset(float gunNode2LeftOffset) {
+		this.gunNode2LeftOffset = gunNode2LeftOffset;
 	}
 
 	@Override

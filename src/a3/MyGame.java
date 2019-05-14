@@ -120,6 +120,9 @@ public class MyGame extends VariableFrameRateGame {
 	public static final String PLAYER_NAME = "Player";
 	public static final String PLAYER_NODE_NAME = "PlayerNode";
 	
+	public static final String PLAYER_GUN_NODE1_NAME = "PlayerGunNode1";
+	public static final String PLAYER_GUN_NODE2_NAME = "PlayerGunNode2";
+	
 	private static final String HUD_BASE = "Game Time: ";
 	
 	public static final String GROUNDPLANE_OBJECTS_NODE_GROUP = "GROUNDPLANE_OBJECTS";
@@ -403,6 +406,16 @@ public class MyGame extends VariableFrameRateGame {
 		playerN.scale(avatar.getScale(), avatar.getScale(), avatar.getScale());
 		
         playerN.attachObject(playerE);
+        
+        final SceneNode playerGunNode1 = sm.getRootSceneNode().createChildSceneNode(PLAYER_GUN_NODE1_NAME);
+        playerGunNode1.moveUp(avatar.getGunNode1HeightOffset());
+        playerGunNode1.moveRight(avatar.getGunNode1RightOffset());
+        playerN.attachChild(playerGunNode1);
+        
+        final SceneNode playerGunNode2 = sm.getRootSceneNode().createChildSceneNode(PLAYER_GUN_NODE2_NAME);
+        playerGunNode2.moveUp(avatar.getGunNode2HeightOffset());
+        playerGunNode2.moveLeft(avatar.getGunNode2LeftOffset());
+        playerN.attachChild(playerGunNode2);
         
         //replace with avatar.getrunanimation for second parameter
         playerE.loadAnimation("runAnimation", avatar.getAvatarAnimationFileName());

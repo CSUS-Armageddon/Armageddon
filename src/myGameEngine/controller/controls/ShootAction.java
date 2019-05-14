@@ -2,6 +2,7 @@ package myGameEngine.controller.controls;
 
 import java.io.IOException;
 
+import a3.MyGame;
 import a3.network.client.GameClient;
 import myGameEngine.node.controller.BulletRemovalController;
 import myGameEngine.util.ArrayUtils;
@@ -39,8 +40,9 @@ public class ShootAction implements Action {
 			final SceneNode bulletNode = sm.getRootSceneNode().createChildSceneNode("bulletNode-" + id);
 			bulletNode.attachObject(bulletEntity);
 			
-			final Vector3 avatarPos = node.getLocalPosition();
-			bulletNode.setLocalPosition(avatarPos.x(), avatarPos.y() + 5.0f, avatarPos.z());
+			//final Vector3 avatarPos = node.getLocalPosition();
+			final Vector3 gunNode1Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE1_NAME).getLocalPosition();
+			bulletNode.setLocalPosition(gunNode1Pos.x(), gunNode1Pos.y(), gunNode1Pos.z());//avatarPos.x(), avatarPos.y() + 5.0f, avatarPos.z());
 			bulletNode.setLocalRotation(node.getLocalRotation());
 			
 			final PhysicsEngine physicsEngine = gameClient.getGame().getPhysicsEngine();

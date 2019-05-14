@@ -16,6 +16,10 @@ public class Mech99 extends BasicAvatar {
 		super.setAvatarHeightOffset(25.75f);
 		super.setScale(3.0f);
 		super.setMass(1.0f);
+		super.setGunNode1HeightOffset(5.0f);
+		super.setGunNode1RightOffset(0.5f);
+		super.setGunNode2HeightOffset(5.0f);
+		super.setGunNode2LeftOffset(0.5f);
 	}
 	
 }
