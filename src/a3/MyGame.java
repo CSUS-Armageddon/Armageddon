@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -121,6 +122,23 @@ public class MyGame extends VariableFrameRateGame {
 	private static final float[] GRAVITY = { 0.0f, -30.0f, 0.0f };
 	private static final float[] UP_VECTOR = { 0.0f, 1.0f, 0.0f };
 	
+	
+	
+	public float x;
+	public float y;
+	public float z;
+	public float nextX;
+	public float nextY;
+	public float nextZ;
+	
+	public boolean isRunning = false; 
+	public boolean animatePlaying = false;
+	
+	public boolean checkIfGhostMoveInitial = false;
+	public boolean checkIfGhostMoveFinal = false;
+	
+	
+	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
 	private PhysicsEngine physicsEngine;
 	
 	private SkeletalEntity playerE;
@@ -185,10 +203,46 @@ public class MyGame extends VariableFrameRateGame {
 				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
 		mechSE.update();
 		
+		
+		this.setX(this.getPlayerPosition().x());
+		this.setY(this.getPlayerPosition().y());
+		this.setZ(this.getPlayerPosition().z());
+		
+		//this.checkIfGhostMoved();
+	//	System.out.println("*******************************************************");
+		this.checkIfGhostMovedIntially();
+		this.printTrackAvatarListInfo();
+	//	System.out.println("*******************************************************");
 		im.update(gameTime);
+		
+		this.setNextX(this.getPlayerPosition().x());
+		this.setNextY(this.getPlayerPosition().y());
+		this.setNextZ(this.getPlayerPosition().z());
+		this.checkIfMoved();
+		
+	
 		cameraController.updateCameraPosition();
 		processNetworking(gameTime);
 		
+		
+	//	System.out.println("*******************************************************");
+		this.checkIfGhostMovedFinal();
+	//	this.printTrackAvatarListInfo();
+	//	System.out.println("*******************************************************");
+		
+	//	System.out.println("*******************************************************");
+		this.checkIfGhostMoved();
+	//	this.printTrackAvatarListInfo();
+	//	System.out.println("*******************************************************");
+		
+		
+		for(int i =0 ; i<trackAvatarList.size(); i++) {
+		SkeletalEntity mechGhost =
+				(SkeletalEntity) eng.getSceneManager().getEntity(trackAvatarList.get(i).getEntityName());
+		mechGhost.update();
+		//System.out.println("playing animations");
+		this.playGhostRunAnimation(eng);
+		}
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
@@ -349,9 +403,41 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void mechrunAnimate(Engine eng)
 	{ 	SkeletalEntity manSE =
-		(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+	(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+	
+	if(this.getIsRunning() == true && this.getIsAnimated() == false ) {
+		
+	manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+	this.setAnimateIsPlaying(true);
+	} 
+	
+	if(this.getIsRunning() == false) {
 		manSE.stopAnimation();
-		manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+	}
+	}
+	
+	public void playGhostRunAnimation(Engine eng) {
+		for(int i =0; i<trackAvatarList.size(); i++) {
+			SceneNode snode = eng.getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+					SkeletalEntity manSE = (SkeletalEntity) eng.getSceneManager().getEntity(trackAvatarList.get(i).getEntityName());
+				//	manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+			//		System.out.println("trying to play animation");
+			//		System.out.println("is avatar moving?: " + trackAvatarList.get(i).isIfAvatarMoved());
+			//		System.out.println("is avatar animation playing?: " + trackAvatarList.get(i).isIfAvatarAnimationPlayed());
+		if(trackAvatarList.get(i).isIfAvatarMoved() == true && trackAvatarList.get(i).isIfAvatarAnimationPlayed() == false) {
+			manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
+	//		System.out.println("now playing animation for :" + manSE.getName());
+			trackAvatarList.get(i).setIfAvatarAnimationPlayed(true);
+		}
+		
+		if(trackAvatarList.get(i).ifAvatarMoved == false) {
+			manSE.stopAnimation();
+			trackAvatarList.get(i).setIfAvatarAnimationPlayed(false);
+		}
+		
+		}
+		
+		
 	}
 	
 	private void setupLights(SceneManager sm) {
@@ -429,7 +515,7 @@ public class MyGame extends VariableFrameRateGame {
     			/************************************
     	    	 * Mouse/Trackpad Bindings
     	    	 ***********************************/
-    			im.associateAction(c, Component.Identifier.Button.LEFT, p1ShootAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+    			im.associateAction(c, Component.Identifier.Button.LEFT, p1ShootAction, INPUT_ACTION_TYPE.ON_PRESS_ONLY);
     		}
     	}
     	
@@ -473,10 +559,21 @@ public class MyGame extends VariableFrameRateGame {
 		// remove ghost avatars for players who have left the game
 		Iterator<UUID> it = gameObjectsToRemove.iterator();
 		while (it.hasNext()) {
+			
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				String check1 = trackAvatarList.get(i).getName();
+				String check2 = it.next().toString();
+				if (check1.contentEquals(check2)) {
+					System.out.println("now removing :" + trackAvatarList.get(i).getEntityName() + " from trackAvatarList!!!");
+					trackAvatarList.remove(i);
+				}
+			}
 			this.getEngine().getSceneManager().destroySceneNode(it.next().toString());
+			
 		}
 		gameObjectsToRemove.clear();
 	}
+	
 	
 	public Vector3 getPlayerPosition() {
 		final SceneNode node = this.getEngine().getSceneManager().getSceneNode(PLAYER_NODE_NAME);
@@ -511,8 +608,15 @@ public class MyGame extends VariableFrameRateGame {
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
+			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
+			trackAvatarList.add(trackavatar);
+	
+			
+			//this.checkIfGhostMoved();
 		}
 	}
+	
+	
 	
 	public void removeGhostAvatar(GhostAvatar avatar) {
 		if (avatar != null) {
@@ -644,5 +748,244 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public PhysicsEngine getPhysicsEngine() {
 		return this.physicsEngine;
+	}
+	
+	public float getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
+	}
+
+	public float getZ() {
+		return z;
+	}
+
+	public void setZ(float z) {
+		this.z = z;
+	}
+
+	public float getNextX() {
+		return nextX;
+	}
+
+	public void setNextX(float nextX) {
+		this.nextX = nextX;
+	}
+
+	public float getNextY() {
+		return nextY;
+	}
+
+	public void setNextY(float nextY) {
+		this.nextY = nextY;
+	}
+
+	public float getNextZ() {
+		return nextZ;
+	}
+
+	public void setNextZ(float nextZ) {
+		this.nextZ = nextZ;
+	}
+	
+	public void checkIfMoved() {
+		boolean checkX = false;
+		boolean checkY = false;
+		boolean checkZ = false; 
+		
+		boolean xHasChanged = false;
+		boolean yHasChanged = false;
+		boolean zHasChanged = false; 
+		if(this.getX() - this.getNextX() != 0) {
+			//System.out.println("mech has moved!!");
+			
+			xHasChanged = true;
+		} else {
+			xHasChanged = false;
+		}
+		
+		checkX = true;
+		
+		if(this.getY() - this.getNextY() != 0) {
+			//System.out.println("mech has moved!!!");
+			yHasChanged = true;
+		} else {
+			yHasChanged = false;
+		}
+		
+		checkY = true;
+		
+		if(this.getZ() - this.getNextZ() != 0) {
+			//System.out.println("mech has moved!!!");
+			zHasChanged = true;
+		} else {
+			zHasChanged = false;
+		}
+		
+		checkZ = true;
+		
+		//once we check all of them then do the following
+		if(checkX = true && checkY == true && checkZ == true) {
+			if(xHasChanged == false && yHasChanged == false && zHasChanged == false) {
+			//	System.out.println("mech has not moved");
+				//this.stopMechRunAnimate(this.getEngine());
+				//this.mechrunAnimate(getEngine());
+				this.setIsRunning(false);
+				this.setAnimateIsPlaying(false);
+				this.mechrunAnimate(this.getEngine());
+				
+			}
+			else {
+			//	System.out.println("mech HAS moved!!!");
+				this.setIsRunning(true);
+				this.mechrunAnimate(this.getEngine());
+				//this.stopMechRunAnimate(getEngine());
+				
+				
+			}
+		}
+		
+		
+	}
+	
+	public void checkIfGhostMoved() {
+	
+		if(this.isCheckIfGhostMoveInitial() == true && this.isCheckIfGhostMoveFinal() == true) {
+			
+			boolean checkX = false;
+			boolean checkY = false;
+			boolean checkZ = false;
+			boolean checkComplete = false;
+			float xtotal = 99999999;
+			float ytotal = 99999999;
+			float ztotal = 99999999;
+		//	System.out.println("now checking if ghost moved for all");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				xtotal = trackAvatarList.get(i).getX() - trackAvatarList.get(i).getNextX();
+				ytotal = trackAvatarList.get(i).getY() - trackAvatarList.get(i).getNextY();
+				ztotal = trackAvatarList.get(i).getZ() - trackAvatarList.get(i).getNextZ();
+				
+				if(xtotal == 0 && ytotal == 0 && ztotal == 0) {
+					trackAvatarList.get(i).setIfAvatarMoved(false);
+				//	System.out.println("avatar: " + trackAvatarList.get(i).getEntityName() + " has not moved!!!!!");
+				//	System.out.println("value of x is : " + xtotal);
+				//	System.out.println("value of y is: " + ytotal);
+				//	System.out.println("value of z is: " + ztotal);
+					xtotal = -1; ytotal = -1; ztotal = -1;
+				}
+				else if(xtotal != 0 || ytotal !=0 || ztotal!= 0){
+			//		System.out.println("avatar: " + trackAvatarList.get(i).getEntityName() + " has moved!!!");
+					trackAvatarList.get(i).setIfAvatarMoved(true);
+				//	System.out.println("value of x is : " + xtotal);
+				//	System.out.println("value of y is: " + ytotal);
+				//	System.out.println("value of z is: " + ztotal);
+					xtotal = -1; ytotal = -1; ztotal = -1;
+				}
+		
+		
+			}
+			
+			
+			//checkComplete = true;
+			
+			//if(checkComplete == true) {
+			//	for(int i = 0; i<trackAvatarList.size(); i++) {
+			//		trackAvatarList.get(i).setIfAvatarMoved(false);
+			//	}
+			
+			this.setCheckIfGhostMoveInitial(false);
+			this.setCheckIfGhostMoveFinal(false);
+			//checkComplete = false;
+			//}
+		}
+		
+	}
+	
+	public void checkIfGhostMovedIntially() {
+		if(this.isCheckIfGhostMoveInitial() == false && this.isCheckIfGhostMoveFinal() == false) {
+		//	System.out.println("Now checking to see if ghost moved initially");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				trackAvatarList.get(i).setX(snode.getLocalPosition().x());
+				trackAvatarList.get(i).setY(snode.getLocalPosition().y());
+				trackAvatarList.get(i).setZ(snode.getLocalPosition().z());
+		
+		
+			}
+			this.setCheckIfGhostMoveInitial(true);
+		}
+	}
+	
+	public void checkIfGhostMovedFinal() {
+		if(this.isCheckIfGhostMoveInitial() == true && this.isCheckIfGhostMoveFinal() == false) {
+			//System.out.println("now checking to see if ghost move final");
+			for(int i = 0; i<trackAvatarList.size(); i++) {
+				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
+				trackAvatarList.get(i).setNextX(snode.getLocalPosition().x());
+				trackAvatarList.get(i).setNextY(snode.getLocalPosition().y());
+				trackAvatarList.get(i).setNextZ(snode.getLocalPosition().z());
+		
+		
+			}
+			this.setCheckIfGhostMoveFinal(true);
+		}
+	}
+	
+	
+	public void printTrackAvatarListInfo() {
+		for(int i = 0; i< trackAvatarList.size(); i++) {
+		//	System.out.println(trackAvatarList.get(i).toString());
+		}
+	}
+	
+	public boolean isCheckIfGhostMoveInitial() {
+		return checkIfGhostMoveInitial;
+	}
+
+	public void setCheckIfGhostMoveInitial(boolean checkIfGhostMoveInitial) {
+		this.checkIfGhostMoveInitial = checkIfGhostMoveInitial;
+	}
+
+	public boolean isCheckIfGhostMoveFinal() {
+		return checkIfGhostMoveFinal;
+	}
+
+	public void setCheckIfGhostMoveFinal(boolean checkIfGhostMoveFinal) {
+		this.checkIfGhostMoveFinal = checkIfGhostMoveFinal;
+	}
+
+	public boolean getIsAnimated() {
+		return this.animatePlaying;
+	}
+	
+	public void setAnimateIsPlaying(boolean isPlaying) {
+		this.animatePlaying = isPlaying;
+	}
+	
+	public void stopMechRunAnimate(Engine eng)
+	{
+		SkeletalEntity manSE =
+		(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
+			
+		manSE.stopAnimation();
+	}
+	
+	public boolean getIsRunning() {
+		return this.isRunning;
+	}
+	
+	public void setIsRunning(boolean isRunning) {
+		this.isRunning = isRunning;
 	}
 }
