@@ -8,11 +8,22 @@ public class TrackGhostAvatars {
 	float nextY;
 	float nextZ;
 	String name;
+	String entityName;
 	
+	public String getEntityName() {
+		return entityName;
+	}
+
+
+
+	public void setEntityName(String entityName) {
+		this.entityName = entityName;
+	}
+
 	boolean ifAvatarMoved = false;
 	boolean ifAvatarAnimationPlayed = false;
 	
-	public TrackGhostAvatars(String name, float x, float y, float z) {
+	public TrackGhostAvatars(String name, String entityname, float x, float y, float z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -22,6 +33,7 @@ public class TrackGhostAvatars {
 		this.nextZ = 0;
 		
 		this.name = name;
+		this.entityName = entityname;
 	}
 	
 
