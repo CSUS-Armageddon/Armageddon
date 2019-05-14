@@ -515,7 +515,7 @@ public class MyGame extends VariableFrameRateGame {
     			/************************************
     	    	 * Mouse/Trackpad Bindings
     	    	 ***********************************/
-    			im.associateAction(c, Component.Identifier.Button.LEFT, p1ShootAction, INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+    			im.associateAction(c, Component.Identifier.Button.LEFT, p1ShootAction, INPUT_ACTION_TYPE.ON_PRESS_ONLY);
     		}
     	}
     	
