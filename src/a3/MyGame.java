@@ -236,7 +236,7 @@ public class MyGame extends VariableFrameRateGame {
 	private void setupOrbitCamera(Engine eng, SceneManager sm) {
 		final SceneNode abovePN = sm.getRootSceneNode().createChildSceneNode("AbovePlayerN");
     	playerN.attachChild(abovePN);
-    	abovePN.moveUp(1.0f);
+    	abovePN.moveUp(3.0f);
     	cameraController = new Camera3PController(playerCameraN, abovePN, InputType.MOUSE, im);
 	}
 
@@ -495,8 +495,11 @@ public class MyGame extends VariableFrameRateGame {
 	    	final SceneNode ghostN = this.getEngine().getSceneManager().getSceneNode(MyGame.AVATAR_OBJECTS_NODE_GROUP).createChildSceneNode(avatar.getUUID().toString());
 	    	ghostN.setLocalPosition(avatar.getPosition());
 			ghostN.attachObject(ghostE);
-			ghostN.scale(avatar.getAvatar().getScale(), avatar.getAvatar().getScale(), avatar.getAvatar().getScale());
-			ghostN.moveUp(avatar.getAvatar().getAvatarHeightOffset());
+			
+			final float scale = avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getScale() : avatar.getAvatar().getScale();
+			final float heightOffset = avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarHeightOffset() : avatar.getAvatar().getAvatarHeightOffset();
+			ghostN.scale(scale, scale, scale);
+			ghostN.moveUp(heightOffset);
 			
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
