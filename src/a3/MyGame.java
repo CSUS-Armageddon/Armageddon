@@ -1,8 +1,11 @@
 package a3;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.DisplayMode;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -231,6 +234,10 @@ public class MyGame extends VariableFrameRateGame {
         playerCameraN.attachObject(playerCamera);
         playerCamera.setMode('n');
         playerCamera.getFrustum().setFarClipDistance(10000.0f);
+        
+        final Toolkit tk = Toolkit.getDefaultToolkit();
+    	final Cursor noCursor = tk.createCustomCursor(tk.getImage(""), new Point(), "InvisibleCursor");
+    	getEngine().getRenderSystem().getCanvas().setCursor(noCursor);
 	}
 	
 	private void setupOrbitCamera(Engine eng, SceneManager sm) {
