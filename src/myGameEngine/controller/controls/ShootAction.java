@@ -18,7 +18,7 @@ import ray.rml.Vector3;
 
 public class ShootAction implements Action {
 	
-	private static final float SHOOTING_FORCE = 500000.0f;
+	private static final float SHOOTING_FORCE = 50000000.0f;
 	
 	private final AtomicBoolean isRightGun = new AtomicBoolean(true);
 	
@@ -58,7 +58,7 @@ public class ShootAction implements Action {
 			final PhysicsEngine physicsEngine = gameClient.getGame().getPhysicsEngine();
 			final double[] temptf = ArrayUtils.toDoubleArray(bulletNode.getLocalTransform().toFloatArray());
 			final PhysicsObject physicsObj = 
-					physicsEngine.addSphereObject(physicsEngine.nextUID(), 1.0f, temptf, 2.0f);
+					physicsEngine.addSphereObject(physicsEngine.nextUID(), 100.0f, temptf, 2.0f);
 			physicsObj.setBounciness(0.5f);
 			bulletNode.setPhysicsObject(physicsObj);
 			

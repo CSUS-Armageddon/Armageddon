@@ -582,6 +582,7 @@ public class MyGame extends VariableFrameRateGame {
 					trackAvatarList.remove(i);
 				}
 			}
+			//this.physicsEngine.removeObject(this.getEngine().getSceneManager().getSceneNode(check2).getPhysicsObject().getUID());
 			this.getEngine().getSceneManager().destroySceneNode(check2);
 			
 		}
@@ -624,7 +625,14 @@ public class MyGame extends VariableFrameRateGame {
 			avatar.setPosition(ghostN.getLocalPosition());
 			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
 			trackAvatarList.add(trackavatar);
-	
+			
+			// add physics object to ghost avatar
+			double[] temptf = ArrayUtils.toDoubleArray(ghostN.getLocalTransform().toFloatArray());
+			final PhysicsObject avatarPhys = this.physicsEngine.addSphereObject(this.physicsEngine.nextUID(), avatar.getAvatar() == null ? 1.0f : avatar.getAvatar().getMass(), temptf, 2.0f);//avatar.getScale());
+			avatarPhys.setBounciness(0.0f);
+			avatarPhys.setFriction(1.0f);
+			avatarPhys.setDamping(0.98f, 0.98f);
+			ghostN.setPhysicsObject(avatarPhys);
 			
 			//this.checkIfGhostMoved();
 		}
@@ -756,7 +764,7 @@ public class MyGame extends VariableFrameRateGame {
 		// setup player
 		final SceneNode playerN = sm.getSceneNode(PLAYER_NODE_NAME);
 		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
-		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1);//avatar.getScale());
+		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 2.0f);
 		playerPhys.setBounciness(0.0f);
 		playerPhys.setFriction(1.0f);
 		playerPhys.setDamping(0.98f, 0.98f);
