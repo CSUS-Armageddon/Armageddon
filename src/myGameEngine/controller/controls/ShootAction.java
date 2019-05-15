@@ -1,6 +1,7 @@
 package myGameEngine.controller.controls;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import a3.MyGame;
 import a3.network.client.GameClient;
@@ -17,7 +18,9 @@ import ray.rml.Vector3;
 
 public class ShootAction implements Action {
 	
-	private static final float SHOOTING_FORCE = 50000.0f;
+	private static final float SHOOTING_FORCE = 500000.0f;
+	
+	private final AtomicBoolean isRightGun = new AtomicBoolean(true);
 	
 	private final SceneManager sm;
 	private final SceneNode node;
@@ -40,10 +43,17 @@ public class ShootAction implements Action {
 			final SceneNode bulletNode = sm.getRootSceneNode().createChildSceneNode("bulletNode-" + id);
 			bulletNode.attachObject(bulletEntity);
 			
-			//final Vector3 avatarPos = node.getLocalPosition();
-			final Vector3 gunNode1Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE1_NAME).getWorldPosition();
-			bulletNode.setLocalPosition(gunNode1Pos.x(), gunNode1Pos.y(), gunNode1Pos.z());
-			bulletNode.setLocalRotation(node.getLocalRotation());
+			if (isRightGun.get()) {
+				final Vector3 gunNode1Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE1_NAME).getWorldPosition();
+				bulletNode.setLocalPosition(gunNode1Pos.x(), gunNode1Pos.y(), gunNode1Pos.z());
+				bulletNode.setLocalRotation(node.getLocalRotation());
+				isRightGun.set(false);
+			} else {
+				final Vector3 gunNode2Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE2_NAME).getWorldPosition();
+				bulletNode.setLocalPosition(gunNode2Pos.x(), gunNode2Pos.y(), gunNode2Pos.z());
+				bulletNode.setLocalRotation(node.getLocalRotation());
+				isRightGun.set(true);
+			}
 			
 			final PhysicsEngine physicsEngine = gameClient.getGame().getPhysicsEngine();
 			final double[] temptf = ArrayUtils.toDoubleArray(bulletNode.getLocalTransform().toFloatArray());
