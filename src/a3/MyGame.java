@@ -108,7 +108,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	private float gameTime;
 	
-	public static final float PLAYER_SPEED = 250.0f;
+	public static final float PLAYER_SPEED = 500.0f;
 	public static final float LOOK_SPEED = 0.75f;
 	
 	public static final String LIGHT_NAME = "Lamp1";
@@ -131,7 +131,7 @@ public class MyGame extends VariableFrameRateGame {
 	public static final String AVATAR_OBJECTS_NODE_GROUP = "AVATAR_OBJECTS";
 	
 	private static final String PHYSICS_ENGINE_CLASS = "ray.physics.JBullet.JBulletPhysicsEngine";
-	private static final float[] GRAVITY = { 0.0f, -30.0f, 0.0f };
+	private static final float[] GRAVITY = { 0.0f, -3000.0f, 0.0f };
 	private static final float[] UP_VECTOR = { 0.0f, 1.0f, 0.0f };
 	
 	
@@ -758,60 +758,60 @@ public class MyGame extends VariableFrameRateGame {
 		PhysicsObject physicsObj = 
 				physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), temptf, MyGame.UP_VECTOR, 0.0f);
 		physicsObj.setBounciness(1.0f);
-		//physicsObj.setFriction(1.0f);
+		physicsObj.setFriction(1.0f);
 		sn.setPhysicsObject(physicsObj);
 		
 		// setup player
 		final SceneNode playerN = sm.getSceneNode(PLAYER_NODE_NAME);
 		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
-		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1.0f);//avatar.getScale());
+		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, avatar.getScale());
 		playerPhys.setBounciness(0.0f);
-		//playerPhys.setFriction(1.0f);
+		playerPhys.setFriction(1.0f);
 		playerPhys.setDamping(0.98f, 0.98f);
 		playerN.setPhysicsObject(playerPhys);
 		
 		// dirty hack to get the JBullet physics engine since RAGE does not expose it... for some reason...
-		try {
-			final Field dynamicsWorldField = this.physicsEngine.getClass().getDeclaredField("dynamicsWorld");
-			dynamicsWorldField.setAccessible(true);
-			final Object discreteDynamicsWorldObj = dynamicsWorldField.get(this.physicsEngine);
-			final DiscreteDynamicsWorld dynamicsWorld = (DiscreteDynamicsWorld) discreteDynamicsWorldObj;
-			
-			// now attempt to set a callback on each tick so we can see if we've collided objects (bullets & avatars)
-			dynamicsWorld.setInternalTickCallback(new InternalTickCallback() {
-
-				@Override
-				public void internalTick(DynamicsWorld world, float timeStep) {
-					final Dispatcher dispatcher = dynamicsWorld.getDispatcher();
-					final int manifoldCount = dispatcher.getNumManifolds();
-					for (int i = 0; i < manifoldCount; i++) {
-						
-					    final PersistentManifold manifold = dispatcher.getManifoldByIndexInternal(i);
-					    final RigidBody object1 = (RigidBody) manifold.getBody0();
-					    final RigidBody object2 = (RigidBody) manifold.getBody1();
-//					    final PhysicsObject physicsObject1 = (PhysicsObject) object1.getUserPointer();
-//					    final PhysicsObject physicsObject2 = (PhysicsObject) object2.getUserPointer();
-					    
-					    boolean hit = false;
-					    javax.vecmath.Vector3f normal = null;
-					    for (int j = 0; j < manifold.getNumContacts(); j++) {
-					        ManifoldPoint contactPoint = manifold.getContactPoint(j);
-					        if (contactPoint.getDistance() < 0.0f) {
-					            hit = true;
-					            normal = contactPoint.normalWorldOnB;
-					            break;
-					        }
-					    }
-					    if (hit) {
-					        // Collision happened between physicsObject1 and physicsObject2. Collision normal is in variable 'normal'.
-					    }
-					}
-				}
-				
-			}, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			final Field dynamicsWorldField = this.physicsEngine.getClass().getDeclaredField("dynamicsWorld");
+//			dynamicsWorldField.setAccessible(true);
+//			final Object discreteDynamicsWorldObj = dynamicsWorldField.get(this.physicsEngine);
+//			final DiscreteDynamicsWorld dynamicsWorld = (DiscreteDynamicsWorld) discreteDynamicsWorldObj;
+//			
+//			// now attempt to set a callback on each tick so we can see if we've collided objects (bullets & avatars)
+//			dynamicsWorld.setInternalTickCallback(new InternalTickCallback() {
+//
+//				@Override
+//				public void internalTick(DynamicsWorld world, float timeStep) {
+//					final Dispatcher dispatcher = dynamicsWorld.getDispatcher();
+//					final int manifoldCount = dispatcher.getNumManifolds();
+//					for (int i = 0; i < manifoldCount; i++) {
+//						
+//					    final PersistentManifold manifold = dispatcher.getManifoldByIndexInternal(i);
+//					    final RigidBody object1 = (RigidBody) manifold.getBody0();
+//					    final RigidBody object2 = (RigidBody) manifold.getBody1();
+////					    final PhysicsObject physicsObject1 = (PhysicsObject) object1.getUserPointer();
+////					    final PhysicsObject physicsObject2 = (PhysicsObject) object2.getUserPointer();
+//					    
+//					    boolean hit = false;
+//					    javax.vecmath.Vector3f normal = null;
+//					    for (int j = 0; j < manifold.getNumContacts(); j++) {
+//					        ManifoldPoint contactPoint = manifold.getContactPoint(j);
+//					        if (contactPoint.getDistance() < 0.0f) {
+//					            hit = true;
+//					            normal = contactPoint.normalWorldOnB;
+//					            break;
+//					        }
+//					    }
+//					    if (hit) {
+//					        // Collision happened between physicsObject1 and physicsObject2. Collision normal is in variable 'normal'.
+//					    }
+//					}
+//				}
+//				
+//			}, null);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	public PhysicsEngine getPhysicsEngine() {
