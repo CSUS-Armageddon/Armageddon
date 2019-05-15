@@ -144,8 +144,6 @@ public class MyGame extends VariableFrameRateGame {
 	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
 	private PhysicsEngine physicsEngine;
 	
-	private SkeletalEntity playerE;
-	
 	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
 	
 	protected InputManager im;
@@ -436,8 +434,7 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void playGhostRunAnimation(Engine eng) {
 		for(int i =0; i<trackAvatarList.size(); i++) {
-			SceneNode snode = eng.getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
-					SkeletalEntity manSE = (SkeletalEntity) eng.getSceneManager().getEntity(trackAvatarList.get(i).getEntityName());
+			SkeletalEntity manSE = (SkeletalEntity) eng.getSceneManager().getEntity(trackAvatarList.get(i).getEntityName());
 				//	manSE.playAnimation("runAnimation", 0.5f, SkeletalEntity.EndType.LOOP, 0);
 			//		System.out.println("trying to play animation");
 			//		System.out.println("is avatar moving?: " + trackAvatarList.get(i).isIfAvatarMoved());
@@ -884,16 +881,11 @@ public class MyGame extends VariableFrameRateGame {
 	
 		if(this.isCheckIfGhostMoveInitial() == true && this.isCheckIfGhostMoveFinal() == true) {
 			
-			boolean checkX = false;
-			boolean checkY = false;
-			boolean checkZ = false;
-			boolean checkComplete = false;
 			float xtotal = 99999999;
 			float ytotal = 99999999;
 			float ztotal = 99999999;
 		//	System.out.println("now checking if ghost moved for all");
 			for(int i = 0; i<trackAvatarList.size(); i++) {
-				SceneNode snode = this.getEngine().getSceneManager().getSceneNode(trackAvatarList.get(i).getName());
 				xtotal = trackAvatarList.get(i).getX() - trackAvatarList.get(i).getNextX();
 				ytotal = trackAvatarList.get(i).getY() - trackAvatarList.get(i).getNextY();
 				ztotal = trackAvatarList.get(i).getZ() - trackAvatarList.get(i).getNextZ();
