@@ -577,16 +577,15 @@ public class MyGame extends VariableFrameRateGame {
 		// remove ghost avatars for players who have left the game
 		Iterator<UUID> it = gameObjectsToRemove.iterator();
 		while (it.hasNext()) {
-			
+			final String check2 = it.next().toString();
 			for(int i = 0; i<trackAvatarList.size(); i++) {
 				String check1 = trackAvatarList.get(i).getName();
-				String check2 = it.next().toString();
 				if (check1.contentEquals(check2)) {
 					System.out.println("now removing :" + trackAvatarList.get(i).getEntityName() + " from trackAvatarList!!!");
 					trackAvatarList.remove(i);
 				}
 			}
-			this.getEngine().getSceneManager().destroySceneNode(it.next().toString());
+			this.getEngine().getSceneManager().destroySceneNode(check2);
 			
 		}
 		gameObjectsToRemove.clear();
