@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import a3.CreateShootSound;
 import a3.MyGame;
 import a3.network.client.GameClient;
 import myGameEngine.node.controller.BulletRemovalController;
@@ -28,6 +29,8 @@ public class ShootAction implements Action {
 	private final GameClient gameClient;
 	
 	private final BulletRemovalController brc;
+	
+	CreateShootSound createSound;
 	
 	public ShootAction(SceneManager sm, SceneNode node, GameClient gameClient) {
 		this.sm = sm;
@@ -68,6 +71,8 @@ public class ShootAction implements Action {
 			final float yForce = forward.y() == 0 ? 0 : forward.y() * SHOOTING_FORCE;
 			final float zForce = forward.z() == 0 ? 0 : forward.z() * SHOOTING_FORCE;
 			
+			this.gameClient.sendShootMessage(true,bulletNode.getWorldPosition(),forward,xForce,yForce,zForce );
+			createSound = new CreateShootSound(gameClient, null, "missile.wav", xForce, yForce, zForce, bulletNode.getWorldPosition());
 			physicsObj.applyForce(xForce, yForce, zForce, 0, 0, 0);
 			
 			brc.addNode(bulletNode);

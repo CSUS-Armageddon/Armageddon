@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import a3.MyGame;
 import a3.avatar.Avatars;
+import a3.network.api.Force;
 import a3.network.api.Position;
 import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
@@ -19,6 +20,7 @@ import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ShootMessage;
 import a3.network.logging.ClientLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
@@ -81,6 +83,10 @@ public class GameClient extends GameConnectionClient implements Client {
 			case HANGUP:
 				handleHangupMessage((HangupMessage)msg);
 				break;
+			case SHOOT:
+				handleShootMessage((ShootMessage)msg);
+				break;
+			
 			default:
 				System.out.println("Unknown Message Type!");
 			}
@@ -89,6 +95,26 @@ public class GameClient extends GameConnectionClient implements Client {
 		}
 	}
 	
+	public void handleShootMessage(ShootMessage msg) {
+		//find the soundfile corresponding to the avatar
+		
+	}
+	
+	public void sendShootMessage(boolean avatarHasFired, Vector3 position, Vector3 forwardVector, float xForce, float yForce, float zForce ) {
+		try {
+			final ShootMessage sm = new ShootMessage();
+			initMessage(sm);
+			sm.setAvatarHasFired(true);
+			sm.setBulletSpawnPosition(Position.fromVector3(position));
+			sm.setBulletSpawnForwardVector(forwardVector);
+			sm.setBulletForce(Force.setXYZForce(xForce, yForce, zForce));
+
+			sendPacket(sm);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see a3.network.client.Client#sendJoinMessage()
 	 */

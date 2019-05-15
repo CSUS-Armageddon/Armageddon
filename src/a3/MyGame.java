@@ -49,6 +49,12 @@ import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Component.Identifier.Button;
 import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Controller.Type;
+import ray.audio.AudioManagerFactory;
+import ray.audio.AudioResource;
+import ray.audio.AudioResourceType;
+import ray.audio.IAudioManager;
+import ray.audio.Sound;
+import ray.audio.SoundType;
 import ray.input.GenericInputManager;
 import ray.input.InputManager;
 import ray.input.InputManager.INPUT_ACTION_TYPE;
@@ -140,8 +146,13 @@ public class MyGame extends VariableFrameRateGame {
 	public boolean checkIfGhostMoveInitial = false;
 	public boolean checkIfGhostMoveFinal = false;
 	
+	IAudioManager audioMgr;
+	Sound shootSound;
+	
 	
 	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
+	
+	ArrayList<CreateShootSound>shootSoundList = new ArrayList<CreateShootSound>();
 	private PhysicsEngine physicsEngine;
 	
 	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
@@ -241,6 +252,17 @@ public class MyGame extends VariableFrameRateGame {
 		//System.out.println("playing animations");
 		this.playGhostRunAnimation(eng);
 		}
+		
+		
+		
+		
+		
+		this.setEarParameters(eng.getSceneManager());
+		
+		
+		
+		
+		
 		physicsEngine.update(gameTime);
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
@@ -256,8 +278,44 @@ public class MyGame extends VariableFrameRateGame {
 		this.setNextY(this.getPlayerPosition().y());
 		this.setNextZ(this.getPlayerPosition().z());
 		this.checkIfMoved();
+		
+		
 	}
 	
+	public void setEarParameters(SceneManager sm) {
+		SceneNode avatarNode = sm.getSceneNode(PLAYER_NODE_NAME);
+		Vector3 avDir = avatarNode.getWorldForwardAxis();
+		audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAuioManager");
+		
+		if (!audioMgr.initialize())
+		{ System.out.println("Audio Manager failed to initialize!");
+		return;
+		}
+		
+		audioMgr.getEar().setLocation(avatarNode.getWorldPosition());
+		audioMgr.getEar().setOrientation(avDir, Vector3f.createFrom(0,1,0));
+		
+	}
+	
+	public IAudioManager getAudioManager() {
+		return this.audioMgr;
+	}
+	/*
+	public void initAudio(SceneManager sm)
+	{
+		AudioResource resource1;
+		resource1 = this.getAudioManager().createAudioResource("missile.wav", AudioResourceType.AUDIO_SAMPLE);
+		shootSound = new Sound(resource1,SoundType.SOUND_EFFECT, 100, true);
+		shootSound.initialize(this.getAudioManager());
+		shootSound.setMaxDistance(10.0f);
+		shootSound.setMinDistance(0.5f);
+		shootSound.setRollOff(5.0f);
+		shootSoundList.add(shootSound);
+		this.setEarParameters(sm);
+	}
+	
+	*/
+
 	@Override
 	protected void setupWindow(RenderSystem rs, GraphicsEnvironment ge) {
 		
