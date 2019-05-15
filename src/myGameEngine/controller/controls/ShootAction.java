@@ -41,8 +41,8 @@ public class ShootAction implements Action {
 			bulletNode.attachObject(bulletEntity);
 			
 			//final Vector3 avatarPos = node.getLocalPosition();
-			final Vector3 gunNode1Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE1_NAME).getLocalPosition();
-			bulletNode.setLocalPosition(gunNode1Pos.x(), gunNode1Pos.y(), gunNode1Pos.z());//avatarPos.x(), avatarPos.y() + 5.0f, avatarPos.z());
+			final Vector3 gunNode1Pos = sm.getSceneNode(MyGame.PLAYER_GUN_NODE1_NAME).getWorldPosition();
+			bulletNode.setLocalPosition(gunNode1Pos.x(), gunNode1Pos.y(), gunNode1Pos.z());
 			bulletNode.setLocalRotation(node.getLocalRotation());
 			
 			final PhysicsEngine physicsEngine = gameClient.getGame().getPhysicsEngine();
