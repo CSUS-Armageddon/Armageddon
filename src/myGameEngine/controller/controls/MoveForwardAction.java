@@ -2,9 +2,12 @@ package myGameEngine.controller.controls;
 
 import a3.MyGame;
 import a3.network.client.GameClient;
+import myGameEngine.util.ArrayUtils;
 import net.java.games.input.Event;
 import ray.input.action.Action;
 import ray.rage.scene.SceneNode;
+import ray.rml.Matrix4;
+import ray.rml.Matrix4f;
 import ray.rml.Vector3;
 
 public class MoveForwardAction implements Action {
@@ -42,6 +45,9 @@ public class MoveForwardAction implements Action {
 		final float zForce = forward.z() == 0 ? 0 : forward.z() * movement;
 		
 		this.node.getPhysicsObject().applyForce(xForce, yForce, zForce, 0, 0, 0);
+		
+		final Matrix4 mat = Matrix4f.createFrom(ArrayUtils.toFloatArray(this.node.getPhysicsObject().getTransform()));
+		this.node.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
 		
 		this.gameClient.getGame().mechrunAnimate(this.gameClient.getGame().getEngine());
 		this.gameClient.getGame().updateVerticalPosition();
