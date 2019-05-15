@@ -147,7 +147,7 @@ public class MyGame extends VariableFrameRateGame {
 	public boolean checkIfGhostMoveFinal = false;
 	
 	IAudioManager audioMgr;
-	Sound shootSound;
+	CreateShootSound shootSound;
 	
 	
 	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
@@ -285,7 +285,7 @@ public class MyGame extends VariableFrameRateGame {
 	public void setEarParameters(SceneManager sm) {
 		SceneNode avatarNode = sm.getSceneNode(PLAYER_NODE_NAME);
 		Vector3 avDir = avatarNode.getWorldForwardAxis();
-		audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAuioManager");
+		audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAudioManager");
 		
 		if (!audioMgr.initialize())
 		{ System.out.println("Audio Manager failed to initialize!");
@@ -681,8 +681,12 @@ public class MyGame extends VariableFrameRateGame {
 			avatar.setNode(ghostN);
 			avatar.setEntity(ghostE);
 			avatar.setPosition(ghostN.getLocalPosition());
+			
 			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
 			trackAvatarList.add(trackavatar);
+			
+			shootSound = new CreateShootSound(this.gameClient, avatar.getUUID().toString(), "missile.wav", 10.0f, 0.5f, 5.0f, ghostN.getWorldPosition() );
+			shootSound.getShootSound().play();
 			
 			//this.checkIfGhostMoved();
 		}

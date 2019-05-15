@@ -42,7 +42,7 @@ public class CreateShootSound  {
 		shootSound.setMinDistance(min);
 		shootSound.setRollOff(rollOff);
 		shootSound.setLocation(worldPosVec);
-		this.gameClient.getGame().setEarParameters(this.gameClient.getGame().getEngine().getSceneManager());
+		//this.gameClient.getGame().setEarParameters(this.gameClient.getGame().getEngine().getSceneManager());
 		this.gameClient.getGame().shootSoundList.add(this);
 	}
 

@@ -72,7 +72,6 @@ public class ShootAction implements Action {
 			final float zForce = forward.z() == 0 ? 0 : forward.z() * SHOOTING_FORCE;
 			
 			this.gameClient.sendShootMessage(true,bulletNode.getWorldPosition(),forward,xForce,yForce,zForce );
-			createSound = new CreateShootSound(gameClient, null, "missile.wav", xForce, yForce, zForce, bulletNode.getWorldPosition());
 			physicsObj.applyForce(xForce, yForce, zForce, 0, 0, 0);
 			
 			brc.addNode(bulletNode);

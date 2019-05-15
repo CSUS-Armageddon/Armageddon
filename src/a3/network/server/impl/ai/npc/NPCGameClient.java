@@ -18,6 +18,7 @@ import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ShootMessage;
 import a3.network.client.Client;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ServerLogger;
@@ -305,6 +306,19 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 		msg.setToName(this.remoteName);
 		msg.setToIP(this.remoteAddress.getHostAddress());
 		msg.setToPort(this.remotePort);
+	}
+
+	@Override
+	public void sendShootMessage(boolean avatarHasFired, Vector3 position, Vector3 forwardVector, float xForce,
+			float yForce, float zForce) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleShootMessage(ShootMessage sm) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
