@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.rmi.UnknownHostException;
 import java.util.ArrayList;
@@ -25,14 +24,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import com.bulletphysics.collision.broadphase.Dispatcher;
-import com.bulletphysics.collision.narrowphase.ManifoldPoint;
-import com.bulletphysics.collision.narrowphase.PersistentManifold;
-import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
-import com.bulletphysics.dynamics.DynamicsWorld;
-import com.bulletphysics.dynamics.InternalTickCallback;
-import com.bulletphysics.dynamics.RigidBody;
 
 import a3.avatar.Avatar;
 import a3.avatar.Avatars;
@@ -227,10 +218,7 @@ public class MyGame extends VariableFrameRateGame {
 	//	System.out.println("*******************************************************");
 		im.update(gameTime);
 		
-		this.setNextX(this.getPlayerPosition().x());
-		this.setNextY(this.getPlayerPosition().y());
-		this.setNextZ(this.getPlayerPosition().z());
-		this.checkIfMoved();
+		
 		
 	
 		cameraController.updateCameraPosition();
@@ -259,9 +247,17 @@ public class MyGame extends VariableFrameRateGame {
 		for (SceneNode sn : eng.getSceneManager().getSceneNodes()) {
 			if (sn.getPhysicsObject() != null) {
 				final Matrix4 mat = Matrix4f.createFrom(ArrayUtils.toFloatArray(sn.getPhysicsObject().getTransform()));
-				sn.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
+				if (sn.getName().contentEquals(MyGame.PLAYER_NODE_NAME)) {
+					sn.setLocalPosition(mat.value(0, 3), sn.getLocalPosition().y(), mat.value(2, 3));
+				} else {
+					sn.setLocalPosition(mat.value(0, 3), mat.value(1, 3), mat.value(2, 3));
+				}
 			}
 		}
+		this.setNextX(this.getPlayerPosition().x());
+		this.setNextY(this.getPlayerPosition().y());
+		this.setNextZ(this.getPlayerPosition().z());
+		this.checkIfMoved();
 	}
 	
 	@Override
@@ -326,6 +322,7 @@ public class MyGame extends VariableFrameRateGame {
 		initPhysicsSystem();
 		createRAGEPhysicsWorld(sm);
 		setupLights(sm);
+		this.updateVerticalPosition();
 		try {
 			setupInputs(sm);
 		} catch (Exception e) {
@@ -420,7 +417,6 @@ public class MyGame extends VariableFrameRateGame {
         //replace with avatar.getrunanimation for second parameter
         playerE.loadAnimation("runAnimation", avatar.getAvatarAnimationFileName());
         
-        this.updateVerticalPosition();
 	}
 	
 	public void mechrunAnimate(Engine eng)
@@ -764,54 +760,12 @@ public class MyGame extends VariableFrameRateGame {
 		// setup player
 		final SceneNode playerN = sm.getSceneNode(PLAYER_NODE_NAME);
 		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
-		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, avatar.getScale());
+		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 1);//avatar.getScale());
 		playerPhys.setBounciness(0.0f);
 		playerPhys.setFriction(1.0f);
 		playerPhys.setDamping(0.98f, 0.98f);
 		playerN.setPhysicsObject(playerPhys);
 		
-		// dirty hack to get the JBullet physics engine since RAGE does not expose it... for some reason...
-//		try {
-//			final Field dynamicsWorldField = this.physicsEngine.getClass().getDeclaredField("dynamicsWorld");
-//			dynamicsWorldField.setAccessible(true);
-//			final Object discreteDynamicsWorldObj = dynamicsWorldField.get(this.physicsEngine);
-//			final DiscreteDynamicsWorld dynamicsWorld = (DiscreteDynamicsWorld) discreteDynamicsWorldObj;
-//			
-//			// now attempt to set a callback on each tick so we can see if we've collided objects (bullets & avatars)
-//			dynamicsWorld.setInternalTickCallback(new InternalTickCallback() {
-//
-//				@Override
-//				public void internalTick(DynamicsWorld world, float timeStep) {
-//					final Dispatcher dispatcher = dynamicsWorld.getDispatcher();
-//					final int manifoldCount = dispatcher.getNumManifolds();
-//					for (int i = 0; i < manifoldCount; i++) {
-//						
-//					    final PersistentManifold manifold = dispatcher.getManifoldByIndexInternal(i);
-//					    final RigidBody object1 = (RigidBody) manifold.getBody0();
-//					    final RigidBody object2 = (RigidBody) manifold.getBody1();
-////					    final PhysicsObject physicsObject1 = (PhysicsObject) object1.getUserPointer();
-////					    final PhysicsObject physicsObject2 = (PhysicsObject) object2.getUserPointer();
-//					    
-//					    boolean hit = false;
-//					    javax.vecmath.Vector3f normal = null;
-//					    for (int j = 0; j < manifold.getNumContacts(); j++) {
-//					        ManifoldPoint contactPoint = manifold.getContactPoint(j);
-//					        if (contactPoint.getDistance() < 0.0f) {
-//					            hit = true;
-//					            normal = contactPoint.normalWorldOnB;
-//					            break;
-//					        }
-//					    }
-//					    if (hit) {
-//					        // Collision happened between physicsObject1 and physicsObject2. Collision normal is in variable 'normal'.
-//					    }
-//					}
-//				}
-//				
-//			}, null);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 	
 	public PhysicsEngine getPhysicsEngine() {
@@ -902,8 +856,9 @@ public class MyGame extends VariableFrameRateGame {
 		
 		checkZ = true;
 		
+		
 		//once we check all of them then do the following
-		if(checkX = true && checkY == true && checkZ == true) {
+		if(checkX == true && checkY == true && checkZ == true) {
 			if(xHasChanged == false && yHasChanged == false && zHasChanged == false) {
 			//	System.out.println("mech has not moved");
 				//this.stopMechRunAnimate(this.getEngine());
