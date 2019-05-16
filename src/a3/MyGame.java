@@ -626,14 +626,6 @@ public class MyGame extends VariableFrameRateGame {
 			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
 			trackAvatarList.add(trackavatar);
 			
-			// add physics object to ghost avatar
-			double[] temptf = ArrayUtils.toDoubleArray(ghostN.getLocalTransform().toFloatArray());
-			final PhysicsObject avatarPhys = this.physicsEngine.addSphereObject(this.physicsEngine.nextUID(), avatar.getAvatar() == null ? 1.0f : avatar.getAvatar().getMass(), temptf, 2.0f);//avatar.getScale());
-			avatarPhys.setBounciness(0.0f);
-			avatarPhys.setFriction(1.0f);
-			avatarPhys.setDamping(0.98f, 0.98f);
-			ghostN.setPhysicsObject(avatarPhys);
-			
 			//this.checkIfGhostMoved();
 		}
 	}

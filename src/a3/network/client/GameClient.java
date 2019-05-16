@@ -20,10 +20,8 @@ import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.logging.ClientLogger;
-import myGameEngine.util.ArrayUtils;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
-import ray.physics.PhysicsObject;
 import ray.rage.asset.texture.Texture;
 import ray.rage.rendersystem.Renderable.Primitive;
 import ray.rage.rendersystem.states.RenderState;
@@ -240,14 +238,6 @@ public class GameClient extends GameConnectionClient implements Client {
 					ghostN.moveUp(heightOffset);
 			    	
 					ghostN.attachObject(ghostE); // and attach it
-					
-					// add physics object to ghost avatar
-					double[] temptf = ArrayUtils.toDoubleArray(ghostN.getLocalTransform().toFloatArray());
-					final PhysicsObject avatarPhys = getGame().getPhysicsEngine().addSphereObject(getGame().getPhysicsEngine().nextUID(), dm.getAvatar().getMass(), temptf, 2.0f);//avatar.getScale());
-					avatarPhys.setBounciness(0.0f);
-					avatarPhys.setFriction(1.0f);
-					avatarPhys.setDamping(0.98f, 0.98f);
-					ghostN.setPhysicsObject(avatarPhys);
 					
 					avatar.setAvatar(dm.getAvatar()); // success, remember avatar
 				}
