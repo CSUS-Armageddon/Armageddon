@@ -234,7 +234,7 @@ public class GameClient extends GameConnectionClient implements Client {
 			    	
 			    	final float scale = dm.getAvatar().getScale();
 					final float heightOffset = dm.getAvatar().getAvatarHeightOffset();
-					ghostN.scale(scale, scale, scale);
+					ghostN.setLocalScale(scale, scale, scale);
 					ghostN.moveUp(heightOffset);
 			    	
 					ghostN.attachObject(ghostE); // and attach it

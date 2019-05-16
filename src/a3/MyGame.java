@@ -617,7 +617,7 @@ public class MyGame extends VariableFrameRateGame {
 			
 			final float scale = avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getScale() : avatar.getAvatar().getScale();
 			final float heightOffset = avatar.getAvatar() == null ? Avatars.SPHEREBOT.getAvatar().getAvatarHeightOffset() : avatar.getAvatar().getAvatarHeightOffset();
-			ghostN.scale(scale, scale, scale);
+			ghostN.setLocalScale(scale, scale, scale);
 			ghostN.moveUp(heightOffset);
 			
 			avatar.setNode(ghostN);
