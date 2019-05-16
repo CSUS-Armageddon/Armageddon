@@ -1,6 +1,7 @@
 package myGameEngine.controller.controls;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import a3.MyGame;
@@ -38,7 +39,7 @@ public class ShootAction implements Action {
 	@Override
 	public void performAction(float time, Event evt) {
 		try {
-			final long id = System.currentTimeMillis();
+			final UUID id = UUID.randomUUID();
 			final Entity bulletEntity = sm.createEntity("bulletEntity-" + id, "earth.obj");
 			final SceneNode bulletNode = sm.getRootSceneNode().createChildSceneNode("bulletNode-" + id);
 			bulletNode.attachObject(bulletEntity);
