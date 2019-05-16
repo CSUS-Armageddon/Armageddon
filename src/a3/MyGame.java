@@ -578,7 +578,7 @@ public class MyGame extends VariableFrameRateGame {
 			for(int i = 0; i<trackAvatarList.size(); i++) {
 				String check1 = trackAvatarList.get(i).getName();
 				if (check1.contentEquals(check2)) {
-					System.out.println("now removing :" + trackAvatarList.get(i).getEntityName() + " from trackAvatarList!!!");
+					//System.out.println("now removing :" + trackAvatarList.get(i).getEntityName() + " from trackAvatarList!!!");
 					trackAvatarList.remove(i);
 				}
 			}
