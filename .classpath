@@ -8,7 +8,7 @@
 			<attribute name="javadoc_location" value="file:/C:/javagaming/rage165/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/javagaming/joml/joml-1.9.11.jar"/>
+	<classpathentry kind="lib" path="C:/javagaming/joml/joml-1.9.8.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/jogl/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/jogl/jogl-all.jar"/>
 	<classpathentry kind="lib" path="C:/javagaming/jogl/joal.jar"/>
