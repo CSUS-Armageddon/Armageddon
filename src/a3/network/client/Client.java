@@ -2,12 +2,16 @@ package a3.network.client;
 
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
+import a3.network.api.messages.impl.EndGameMessage;
+import a3.network.api.messages.impl.GameTimeSyncMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
+import a3.network.api.messages.impl.ResultMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.api.messages.impl.ShootMessage;
+import a3.network.api.messages.impl.StartGameMessage;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
@@ -35,5 +39,12 @@ public interface Client {
 	
 	public void sendShootMessage(boolean avatarHasFired, Vector3 position, Vector3 forwardVector, float xForce, float yForce, float zForce);
 	public void handleShootMessage(ShootMessage sm);
+	
+	public void handleStartMessage(StartGameMessage sm);
+	public void handleEndMessage(EndGameMessage em);
+	public void handleTimeSyncMessage(GameTimeSyncMessage gtsm);
+	public void handleResultMessage(ResultMessage rm);
+	
+	public void sendScoreMessage();
 	
 }

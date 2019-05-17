@@ -40,10 +40,10 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	private static final int SECONDS_DELAY_REQUEST = 50;
 	
-	//                                          1 sec * 60 (1 min) * 3 mins
+	//                                          60 sec * 3 mins
 	//                                          Game runtime is 3 minutes
-	private static final long MILLISECONDS_GAME_RUN = 1000 * 60 * 3;
-	private long currentGameTime = MILLISECONDS_GAME_RUN;
+	private static final long SECONDS_GAME_RUN = 60 * 3;
+	private long currentGameTime = SECONDS_GAME_RUN;
 	private boolean isGameOver = false;
 	
 	private static final float MAX_X_LOC = 1000.0f;
@@ -59,6 +59,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	private final int port;
 	private final String serverName;
 	
+	final ScheduledExecutorService startGameService = Executors.newScheduledThreadPool(1);
 	final ScheduledExecutorService gameTimeService = Executors.newScheduledThreadPool(1);
 	final ScheduledExecutorService endGameService = Executors.newScheduledThreadPool(1);
 	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
@@ -71,6 +72,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		this.port = localPort;
 		this.serverName = serverName;
 		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.MILLISECONDS);
+		startGameService.scheduleAtFixedRate(new StartGameTask(), 15, 15, TimeUnit.SECONDS);
 		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.ipAddress + ":" + this.port + " - " + this.serverName);
 	}
 	
@@ -295,6 +297,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	@Override
 	public void handleScoreMessage(ScoreMessage sm) {
 		scoreMap.put(sm.getUUID(), sm.getCurrentScore());
+		for (Map.Entry<UUID, Long> score : scoreMap.entrySet()) {
+			if (score.getValue() == -1) {
+				return;
+			}
+			// we have all scores in
+			sendResultMessage();
+		}
 	}
 	
 	@Override
@@ -345,13 +354,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	@Override
 	public void startGame() {
-		this.currentGameTime = UDPGameServer.MILLISECONDS_GAME_RUN;
+		this.currentGameTime = UDPGameServer.SECONDS_GAME_RUN;
 		
-		// set all player scores to 0
+		// set all player scores to -1
 		scoreMap = new HashMap<UUID, Long>();
 		final Enumeration<UUID> clientUUIDs = this.getClients().keys();
 		while (clientUUIDs.hasMoreElements()) {
-			scoreMap.put(clientUUIDs.nextElement(), 0L);
+			scoreMap.put(clientUUIDs.nextElement(), -1L);
 		}
 		
 		// randomize zone area
@@ -359,14 +368,17 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		
 		sendStartMessage();
 		
-		gameTimeService.scheduleAtFixedRate(new CountdownGameTimeTask(), 0, 1, TimeUnit.MILLISECONDS);
+		gameTimeService.scheduleAtFixedRate(new CountdownGameTimeTask(), 0, 1, TimeUnit.SECONDS);
 		endGameService.scheduleAtFixedRate(new GameOverTask(), 5, 1, TimeUnit.SECONDS);
+		
+		ServerLogger.INSTANCE.logln("Game Started!");
 	}
 
 	@Override
 	public void endGame() {
 		gameTimeService.shutdownNow();
 		sendEndMessage();
+		ServerLogger.INSTANCE.logln("Game Ended!");
 	}
 
 	@Override
@@ -458,6 +470,18 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		public void run() {
 			if (isGameOver) {
 				endGame();
+				endGameService.shutdownNow();
+			}
+		}
+	}
+	
+	private class StartGameTask implements Runnable {
+		@Override
+		public void run() {
+			if (getClients().size() > 2) { // 2 equals 1 player and 1 npc
+				// good to start game!
+				startGame();
+				startGameService.shutdown();
 			}
 		}
 	}
