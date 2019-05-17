@@ -68,8 +68,7 @@ public class ShootMessage extends BasicMessage {
 		this.bulletForce = bulletForce;
 	}
 	
-	
-	
+	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(super.toString().replace(" ]", ", "))
