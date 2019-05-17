@@ -28,6 +28,7 @@ import javax.script.ScriptException;
 import a3.avatar.Avatar;
 import a3.avatar.Avatars;
 import a3.editor.avatar.PlaceableAvatar;
+import a3.network.api.Position;
 import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
@@ -170,7 +171,9 @@ public class MyGame extends VariableFrameRateGame {
 	private ScriptAsset skyboxScript;
 	private ScriptAsset buildingScript;
 	private ScriptAsset sceneScript;
+	private Sound waveSound, bulletShootSound;
 	
+	private boolean hasShot;
 	private BulletRemovalController brc;
 	
 	private final boolean isFullScreen;
@@ -257,13 +260,14 @@ public class MyGame extends VariableFrameRateGame {
 		mechGhost.update();
 		//System.out.println("playing animations");
 		this.playGhostRunAnimation(eng);
+		
 		}
 		
 		
 		
 		
 		
-		this.setEarParameters(eng.getSceneManager());
+		
 		
 		
 		
@@ -284,19 +288,24 @@ public class MyGame extends VariableFrameRateGame {
 		this.setNextY(this.getPlayerPosition().y());
 		this.setNextZ(this.getPlayerPosition().z());
 		this.checkIfMoved();
-		
+		this.setEarParameters(eng.getSceneManager());
+		System.out.println("Location of bullet is from: " + this.bulletShootSound.getLocation());
+		System.out.println("location of the ears is: " + this.getAudioManager().getEar().getLocation());
 		
 	}
 	
+	public boolean isHasShot() {
+		return hasShot;
+	}
+
+	public void setHasShot(boolean hasShot) {
+		this.hasShot = hasShot;
+	}
+
 	public void setEarParameters(SceneManager sm) {
 		SceneNode avatarNode = sm.getSceneNode(PLAYER_NODE_NAME);
 		Vector3 avDir = avatarNode.getWorldForwardAxis();
-		
-		if (!audioMgr.initialize())
-		{ System.out.println("Audio Manager failed to initialize!");
-		return;
-		}
-		
+	
 		audioMgr.getEar().setLocation(avatarNode.getWorldPosition());
 		audioMgr.getEar().setOrientation(avDir, Vector3f.createFrom(0,1,0));
 		
@@ -307,24 +316,43 @@ public class MyGame extends VariableFrameRateGame {
 	}
 	
 	public void setupAudio() {
-		this.audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAudioManager");
+		SceneNode avatarNode = this.getEngine().getSceneManager().getSceneNode(PLAYER_NODE_NAME);
+		audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAudioManager");
+		if (!audioMgr.initialize())
+		{ System.out.println("Audio Manager failed to initialize!");
+		return;
+		}
+		AudioResource resource;
+		resource = audioMgr.createAudioResource("seawaves.wav", AudioResourceType.AUDIO_SAMPLE);
+		waveSound = new Sound(resource, SoundType.SOUND_EFFECT, 100, true);
+		waveSound.initialize(audioMgr);
+		waveSound.setMaxDistance(10.0f);
+		waveSound.setMinDistance(0.5f);
+		waveSound.setRollOff(1.0f);
+		waveSound.setLocation(avatarNode.getWorldPosition());
+		waveSound.play();
+		
+		AudioResource resource2;
+		resource2 = audioMgr.createAudioResource("missile.wav", AudioResourceType.AUDIO_SAMPLE);
+		bulletShootSound = new Sound(resource2, SoundType.SOUND_EFFECT, 100, false);
+		bulletShootSound.initialize(audioMgr);
+		bulletShootSound.setMaxDistance(10.0f);
+		bulletShootSound.setMinDistance(0.5f);
+		bulletShootSound.setRollOff(5.0f);
+		bulletShootSound.setLocation(avatarNode.getWorldPosition());
+		//bulletShootSound.play();
+		
 	}
 	
-	/*
-	public void initAudio(SceneManager sm)
-	{
-		AudioResource resource1;
-		resource1 = this.getAudioManager().createAudioResource("missile.wav", AudioResourceType.AUDIO_SAMPLE);
-		shootSound = new Sound(resource1,SoundType.SOUND_EFFECT, 100, true);
-		shootSound.initialize(this.getAudioManager());
-		shootSound.setMaxDistance(10.0f);
-		shootSound.setMinDistance(0.5f);
-		shootSound.setRollOff(5.0f);
-		shootSoundList.add(shootSound);
-		this.setEarParameters(sm);
+	
+	public void changeBulletSound(Vector3 worldpos) {
+		this.bulletShootSound.setLocation(worldpos);
 	}
 	
-	*/
+	public void playBulletShootSound() {
+		
+		this.bulletShootSound.play();
+	}
 
 	@Override
 	protected void setupWindow(RenderSystem rs, GraphicsEnvironment ge) {
@@ -699,8 +727,8 @@ public class MyGame extends VariableFrameRateGame {
 			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
 			trackAvatarList.add(trackavatar);
 			
-			//shootSound = new CreateShootSound(this.gameClient, avatar.getUUID().toString(), "missile.wav", 10.0f, 0.5f, 5.0f, ghostN.getWorldPosition() );
-			//shootSound.getShootSound().play();
+			//shootSound = new CreateShootSound(this.gameClient, avatar.getUUID().toString(), "missile.wav", 10.0f, 0.5f, 5.0f, Position.fromVector3(ghostN.getWorldPosition()) );
+			
 			
 			//this.checkIfGhostMoved();
 		}

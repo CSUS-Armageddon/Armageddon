@@ -98,6 +98,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	public void handleShootMessage(ShootMessage msg) {
 		try {
 			ShootMessage.doShoot(getGame(), msg.getBulletSpawnForwardVector(), msg.getBulletSpawnPosition(), msg.getBulletForce());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

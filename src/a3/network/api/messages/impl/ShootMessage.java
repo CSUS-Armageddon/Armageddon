@@ -95,6 +95,9 @@ public class ShootMessage extends BasicMessage {
 			physicsObj.applyForce(bulletForce.getX(), bulletForce.getY(), bulletForce.getZ(), 0, 0, 0);
 			
 			game.getBrc().addNode(bulletNode);
+			
+			game.changeBulletSound(bulletNode.getWorldPosition());
+			game.playBulletShootSound();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
