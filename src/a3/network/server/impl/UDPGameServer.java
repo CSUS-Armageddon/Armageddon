@@ -42,7 +42,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	//                                          60 sec * 3 mins
 	//                                          Game runtime is 3 minutes
-	private static final long SECONDS_GAME_RUN = 60 * 3;
+	private static final long SECONDS_GAME_RUN = 10 * 1;
 	private long currentGameTime = SECONDS_GAME_RUN;
 	private boolean isGameOver = false;
 	
@@ -297,13 +297,13 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	@Override
 	public void handleScoreMessage(ScoreMessage sm) {
 		scoreMap.put(sm.getUUID(), sm.getCurrentScore());
-		for (Map.Entry<UUID, Long> score : scoreMap.entrySet()) {
-			if (score.getValue() == -1) {
-				return;
-			}
-			// we have all scores in
-			sendResultMessage();
-		}
+//		for (Map.Entry<UUID, Long> score : scoreMap.entrySet()) {
+//			if (score.getValue() == -1) {
+//				return;
+//			}
+//		}
+		// we have all scores in
+		sendResultMessage();
 	}
 	
 	@Override

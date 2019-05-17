@@ -195,6 +195,8 @@ public class MyGame extends VariableFrameRateGame {
 	private long currentScore = 0L;
 	
 	private boolean gameRoundStated = false;
+	
+	private Boolean isWinner = null;
 
 	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, Avatar avatar) {
 		super();
@@ -311,6 +313,10 @@ public class MyGame extends VariableFrameRateGame {
 		
 		rs.setHUD(HUD_BASE + gameRoundTime, 15, 45);
 		rs.setHUD2(HUD2_BASE + getCurrentScore(), 15, 15);
+		
+		if (isWinner != null) {
+			endGameHUD();
+		}
 	}
 	
 	public boolean isHasShot() {
@@ -1162,12 +1168,16 @@ public class MyGame extends VariableFrameRateGame {
 		this.gameRoundTime = gameRoundTime;
 	}
 	
-	public void endGameHUG(boolean isWinner) {
+	public void endGameHUD() {
 		if (isWinner) {
-			this.getEngine().getRenderSystem().setHUD("You Won!", 15, 15);
+			this.getEngine().getRenderSystem().setHUD("You Won!", 15, 45);
 		} else {
-			this.getEngine().getRenderSystem().setHUD("Better Luck Next Time!", 15, 15);
+			this.getEngine().getRenderSystem().setHUD("Better Luck Next Time!", 15, 45);
 		}
+	}
+	
+	public void setIsWinner(Boolean isWinner) {
+		this.isWinner = isWinner;
 	}
 
 	/**
@@ -1232,8 +1242,21 @@ public class MyGame extends VariableFrameRateGame {
 		if (gameRoundStated) {
 			if (MovementUtils.validateSeparation(getPlayerPosition(), getGameZonePosition().toVector3(), 500.0f)) {
 				currentScore++;
-				System.out.println("Yep!");
 			}
 		}
+	}
+
+	/**
+	 * @return the gameRoundStated
+	 */
+	public boolean isGameRoundStated() {
+		return gameRoundStated;
+	}
+
+	/**
+	 * @param gameRoundStated the gameRoundStated to set
+	 */
+	public void setGameRoundStated(boolean gameRoundStated) {
+		this.gameRoundStated = gameRoundStated;
 	}
 }

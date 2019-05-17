@@ -328,6 +328,7 @@ public class GameClient extends GameConnectionClient implements Client {
 	@Override
 	public void handleEndMessage(EndGameMessage em) {
 		sendScoreMessage();
+		getGame().setGameRoundStated(false);
 	}
 
 	@Override
@@ -338,9 +339,9 @@ public class GameClient extends GameConnectionClient implements Client {
 	@Override
 	public void handleResultMessage(ResultMessage rm) {
 		if (this.uuid.equals(rm.getWinnerUUID())) {
-			getGame().endGameHUG(true);
+			getGame().setIsWinner(true);
 		} else {
-			getGame().endGameHUG(false);
+			getGame().setIsWinner(false);
 		}
 	}
 	
