@@ -58,6 +58,7 @@ public class GameServer extends JFrame {
 			ServerLogger.INSTANCE.addFilter(MessageType.ROTATE);
 			ServerLogger.INSTANCE.addFilter(MessageType.REQUEST);
 			ServerLogger.INSTANCE.addFilter(MessageType.DETAILS);
+			ServerLogger.INSTANCE.addFilter(MessageType.SHOOT);
 			this.setVisible(true);
 		} catch (UnknownHostException e) {
 			ServerLogger.INSTANCE.log(e);

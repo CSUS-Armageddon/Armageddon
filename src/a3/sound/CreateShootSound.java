@@ -1,5 +1,7 @@
 package a3.sound;
 
+import a3.network.api.Position;
+
 //This class is used to make it easier to create the shoot sound
 //Also to track whom the sound belongs to a bit easier
 // if the name is the same as uuid then we know it belongs to that avatar.
@@ -22,10 +24,10 @@ public class CreateShootSound  {
 	public float rollOff;
 	public String soundFileName;
 	public Sound shootSound;
-	public Vector3 worldPosVec; //the vector where the sound will be created from
+	public Position worldPosVec; //the vector where the sound will be created from
 	private final GameClient gameClient;
 	
-	public CreateShootSound(GameClient gameClient, String name, String soundFileName, float max, float min, float rollOff, Vector3 WorldPos) {
+	public CreateShootSound(GameClient gameClient, String name, String soundFileName, float max, float min, float rollOff, Position WorldPos) {
 		this.gameClient = gameClient;
 		this.soundFileName = soundFileName;
 		this.name = name;
@@ -41,7 +43,7 @@ public class CreateShootSound  {
 		shootSound.setMaxDistance(max);
 		shootSound.setMinDistance(min);
 		shootSound.setRollOff(rollOff);
-		shootSound.setLocation(worldPosVec);
+		shootSound.setLocation(worldPosVec.toVector3());
 		//this.gameClient.getGame().setEarParameters(this.gameClient.getGame().getEngine().getSceneManager());
 		this.gameClient.getGame().getShootSoundList().add(this);
 	}
@@ -94,11 +96,11 @@ public class CreateShootSound  {
 		this.shootSound = shootSound;
 	}
 
-	public Vector3 getWorldPosVec() {
+	public Position getWorldPosVec() {
 		return worldPosVec;
 	}
 
-	public void setWorldPosVec(Vector3 worldPosVec) {
+	public void setWorldPosVec(Position worldPosVec) {
 		this.worldPosVec = worldPosVec;
 	}
 

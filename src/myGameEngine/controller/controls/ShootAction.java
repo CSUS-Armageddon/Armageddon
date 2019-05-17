@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import a3.MyGame;
 import a3.network.client.GameClient;
 import a3.sound.CreateShootSound;
-import myGameEngine.node.controller.BulletRemovalController;
 import myGameEngine.util.ArrayUtils;
 import net.java.games.input.Event;
 import ray.input.action.Action;
@@ -28,15 +27,12 @@ public class ShootAction implements Action {
 	private final SceneNode node;
 	private final GameClient gameClient;
 	
-	private final BulletRemovalController brc;
-	
 	CreateShootSound createSound;
 	
 	public ShootAction(SceneManager sm, SceneNode node, GameClient gameClient) {
 		this.sm = sm;
 		this.node = node;
 		this.gameClient = gameClient;
-		this.brc = new BulletRemovalController(gameClient.getGame().getPhysicsEngine(), sm, 5000);
 	}
 
 	@Override
@@ -62,7 +58,7 @@ public class ShootAction implements Action {
 			final PhysicsEngine physicsEngine = gameClient.getGame().getPhysicsEngine();
 			final double[] temptf = ArrayUtils.toDoubleArray(bulletNode.getLocalTransform().toFloatArray());
 			final PhysicsObject physicsObj = 
-					physicsEngine.addSphereObject(physicsEngine.nextUID(), 100.0f, temptf, 2.0f);
+					physicsEngine.addSphereObject(physicsEngine.nextUID(), 100.0f, temptf, 25.0f);
 			physicsObj.setBounciness(0.5f);
 			bulletNode.setPhysicsObject(physicsObj);
 			
@@ -74,8 +70,7 @@ public class ShootAction implements Action {
 			this.gameClient.sendShootMessage(true,bulletNode.getWorldPosition(),forward,xForce,yForce,zForce );
 			physicsObj.applyForce(xForce, yForce, zForce, 0, 0, 0);
 			
-			brc.addNode(bulletNode);
-			sm.addController(brc);
+			gameClient.getGame().getBrc().addNode(bulletNode);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

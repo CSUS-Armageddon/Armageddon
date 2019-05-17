@@ -96,8 +96,13 @@ public class GameClient extends GameConnectionClient implements Client {
 	}
 	
 	public void handleShootMessage(ShootMessage msg) {
-		//find the soundfile corresponding to the avatar
+		try {
+			ShootMessage.doShoot(getGame(), msg.getBulletSpawnForwardVector(), msg.getBulletSpawnPosition(), msg.getBulletForce());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
+		// #TODO find the soundfile corresponding to the avatar
 	}
 	
 	public void sendShootMessage(boolean avatarHasFired, Vector3 position, Vector3 forwardVector, float xForce, float yForce, float zForce ) {
@@ -106,7 +111,7 @@ public class GameClient extends GameConnectionClient implements Client {
 			initMessage(sm);
 			sm.setAvatarHasFired(true);
 			sm.setBulletSpawnPosition(Position.fromVector3(position));
-			sm.setBulletSpawnForwardVector(forwardVector);
+			sm.setBulletSpawnForwardVector(Position.fromVector3(forwardVector));
 			sm.setBulletForce(Force.setXYZForce(xForce, yForce, zForce));
 
 			sendPacket(sm);

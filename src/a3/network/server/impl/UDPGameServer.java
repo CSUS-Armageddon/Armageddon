@@ -19,6 +19,7 @@ import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ShootMessage;
 import a3.network.logging.ServerLogger;
 import a3.network.server.Server;
 import ray.networking.server.GameConnectionServer;
@@ -28,7 +29,7 @@ import ray.rml.Vector3;
 
 public class UDPGameServer extends GameConnectionServer<UUID> implements Server {
 	
-	private static final int SECONDS_DELAY_REQUEST = 3;
+	private static final int SECONDS_DELAY_REQUEST = 500;
 	
 	private static final ProtocolType PROTOCOL_TYPE = ProtocolType.UDP;
 	
@@ -43,7 +44,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		this.ipAddress = ipAddress;
 		this.port = localPort;
 		this.serverName = serverName;
-		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.SECONDS);
+		ses.scheduleAtFixedRate(new RequestDetailsTask(), SECONDS_DELAY_REQUEST, SECONDS_DELAY_REQUEST, TimeUnit.MILLISECONDS);
 		ServerLogger.INSTANCE.logln("UDPGameServer Started: " + this.ipAddress + ":" + this.port + " - " + this.serverName);
 	}
 	
@@ -71,6 +72,9 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 			break;
 		case HANGUP:
 			handleHangupMessage((HangupMessage)msg);
+			break;
+		case SHOOT:
+			handleShootMessage((ShootMessage)msg);
 			break;
 		default:
 			ServerLogger.INSTANCE.logln("Unknown Message Type!");
@@ -235,6 +239,20 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		sendHangupMessage(hm.getUUID());
 		ServerLogger.INSTANCE.logln("Joined Clients:");
 		this.getClients().forEach((k,v) -> ServerLogger.INSTANCE.logln("\t" + k));
+	}
+	
+	@Override
+	public void sendShootMessage(UUID uuid, ShootMessage sm) {
+		try {
+			forwardPacketToAll(sm, uuid);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void handleShootMessage(ShootMessage sm) {
+		sendShootMessage(sm.getUUID(), sm);
 	}
 	
 	@Override

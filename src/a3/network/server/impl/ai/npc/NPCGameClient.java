@@ -78,6 +78,9 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 			case HANGUP:
 				handleHangupMessage((HangupMessage)msg);
 				break;
+			case SHOOT:
+				// you do not need to know what this is!
+				break;
 			default:
 				ServerLogger.INSTANCE.logln("Unknown Message Type!");
 			}

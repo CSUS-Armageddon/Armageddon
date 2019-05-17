@@ -42,6 +42,7 @@ import myGameEngine.controller.controls.MoveForwardAction;
 import myGameEngine.controller.controls.MoveLeftAction;
 import myGameEngine.controller.controls.ShootAction;
 import myGameEngine.controller.controls.YawAction;
+import myGameEngine.node.controller.BulletRemovalController;
 import myGameEngine.util.ArrayUtils;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -89,6 +90,7 @@ import ray.rml.Matrix4;
 import ray.rml.Matrix4f;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
+import ray.rml.Vector4f;
 
 public class MyGame extends VariableFrameRateGame {
 	
@@ -169,6 +171,8 @@ public class MyGame extends VariableFrameRateGame {
 	private ScriptAsset buildingScript;
 	private ScriptAsset sceneScript;
 	
+	private BulletRemovalController brc;
+	
 	private final boolean isFullScreen;
 	
 	private Avatar avatar;
@@ -200,6 +204,7 @@ public class MyGame extends VariableFrameRateGame {
 		ClientLogger.INSTANCE.addFilter(MessageType.ROTATE);
 		ClientLogger.INSTANCE.addFilter(MessageType.REQUEST);
 		ClientLogger.INSTANCE.addFilter(MessageType.DETAILS);
+		ClientLogger.INSTANCE.addFilter(MessageType.SHOOT);
 		setupNetworking();
 		super.startup();
 	}
@@ -286,7 +291,6 @@ public class MyGame extends VariableFrameRateGame {
 	public void setEarParameters(SceneManager sm) {
 		SceneNode avatarNode = sm.getSceneNode(PLAYER_NODE_NAME);
 		Vector3 avDir = avatarNode.getWorldForwardAxis();
-		audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAudioManager");
 		
 		if (!audioMgr.initialize())
 		{ System.out.println("Audio Manager failed to initialize!");
@@ -301,6 +305,11 @@ public class MyGame extends VariableFrameRateGame {
 	public IAudioManager getAudioManager() {
 		return this.audioMgr;
 	}
+	
+	public void setupAudio() {
+		this.audioMgr = AudioManagerFactory.createAudioManager("ray.audio.joal.JOALAudioManager");
+	}
+	
 	/*
 	public void initAudio(SceneManager sm)
 	{
@@ -377,15 +386,19 @@ public class MyGame extends VariableFrameRateGame {
 		setupTerrain(sm);
 		setupObjects(sm);
 		initPhysicsSystem();
+		this.updateVerticalPosition();
 		createRAGEPhysicsWorld(sm);
 		setupLights(sm);
-		this.updateVerticalPosition();
 		try {
 			setupInputs(sm);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		setupOrbitCamera(eng, sm);
+		setupAudio();
+		
+		this.brc = new BulletRemovalController(gameClient.getGame().getPhysicsEngine(), sm, 5000);
+		sm.addController(brc);
 	}
 	
 	private void setupSceneNodeContainers(SceneManager sm) {
@@ -686,8 +699,8 @@ public class MyGame extends VariableFrameRateGame {
 			TrackGhostAvatars trackavatar = new TrackGhostAvatars(ghostN.getName(),ghostE.getName(), ghostN.getLocalPosition().x(), ghostN.getLocalPosition().y(), ghostN.getLocalPosition().z());
 			trackAvatarList.add(trackavatar);
 			
-			shootSound = new CreateShootSound(this.gameClient, avatar.getUUID().toString(), "missile.wav", 10.0f, 0.5f, 5.0f, ghostN.getWorldPosition() );
-			shootSound.getShootSound().play();
+			//shootSound = new CreateShootSound(this.gameClient, avatar.getUUID().toString(), "missile.wav", 10.0f, 0.5f, 5.0f, ghostN.getWorldPosition() );
+			//shootSound.getShootSound().play();
 			
 			//this.checkIfGhostMoved();
 		}
@@ -818,8 +831,9 @@ public class MyGame extends VariableFrameRateGame {
 		
 		// setup player
 		final SceneNode playerN = sm.getSceneNode(PLAYER_NODE_NAME);
-		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().toFloatArray());
-		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 2.0f);
+		temptf = ArrayUtils.toDoubleArray(playerN.getLocalTransform().translate(0.0f, 40.0f, 0.0f).toFloatArray());
+		final float[] dims = { 5.0f, 5.0f, 5.0f };
+		final PhysicsObject playerPhys = physicsEngine.addSphereObject(physicsEngine.nextUID(), avatar.getMass(), temptf, 15.0f);
 		playerPhys.setBounciness(0.0f);
 		playerPhys.setFriction(1.0f);
 		playerPhys.setDamping(0.98f, 0.98f);
@@ -1071,5 +1085,19 @@ public class MyGame extends VariableFrameRateGame {
 	 */
 	public ArrayList<CreateShootSound> getShootSoundList() {
 		return shootSoundList;
+	}
+
+	/**
+	 * @return the brc
+	 */
+	public BulletRemovalController getBrc() {
+		return brc;
+	}
+
+	/**
+	 * @param brc the brc to set
+	 */
+	public void setBrc(BulletRemovalController brc) {
+		this.brc = brc;
 	}
 }
