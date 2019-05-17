@@ -8,12 +8,17 @@ import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ScoreMessage;
 import a3.network.api.messages.impl.ShootMessage;
 import ray.networking.server.IClientInfo;
 import ray.rml.Matrix3;
 import ray.rml.Vector3;
 
 public interface Server {
+	
+	public void startGame();
+	public void endGame();
+	public void syncGameTime();
 
 	public void sendJoinMessage(UUID uuid, boolean success);
 	public void handleJoinMessage(JoinMessage jm);
@@ -39,5 +44,11 @@ public interface Server {
 	
 	public void sendShootMessage(UUID uuid, ShootMessage sm);
 	public void handleShootMessage(ShootMessage sm);
+	
+	public void handleScoreMessage(ScoreMessage sm);
+	
+	public void sendStartMessage();
+	public void sendEndMessage();
+	public void sendResultMessage();
 	
 }

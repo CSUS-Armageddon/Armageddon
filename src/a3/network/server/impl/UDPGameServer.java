@@ -3,6 +3,10 @@ package a3.network.server.impl;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,12 +18,17 @@ import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
+import a3.network.api.messages.impl.EndGameMessage;
+import a3.network.api.messages.impl.GameTimeSyncMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
+import a3.network.api.messages.impl.ResultMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ScoreMessage;
 import a3.network.api.messages.impl.ShootMessage;
+import a3.network.api.messages.impl.StartGameMessage;
 import a3.network.logging.ServerLogger;
 import a3.network.server.Server;
 import ray.networking.server.GameConnectionServer;
@@ -31,13 +40,30 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	private static final int SECONDS_DELAY_REQUEST = 50;
 	
+	//                                          1 sec * 60 (1 min) * 3 mins
+	//                                          Game runtime is 3 minutes
+	private static final long MILLISECONDS_GAME_RUN = 1000 * 60 * 3;
+	private long currentGameTime = MILLISECONDS_GAME_RUN;
+	private boolean isGameOver = false;
+	
+	private static final float MAX_X_LOC = 1000.0f;
+	private static final float MAX_Z_LOC = 1000.0f;
+	
+	private final Random random = new Random();
+	
+	private Position gameZonePosition;
+	
 	private static final ProtocolType PROTOCOL_TYPE = ProtocolType.UDP;
 	
 	private final String ipAddress;
 	private final int port;
 	private final String serverName;
 	
+	final ScheduledExecutorService gameTimeService = Executors.newScheduledThreadPool(1);
+	final ScheduledExecutorService endGameService = Executors.newScheduledThreadPool(1);
 	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
+	
+	private Map<UUID, Long> scoreMap;
 
 	public UDPGameServer(String ipAddress, int localPort, String serverName) throws IOException {
 		super(localPort, PROTOCOL_TYPE);
@@ -76,6 +102,17 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		case SHOOT:
 			handleShootMessage((ShootMessage)msg);
 			break;
+		case TIME:
+			break; // nothing to do, server is authoritative source!
+		case START:
+			break; // nothing to do, server is authoritative source!
+		case END:
+			break; // nothing to do, server is authoritative source!
+		case SCORE:
+			handleScoreMessage((ScoreMessage)msg);
+			break;
+		case RESULT:
+			break; // nothing to do, server is authoritative source!
 		default:
 			ServerLogger.INSTANCE.logln("Unknown Message Type!");
 		}
@@ -256,6 +293,95 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 	
 	@Override
+	public void handleScoreMessage(ScoreMessage sm) {
+		scoreMap.put(sm.getUUID(), sm.getCurrentScore());
+	}
+	
+	@Override
+	public void sendStartMessage() {
+		try {
+			final StartGameMessage sm = new StartGameMessage();
+			initMessage(sm);
+			sm.setGameTime(getCurrentGameTime());
+			sm.setGameZonePosition(getGameZonePosition());
+			sendPacketToAll(sm);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void sendEndMessage() {
+		try {
+			final EndGameMessage em = new EndGameMessage();
+			initMessage(em);
+			sendPacketToAll(em);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void sendResultMessage() {
+		Map.Entry<UUID, Long> winner = null;
+		for (Map.Entry<UUID, Long> entry : scoreMap.entrySet()) {
+			if (winner == null) {
+				winner = entry;
+			}
+			if (winner.getValue() < entry.getValue()) {
+				winner = entry;
+			}
+		}
+		
+		try {
+			final ResultMessage rm = new ResultMessage();
+			initMessage(rm);
+			rm.setWinnerUUID(winner.getKey());
+			sendPacketToAll(rm);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void startGame() {
+		this.currentGameTime = UDPGameServer.MILLISECONDS_GAME_RUN;
+		
+		// set all player scores to 0
+		scoreMap = new HashMap<UUID, Long>();
+		final Enumeration<UUID> clientUUIDs = this.getClients().keys();
+		while (clientUUIDs.hasMoreElements()) {
+			scoreMap.put(clientUUIDs.nextElement(), 0L);
+		}
+		
+		// randomize zone area
+		this.gameZonePosition = getRandomZonePosition();
+		
+		sendStartMessage();
+		
+		gameTimeService.scheduleAtFixedRate(new CountdownGameTimeTask(), 0, 1, TimeUnit.MILLISECONDS);
+		endGameService.scheduleAtFixedRate(new GameOverTask(), 5, 1, TimeUnit.SECONDS);
+	}
+
+	@Override
+	public void endGame() {
+		gameTimeService.shutdownNow();
+		sendEndMessage();
+	}
+
+	@Override
+	public void syncGameTime() {
+		try {
+			final GameTimeSyncMessage gtsm = new GameTimeSyncMessage();
+			initMessage(gtsm);
+			gtsm.setGameTime(currentGameTime);
+			sendPacketToAll(gtsm);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
 	public void shutdown() {
 		final HangupMessage hm = new HangupMessage();
 		try {
@@ -287,6 +413,61 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 		public void run() {
 			sendRequestMessage();
 		}
+	}
+
+	/**
+	 * @return the currentGameTime
+	 */
+	public long getCurrentGameTime() {
+		return currentGameTime;
+	}
+
+	/**
+	 * @param currentGameTime the currentGameTime to set
+	 */
+	public void setCurrentGameTime(long currentGameTime) {
+		this.currentGameTime = currentGameTime;
+	}
+	
+	/**
+	 * @return the gameZonePosition
+	 */
+	public Position getGameZonePosition() {
+		return gameZonePosition;
+	}
+
+	/**
+	 * @param gameZonePosition the gameZonePosition to set
+	 */
+	public void setGameZonePosition(Position gameZonePosition) {
+		this.gameZonePosition = gameZonePosition;
+	}
+
+	private class CountdownGameTimeTask implements Runnable {
+		@Override
+		public void run() {
+			currentGameTime--;
+			if (currentGameTime <= 0) {
+				isGameOver = true;
+			}
+		}
+	}
+	
+	private class GameOverTask implements Runnable {
+		@Override
+		public void run() {
+			if (isGameOver) {
+				endGame();
+			}
+		}
+	}
+	
+	private Position getRandomZonePosition() {
+		return new Position(getRandomFloat(MAX_X_LOC), 0.0f, getRandomFloat(MAX_Z_LOC));
+	}
+	
+	private float getRandomFloat(float max) {
+		return random.nextFloat() * (max - 0.0f);
 	}
 	
 }
