@@ -42,7 +42,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	
 	//                                          60 sec * 3 mins
 	//                                          Game runtime is 3 minutes
-	private static final long SECONDS_GAME_RUN = 10 * 1;
+	private static final long SECONDS_GAME_RUN = 60 * 3;
 	private long currentGameTime = SECONDS_GAME_RUN;
 	private boolean isGameOver = false;
 	
