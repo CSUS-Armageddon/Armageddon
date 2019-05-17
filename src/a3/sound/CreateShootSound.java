@@ -1,4 +1,4 @@
-package a3;
+package a3.sound;
 
 //This class is used to make it easier to create the shoot sound
 //Also to track whom the sound belongs to a bit easier
@@ -43,7 +43,7 @@ public class CreateShootSound  {
 		shootSound.setRollOff(rollOff);
 		shootSound.setLocation(worldPosVec);
 		//this.gameClient.getGame().setEarParameters(this.gameClient.getGame().getEngine().getSceneManager());
-		this.gameClient.getGame().shootSoundList.add(this);
+		this.gameClient.getGame().getShootSoundList().add(this);
 	}
 
 	public String getName() {

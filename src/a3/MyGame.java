@@ -32,6 +32,7 @@ import a3.network.api.messages.MessageType;
 import a3.network.client.GameClient;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ClientLogger;
+import a3.sound.CreateShootSound;
 import myGameEngine.asset.JavaScriptLoader;
 import myGameEngine.asset.ScriptAsset;
 import myGameEngine.asset.ScriptManager;
@@ -146,13 +147,13 @@ public class MyGame extends VariableFrameRateGame {
 	public boolean checkIfGhostMoveInitial = false;
 	public boolean checkIfGhostMoveFinal = false;
 	
-	IAudioManager audioMgr;
-	CreateShootSound shootSound;
+	private IAudioManager audioMgr;
+	private CreateShootSound shootSound;
 	
+	private final ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
 	
-	ArrayList<TrackGhostAvatars> trackAvatarList = new ArrayList<TrackGhostAvatars>();
+	private final ArrayList<CreateShootSound>shootSoundList = new ArrayList<CreateShootSound>();
 	
-	ArrayList<CreateShootSound>shootSoundList = new ArrayList<CreateShootSound>();
 	private PhysicsEngine physicsEngine;
 	
 	protected final Map<String, PlaceableAvatar> placeableAvatarMap = new HashMap<String, PlaceableAvatar>();
@@ -1063,5 +1064,12 @@ public class MyGame extends VariableFrameRateGame {
 	
 	public void setIsRunning(boolean isRunning) {
 		this.isRunning = isRunning;
+	}
+
+	/**
+	 * @return the shootSoundList
+	 */
+	public ArrayList<CreateShootSound> getShootSoundList() {
+		return shootSoundList;
 	}
 }

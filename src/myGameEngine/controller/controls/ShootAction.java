@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import a3.CreateShootSound;
 import a3.MyGame;
 import a3.network.client.GameClient;
+import a3.sound.CreateShootSound;
 import myGameEngine.node.controller.BulletRemovalController;
 import myGameEngine.util.ArrayUtils;
 import net.java.games.input.Event;
