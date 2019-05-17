@@ -29,7 +29,7 @@ import ray.rml.Vector3;
 
 public class UDPGameServer extends GameConnectionServer<UUID> implements Server {
 	
-	private static final int SECONDS_DELAY_REQUEST = 500;
+	private static final int SECONDS_DELAY_REQUEST = 50;
 	
 	private static final ProtocolType PROTOCOL_TYPE = ProtocolType.UDP;
 	
