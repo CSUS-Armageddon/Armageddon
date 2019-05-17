@@ -15,12 +15,17 @@ import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
+import a3.network.api.messages.impl.EndGameMessage;
+import a3.network.api.messages.impl.GameTimeSyncMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
+import a3.network.api.messages.impl.ResultMessage;
 import a3.network.api.messages.impl.RotateMessage;
+import a3.network.api.messages.impl.ScoreMessage;
 import a3.network.api.messages.impl.ShootMessage;
+import a3.network.api.messages.impl.StartGameMessage;
 import a3.network.logging.ClientLogger;
 import ray.networking.client.GameConnectionClient;
 import ray.networking.client.IClientSocket;
@@ -86,7 +91,18 @@ public class GameClient extends GameConnectionClient implements Client {
 			case SHOOT:
 				handleShootMessage((ShootMessage)msg);
 				break;
-			
+			case START:
+				handleStartMessage((StartGameMessage)msg);
+				break;
+			case END:
+				handleEndMessage((EndGameMessage)msg);
+				break;
+			case TIME:
+				handleTimeSyncMessage((GameTimeSyncMessage)msg);
+				break;
+			case RESULT:
+				handleResultMessage((ResultMessage)msg);
+				break;
 			default:
 				System.out.println("Unknown Message Type!");
 			}
@@ -302,6 +318,44 @@ public class GameClient extends GameConnectionClient implements Client {
 		}
 	}
 	
+	@Override
+	public void handleStartMessage(StartGameMessage sm) {
+		getGame().setGameZonePosition(sm.getGameZonePosition());
+		getGame().setGameRoundTime(sm.getGameTime());
+		getGame().startGamePlay();
+	}
+
+	@Override
+	public void handleEndMessage(EndGameMessage em) {
+		sendScoreMessage();
+	}
+
+	@Override
+	public void handleTimeSyncMessage(GameTimeSyncMessage gtsm) {
+		getGame().setGameRoundTime(gtsm.getGameTime());
+	}
+
+	@Override
+	public void handleResultMessage(ResultMessage rm) {
+		if (this.uuid.equals(rm.getWinnerUUID())) {
+			getGame().endGameHUG(true);
+		} else {
+			getGame().endGameHUG(false);
+		}
+	}
+	
+	@Override
+	public void sendScoreMessage() {
+		try {
+			final ScoreMessage sm = new ScoreMessage();
+			initMessage(sm);
+			sm.setCurrentScore(getGame().getCurrentScore());
+			sendPacket(sm);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private GhostAvatar findGhostAvatarByUUID(UUID uuid) {
 		if (uuid == null) return null;
 		final Iterator<GhostAvatar> it = ghostAvatars.iterator();
@@ -363,6 +417,5 @@ public class GameClient extends GameConnectionClient implements Client {
 		msg.setToIP(this.remoteAddress.getHostAddress());
 		msg.setToPort(this.remotePort);
 	}
-
 
 }

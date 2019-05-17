@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -45,6 +48,7 @@ import myGameEngine.controller.controls.ShootAction;
 import myGameEngine.controller.controls.YawAction;
 import myGameEngine.node.controller.BulletRemovalController;
 import myGameEngine.util.ArrayUtils;
+import myGameEngine.util.MovementUtils;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.Event;
@@ -91,7 +95,6 @@ import ray.rml.Matrix4;
 import ray.rml.Matrix4f;
 import ray.rml.Vector3;
 import ray.rml.Vector3f;
-import ray.rml.Vector4f;
 
 public class MyGame extends VariableFrameRateGame {
 	
@@ -106,8 +109,6 @@ public class MyGame extends VariableFrameRateGame {
 	private SceneNode playerN;
 	private Camera playerCamera;
 	private SceneNode playerCameraN;
-	
-	private float gameTime;
 	
 	public static final float PLAYER_SPEED = 500.0f;
 	public static final float LOOK_SPEED = 0.75f;
@@ -124,7 +125,8 @@ public class MyGame extends VariableFrameRateGame {
 	public static final String PLAYER_GUN_NODE1_NAME = "PlayerGunNode1";
 	public static final String PLAYER_GUN_NODE2_NAME = "PlayerGunNode2";
 	
-	private static final String HUD_BASE = "Game Time: ";
+	private static final String HUD_BASE = "Time Remaining: ";
+	private static final String HUD2_BASE = "Current Score: ";
 	
 	public static final String GROUNDPLANE_OBJECTS_NODE_GROUP = "GROUNDPLANE_OBJECTS";
 	public static final String TERRAIN_OBJECTS_NODE_GROUP = "TERRAIN_OBJECTS";
@@ -179,6 +181,20 @@ public class MyGame extends VariableFrameRateGame {
 	private final boolean isFullScreen;
 	
 	private Avatar avatar;
+	
+	private float gameTime = 0.0f;
+	private long gameRoundTime = 0L;
+	
+	private Position gameZonePosition;
+	
+	final ScheduledExecutorService ses = Executors.newScheduledThreadPool(1);
+	
+	public static final String ZONE_NAME = "ZONE";
+	public static final String ZONE_NODE_NAME = "ZoneNode";
+	
+	private long currentScore = 0L;
+	
+	private boolean gameRoundStated = false;
 
 	public MyGame(String serverAddress, int serverPort, boolean isFullScreen, Avatar avatar) {
 		super();
@@ -217,8 +233,6 @@ public class MyGame extends VariableFrameRateGame {
 		final GL4RenderSystem rs = (GL4RenderSystem) eng.getRenderSystem();
 		
 		gameTime += eng.getElapsedTimeMillis();
-		
-		rs.setHUD(HUD_BASE + ((((int)((gameTime / 1000.0d) * 10))/10.0d)), 15, 15);
 		
 		SkeletalEntity mechSE =
 				(SkeletalEntity) eng.getSceneManager().getEntity(PLAYER_NAME);
@@ -288,10 +302,15 @@ public class MyGame extends VariableFrameRateGame {
 		this.setNextY(this.getPlayerPosition().y());
 		this.setNextZ(this.getPlayerPosition().z());
 		this.checkIfMoved();
+
 		this.setEarParameters(eng.getSceneManager());
-		System.out.println("Location of bullet is from: " + this.bulletShootSound.getLocation());
-		System.out.println("location of the ears is: " + this.getAudioManager().getEar().getLocation());
+		//System.out.println("Location of bullet is from: " + this.bulletShootSound.getLocation());
+		//System.out.println("location of the ears is: " + this.getAudioManager().getEar().getLocation());
 		
+		updateScore();
+		
+		rs.setHUD(HUD_BASE + gameRoundTime, 15, 45);
+		rs.setHUD2(HUD2_BASE + getCurrentScore(), 15, 15);
 	}
 	
 	public boolean isHasShot() {
@@ -560,14 +579,14 @@ public class MyGame extends VariableFrameRateGame {
 		
     	sm.getAmbientLight().setIntensity(new Color(.7f, .7f, .7f));
     	
-    	final Light plight = sm.createLight(LIGHT_NAME, Light.Type.POINT);
-		plight.setAmbient(new Color(.3f, .3f, .3f));
-        plight.setDiffuse(new Color(.7f, .7f, .7f));
-		plight.setSpecular(new Color(1.0f, 1.0f, 1.0f));
-        plight.setRange(100.0f);
-		
-        final SceneNode plightNode = sm.getRootSceneNode().createChildSceneNode(LIGHT_NODE_NAME);
-        plightNode.attachObject(plight);
+//    	final Light plight = sm.createLight(LIGHT_NAME, Light.Type.POINT);
+//		plight.setAmbient(new Color(.3f, .3f, .3f));
+//        plight.setDiffuse(new Color(.7f, .7f, .7f));
+//		plight.setSpecular(new Color(1.0f, 1.0f, 1.0f));
+//        plight.setRange(100.0f);
+//		
+//        final SceneNode plightNode = sm.getRootSceneNode().createChildSceneNode(LIGHT_NODE_NAME);
+//        plightNode.attachObject(plight);
     }
 	
 	protected void setupInputs(SceneManager sm) {
@@ -1127,5 +1146,94 @@ public class MyGame extends VariableFrameRateGame {
 	 */
 	public void setBrc(BulletRemovalController brc) {
 		this.brc = brc;
+	}
+
+	/**
+	 * @return the gameTime
+	 */
+	public long getGameRoundTime() {
+		return gameRoundTime;
+	}
+
+	/**
+	 * @param gameTime the gameTime to set
+	 */
+	public void setGameRoundTime(long gameRoundTime) {
+		this.gameRoundTime = gameRoundTime;
+	}
+	
+	public void endGameHUG(boolean isWinner) {
+		if (isWinner) {
+			this.getEngine().getRenderSystem().setHUD("You Won!", 15, 15);
+		} else {
+			this.getEngine().getRenderSystem().setHUD("Better Luck Next Time!", 15, 15);
+		}
+	}
+
+	/**
+	 * @return the gameZonePosition
+	 */
+	public Position getGameZonePosition() {
+		return gameZonePosition;
+	}
+
+	/**
+	 * @param gameZonePosition the gameZonePosition to set
+	 */
+	public void setGameZonePosition(Position gameZonePosition) {
+		this.gameZonePosition = gameZonePosition;
+	}
+	
+	public void startGamePlay() {
+		ses.scheduleAtFixedRate(new CountdownGameTimeTask(), 0, 1, TimeUnit.SECONDS);
+    	
+    	final Light plight = getEngine().getSceneManager().createLight(ZONE_NAME, Light.Type.SPOT);
+		plight.setAmbient(new Color(0.0f, 0.0f, 0.0f));
+        plight.setDiffuse(new Color(1.0f, 0.0f, 0.0f));
+		plight.setSpecular(new Color(1.0f, 0.0f, 0.0f));
+		plight.setLinearAttenuation(0.0005f);
+		plight.setConstantAttenuation(0.01f);
+		plight.setQuadraticAttenuation(0.0f);
+        plight.setRange(1000.0f);
+        plight.setConeCutoffAngle(Degreef.createFrom(45.0f));
+		
+        final SceneNode plightNode = getEngine().getSceneManager().getRootSceneNode().createChildSceneNode(ZONE_NODE_NAME);
+        plightNode.attachObject(plight);
+        plightNode.setLocalPosition(getGameZonePosition().toVector3());
+        plightNode.rotate(Degreef.createFrom(90.0f), Vector3f.createFrom(0, 0, 1));
+        
+        gameRoundStated = true;
+	}
+	
+	private class CountdownGameTimeTask implements Runnable {
+		@Override
+		public void run() {
+			if (gameRoundTime > 0) {
+				gameRoundTime--;
+			}
+		}
+	}
+
+	/**
+	 * @return the currentScore
+	 */
+	public long getCurrentScore() {
+		return currentScore;
+	}
+
+	/**
+	 * @param currentScore the currentScore to set
+	 */
+	public void setCurrentScore(long currentScore) {
+		this.currentScore = currentScore;
+	}
+	
+	public void updateScore() {
+		if (gameRoundStated) {
+			if (MovementUtils.validateSeparation(getPlayerPosition(), getGameZonePosition().toVector3(), 500.0f)) {
+				currentScore++;
+				System.out.println("Yep!");
+			}
+		}
 	}
 }

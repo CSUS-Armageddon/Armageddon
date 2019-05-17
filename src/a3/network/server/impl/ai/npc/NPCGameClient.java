@@ -13,12 +13,16 @@ import a3.network.api.Rotation;
 import a3.network.api.messages.Message;
 import a3.network.api.messages.impl.CreateMessage;
 import a3.network.api.messages.impl.DetailsMessage;
+import a3.network.api.messages.impl.EndGameMessage;
+import a3.network.api.messages.impl.GameTimeSyncMessage;
 import a3.network.api.messages.impl.HangupMessage;
 import a3.network.api.messages.impl.JoinMessage;
 import a3.network.api.messages.impl.MoveMessage;
 import a3.network.api.messages.impl.RequestMessage;
+import a3.network.api.messages.impl.ResultMessage;
 import a3.network.api.messages.impl.RotateMessage;
 import a3.network.api.messages.impl.ShootMessage;
+import a3.network.api.messages.impl.StartGameMessage;
 import a3.network.client.Client;
 import a3.network.client.GhostAvatar;
 import a3.network.logging.ServerLogger;
@@ -80,6 +84,14 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 				break;
 			case SHOOT:
 				// you do not need to know what this is!
+				break;
+			case START:
+				break;
+			case END:
+				break;
+			case TIME:
+				break;
+			case RESULT:
 				break;
 			default:
 				ServerLogger.INSTANCE.logln("Unknown Message Type!");
@@ -320,6 +332,36 @@ public class NPCGameClient extends GameConnectionClient implements Client {
 
 	@Override
 	public void handleShootMessage(ShootMessage sm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleStartMessage(StartGameMessage sm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleEndMessage(EndGameMessage em) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleTimeSyncMessage(GameTimeSyncMessage gtsm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleResultMessage(ResultMessage rm) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendScoreMessage() {
 		// TODO Auto-generated method stub
 		
 	}
