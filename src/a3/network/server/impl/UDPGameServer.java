@@ -487,7 +487,7 @@ public class UDPGameServer extends GameConnectionServer<UUID> implements Server 
 	}
 	
 	private Position getRandomZonePosition() {
-		return new Position(getRandomFloat(MAX_X_LOC), 0.0f, getRandomFloat(MAX_Z_LOC));
+		return new Position(getRandomFloat(MAX_X_LOC), 250.0f, getRandomFloat(MAX_Z_LOC));
 	}
 	
 	private float getRandomFloat(float max) {
